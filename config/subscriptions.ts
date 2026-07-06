@@ -1,0 +1,101 @@
+import { ProductTier } from "@/types/subscriptions";
+
+export const SUBSCRIPTION_TIERS: ProductTier[] = [
+  {
+    name: "Individual",
+    id: "tier-individual",
+    productId: "prod_14viZfNnyQTgVW94fXte47",
+    priceMonthly: "$0",
+    description: "Free forever for personal use.",
+    features: [
+      "Access to free tools",
+      "Community support",
+      "Basic features",
+      "1 device license",
+    ],
+    featured: false,
+    discountCode: "",
+  },
+  {
+    name: "Pro License",
+    id: "tier-pro",
+    productId: "prod_14viZfNnyQTgVW94fXte47",
+    priceMonthly: "$29",
+    description: "Best for professionals and freelancers.",
+    features: [
+      "All premium tools included",
+      "Lifetime updates",
+      "Up to 3 devices",
+      "Priority email support",
+      "Commercial use license",
+      "Early access to new tools",
+    ],
+    featured: true,
+    discountCode: "",
+  },
+  {
+    name: "Team License",
+    id: "tier-team",
+    productId: "prod_14viZfNnyQTgVW94fXte47",
+    priceMonthly: "$99",
+    description: "For teams and small businesses.",
+    features: [
+      "Everything in Pro License",
+      "Up to 10 team members",
+      "Centralized license management",
+      "Dedicated support channel",
+      "Volume discount on add-ons",
+      "Custom onboarding session",
+    ],
+    featured: false,
+    discountCode: "",
+  },
+];
+
+export const CREDITS_TIERS: ProductTier[] = [
+  {
+    name: "Tab Saver Pro",
+    id: "product-tab-saver",
+    productId: "prod_14viZfNnyQTgVW94fXte47",
+    priceMonthly: "$9",
+    description: "Browser extension for tab management.",
+    features: [
+      "Unlimited tab sessions",
+      "Cross-device sync",
+      "One-click restore",
+      "Chrome, Edge & Firefox",
+    ],
+    featured: true,
+    discountCode: "",
+  },
+  {
+    name: "JSON Studio",
+    id: "product-json-studio",
+    productId: "prod_14viZfNnyQTgVW94fXte47",
+    priceMonthly: "$29",
+    description: "API testing & JSON visualization tool.",
+    features: [
+      "API request builder",
+      "JSON tree visualization",
+      "Schema validation",
+      "macOS, Windows & Linux",
+    ],
+    featured: false,
+    discountCode: "",
+  },
+  {
+    name: "DevTools Bundle",
+    id: "product-devtools-bundle",
+    productId: "prod_14viZfNnyQTgVW94fXte47",
+    priceMonthly: "$49",
+    description: "Complete developer toolkit (best value).",
+    features: [
+      "5 tools in one bundle",
+      "Lifetime updates",
+      "Up to 5 team members",
+      "Priority support",
+    ],
+    featured: false,
+    discountCode: "",
+  },
+];
