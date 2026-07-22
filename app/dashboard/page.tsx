@@ -1,7 +1,10 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Download, KeyRound, Package, HeadphonesIcon } from "lucide-react";
+import { ArrowRight, Download, KeyRound, Package, HeadphonesIcon, Sparkles } from "lucide-react";
+import { PRODUCTS, PRODUCT_STATUS_LABELS } from "@/config/products";
 
 export const metadata = {
   title: "Dashboard - OakTech",
@@ -35,17 +38,17 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">0</div>
-            <p className="text-xs text-muted-foreground">Lifetime licenses</p>
+            <p className="text-xs text-muted-foreground">Products you can access now</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Downloads</CardTitle>
+            <CardTitle className="text-sm font-medium">Available Betas</CardTitle>
             <Download className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0</div>
-            <p className="text-xs text-muted-foreground">Available for download</p>
+            <div className="text-2xl font-bold">{PRODUCTS.filter((product) => product.status === "beta").length}</div>
+            <p className="text-xs text-muted-foreground">Request access from the product page</p>
           </CardContent>
         </Card>
       </div>
@@ -67,6 +70,30 @@ export default function DashboardPage() {
           </div>
         </CardContent>
       </Card>
+
+      <section className="mb-8">
+        <div className="mb-4 flex items-center gap-2">
+          <Sparkles className="h-5 w-5 text-primary" />
+          <h2 className="text-xl font-semibold">Available to try</h2>
+        </div>
+        <div className="grid gap-4 lg:grid-cols-2">
+          {PRODUCTS.filter((product) => product.status === "beta").map((product) => (
+            <Card key={product.slug}>
+              <CardContent className="flex gap-4 p-5">
+                <Image src={product.icon} alt="" width={48} height={48} className="h-12 w-12 rounded-lg border" />
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap gap-2"><Badge variant="secondary">{product.category}</Badge><Badge variant="outline">{PRODUCT_STATUS_LABELS[product.status]}</Badge></div>
+                  <h3 className="mt-3 font-semibold">{product.name}</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">{product.tagline}</p>
+                  <Button asChild variant="ghost" size="sm" className="mt-3 -ml-3">
+                    <Link href={`/products/${product.slug}`}>View beta details <ArrowRight className="ml-2 h-4 w-4" /></Link>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </section>
 
       {/* Support */}
       <Card>

@@ -11,7 +11,7 @@ export default function TermsPage() {
     <div className="container px-4 py-16 md:py-24">
       <div className="max-w-3xl mx-auto">
         <h1 className="text-4xl font-bold tracking-tight mb-4">Terms of Service</h1>
-        <p className="text-sm text-muted-foreground mb-8">Last updated: July 5, 2026</p>
+        <p className="text-sm text-muted-foreground mb-8">Last updated: July 23, 2026</p>
 
         <div className="prose prose-neutral dark:prose-invert max-w-none space-y-6">
           <section>
@@ -26,17 +26,18 @@ export default function TermsPage() {
           <section>
             <h2 className="text-xl font-semibold mb-2">2. Products and Licenses</h2>
             <p className="text-muted-foreground mb-2">
-              OakTech sells software products including browser extensions, desktop applications,
-              and developer tools. When you purchase a product, you receive a license to use that
-              software under the following terms:
+              OakTech offers software products including browser extensions, desktop applications,
+              and developer tools. License scope, supported platforms, permitted use, and any
+              device or seat limits are shown on the applicable product and checkout pages.
             </p>
             <ul className="list-disc pl-6 space-y-1 text-muted-foreground">
-              <li><strong>Personal License:</strong> For individual, non-commercial use on up to 2 devices.</li>
-              <li><strong>Pro License:</strong> For professional or commercial use on up to 3 devices.</li>
-              <li><strong>Team License:</strong> For up to 5 or 10 team members (depending on plan).</li>
+              <li><strong>Beta access:</strong> May be provided directly for evaluation and can change as the product develops.</li>
+              <li><strong>Paid licenses:</strong> Apply only when a product is released for purchase and the displayed checkout terms are accepted.</li>
+              <li><strong>Team use:</strong> Requires a product-specific team license when one is offered.</li>
             </ul>
             <p className="text-muted-foreground mt-2">
-              All licenses are lifetime licenses and include free updates unless otherwise stated.
+              Product pages state whether a product is in beta, available for purchase, or planned.
+              We do not grant a commercial license merely by making a beta build available.
             </p>
           </section>
 
@@ -55,19 +56,19 @@ export default function TermsPage() {
           <section>
             <h2 className="text-xl font-semibold mb-2">4. Payment and Pricing</h2>
             <p className="text-muted-foreground">
-              All prices are listed in USD and are processed securely through Creem. Prices may
-              change at any time without notice. Purchases made before a price change are not
-              affected. Some products may be available as one-time purchases or as part of a
-              license plan.
+              Prices and payment terms are shown only for products that are available for purchase
+              and are processed securely through Creem. A product marked Beta or Coming soon is
+              not an offer for paid checkout. Price, tax, and license terms shown at checkout apply
+              to the relevant purchase.
             </p>
           </section>
 
           <section>
             <h2 className="text-xl font-semibold mb-2">5. Refund Policy</h2>
             <p className="text-muted-foreground">
-              We offer a 30-day money-back guarantee on all products. If you are not satisfied
-              with your purchase, contact us at support@oaktech.dev within 30 days of purchase
-              for a full refund. Refunds are processed to the original payment method.
+              Refund eligibility, when offered, is stated on the applicable product or checkout
+              page. Beta access does not involve a paid purchase. For purchase questions, contact
+              support@oaktech.dev with your order details.
             </p>
           </section>
 
@@ -101,9 +102,9 @@ export default function TermsPage() {
           <section>
             <h2 className="text-xl font-semibold mb-2">9. Updates and Support</h2>
             <p className="text-muted-foreground">
-              We provide free lifetime updates for all purchased products. Support is available
-              via email at support@oaktech.dev. Pro and Team license holders receive priority
-              support.
+              Update availability and support terms vary by product and release status. Beta builds
+              may change, pause, or be replaced as development continues. Support is available via
+              email at support@oaktech.dev.
             </p>
           </section>
 

@@ -5,6 +5,8 @@ import { notFound } from "next/navigation";
 import {
   ArrowLeft,
   CheckCircle2,
+  CircleHelp,
+  Clock3,
   ExternalLink,
   Globe2,
   LockKeyhole,
@@ -81,7 +83,7 @@ export default async function ProductPage({
                   </Link>
                 </Button>
                 <Button asChild size="lg" variant="outline">
-                  <Link href="#installation">Installation steps</Link>
+                  <Link href={`/products/${product.slug}/install`}>Installation steps</Link>
                 </Button>
               </div>
               <div className="mt-7 flex flex-wrap gap-2">
@@ -151,6 +153,27 @@ export default async function ProductPage({
       <section className="py-14 md:py-18">
         <div className="container grid gap-10 px-4 lg:grid-cols-[0.75fr_1.25fr]">
           <div>
+            <div className="flex items-center gap-2 text-sm font-medium text-primary"><Clock3 className="h-4 w-4" /> Product progress</div>
+            <h2 className="mt-2 text-3xl font-bold tracking-normal">Current build and what comes next.</h2>
+            <p className="mt-4 text-muted-foreground">Release notes make the product state visible before you request access or install a build.</p>
+          </div>
+          <div className="divide-y border-y">
+            {product.releaseNotes.map((note) => (
+              <div key={note.title} className="grid gap-3 py-6 sm:grid-cols-[130px_1fr]">
+                <span className="text-sm font-semibold text-primary">{note.label}</span>
+                <div>
+                  <h3 className="font-semibold">{note.title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground">{note.description}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="py-14 md:py-18">
+        <div className="container grid gap-10 px-4 lg:grid-cols-[0.75fr_1.25fr]">
+          <div>
             <div className="flex items-center gap-2 text-sm font-medium text-primary"><LockKeyhole className="h-4 w-4" /> Privacy and permissions</div>
             <h2 className="mt-2 text-3xl font-bold tracking-normal">What the extension can access.</h2>
             <p className="mt-4 text-muted-foreground">Extraction runs on the X page in your browser. Export files are saved locally and the extension does not send tweet text to an OakTech service.</p>
@@ -172,7 +195,31 @@ export default async function ProductPage({
             <div className="flex items-center gap-2 text-sm font-medium"><ShieldCheck className="h-4 w-4 text-primary" /> Built for personal backup and research</div>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">You are responsible for complying with X terms and applicable laws when you use exported data.</p>
           </div>
-          <Button asChild variant="outline"><Link href="/privacy">Read privacy policy</Link></Button>
+          <div className="flex flex-wrap gap-3">
+            <Button asChild variant="outline"><Link href={`/products/${product.slug}/privacy`}>Product privacy</Link></Button>
+            <Button asChild variant="outline"><Link href={`/products/${product.slug}/support`}>Product support</Link></Button>
+          </div>
+        </div>
+      </section>
+
+      <section className="border-t py-14 md:py-18">
+        <div className="container grid gap-10 px-4 lg:grid-cols-[0.75fr_1.25fr]">
+          <div>
+            <div className="flex items-center gap-2 text-sm font-medium text-primary"><CircleHelp className="h-4 w-4" /> Product FAQ</div>
+            <h2 className="mt-2 text-3xl font-bold tracking-normal">Before you install.</h2>
+            <p className="mt-4 text-muted-foreground">Common questions about the current beta, data handling, and exports.</p>
+          </div>
+          <div className="divide-y border-y">
+            {product.faqs.map((faq) => (
+              <details key={faq.question} className="group py-5">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-medium">
+                  {faq.question}
+                  <span aria-hidden className="text-lg text-muted-foreground transition-transform group-open:rotate-45">+</span>
+                </summary>
+                <p className="max-w-2xl pt-3 text-sm leading-6 text-muted-foreground">{faq.answer}</p>
+              </details>
+            ))}
+          </div>
         </div>
       </section>
 

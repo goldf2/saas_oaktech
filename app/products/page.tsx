@@ -1,6 +1,6 @@
 import { PackageSearch } from "lucide-react";
-import { ProductCard } from "@/components/product-card";
-import { PRODUCTS } from "@/config/products";
+import { ProductCatalog } from "@/components/product-catalog";
+import { PRODUCT_CATEGORIES, PRODUCTS } from "@/config/products";
 
 export const metadata = {
   title: "All Products - OakTech",
@@ -20,13 +20,7 @@ export default function ProductsPage() {
           Product pages show their real release status before you download or buy.
         </p>
       </div>
-      <div className="mb-6 flex items-center justify-between border-y py-4 text-sm">
-        <span className="font-medium">{PRODUCTS.length} product</span>
-        <span className="text-muted-foreground">More categories are in development</span>
-      </div>
-      <div className="grid gap-6 lg:grid-cols-2">
-        {PRODUCTS.map((product) => <ProductCard key={product.slug} product={product} />)}
-      </div>
+      <ProductCatalog products={PRODUCTS} categories={PRODUCT_CATEGORIES} />
     </div>
   );
 }

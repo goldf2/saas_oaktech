@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, PackageOpen } from "lucide-react";
-import { ProductCard } from "@/components/product-card";
+import { ProductCatalog } from "@/components/product-catalog";
 import {
   PRODUCT_CATEGORIES,
   getCategoryBySlug,
@@ -37,8 +37,8 @@ export default async function CategoryPage({
         <p className="mt-4 text-lg leading-8 text-muted-foreground">{category.description}</p>
       </div>
       {products.length > 0 ? (
-        <div className="mt-10 grid gap-6 lg:grid-cols-2">
-          {products.map((product) => <ProductCard key={product.slug} product={product} />)}
+        <div className="mt-10">
+          <ProductCatalog products={products} categories={[category]} showCategoryFilter={false} />
         </div>
       ) : (
         <div className="mt-10 border-y py-16 text-center">

@@ -12,6 +12,17 @@ export interface ProductPermission {
   description: string;
 }
 
+export interface ProductFaq {
+  question: string;
+  answer: string;
+}
+
+export interface ProductReleaseNote {
+  label: string;
+  title: string;
+  description: string;
+}
+
 export interface SoftwareProduct {
   slug: string;
   name: string;
@@ -30,6 +41,8 @@ export interface SoftwareProduct {
   browsers: string[];
   installSteps: string[];
   permissions: ProductPermission[];
+  faqs: ProductFaq[];
+  releaseNotes: ProductReleaseNote[];
   featured: boolean;
 }
 
@@ -130,6 +143,42 @@ export const PRODUCTS: SoftwareProduct[] = [
       {
         name: "x.com / twitter.com",
         description: "Limits site access to the two domains where extraction works.",
+      },
+    ],
+    faqs: [
+      {
+        question: "Does the extension upload tweet data?",
+        answer:
+          "No. Extraction runs in the browser on the X page you open, and exports are saved to your computer. The extension does not send collected tweet text to an OakTech service.",
+      },
+      {
+        question: "Do I need an account during beta?",
+        answer:
+          "No account is required to run the current beta build. Contact OakTech to request the build and installation instructions.",
+      },
+      {
+        question: "Which export formats are supported?",
+        answer:
+          "The current beta exports JSON, CSV, TXT, HTML, and Markdown files.",
+      },
+      {
+        question: "What happens when an extraction is stopped?",
+        answer:
+          "You can stop a run at any time. Tweets collected before stopping remain available for export.",
+      },
+    ],
+    releaseNotes: [
+      {
+        label: "Current beta",
+        title: "Profile extraction and local exports",
+        description:
+          "The current build extracts visible X profile posts, supports optional date limits, and exports the collected data in five formats.",
+      },
+      {
+        label: "Next",
+        title: "Public store release preparation",
+        description:
+          "OakTech is preparing the Chrome Web Store listing and collecting beta feedback before public distribution.",
       },
     ],
     featured: true,
