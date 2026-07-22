@@ -11,19 +11,19 @@ const baseUrl = process.env.BASE_URL
 
 export const metadata = {
   metadataBase: new URL(baseUrl),
-  title: "OakTech - Premium Software Tools Store",
-  description: "Buy premium software tools for developers, designers, and productivity. Browser extensions, desktop apps, and developer tools. Buy once, use forever.",
-  keywords: "software store, browser extensions, desktop apps, developer tools, design tools, software license, OakTech",
+  title: "OakTech - Independent Software Store",
+  description: "Practical browser extensions, desktop apps, and developer tools with clear release status and direct support.",
+  keywords: "OakTech, software store, browser extensions, desktop apps, developer tools, X Tweet Extractor",
   openGraph: {
-    title: "OakTech - Premium Software Tools Store",
-    description: "Buy premium software tools for developers, designers, and productivity. Browser extensions, desktop apps, and developer tools.",
+    title: "OakTech - Independent Software Store",
+    description: "Practical browser extensions, desktop apps, and developer tools with clear release status and direct support.",
     type: "website",
     url: baseUrl,
   },
   twitter: {
     card: "summary_large_image",
-    title: "OakTech - Premium Software Tools Store",
-    description: "Buy premium software tools for developers, designers, and productivity.",
+    title: "OakTech - Independent Software Store",
+    description: "Practical browser extensions, desktop apps, and developer tools.",
   },
 };
 

@@ -1,177 +1,155 @@
+export type ProductStatus = "beta" | "released" | "coming-soon";
+
+export type ProductCategorySlug =
+  | "browser-extensions"
+  | "desktop-apps"
+  | "developer-tools"
+  | "ai-tools"
+  | "productivity-tools";
+
+export interface ProductPermission {
+  name: string;
+  description: string;
+}
+
 export interface SoftwareProduct {
   slug: string;
   name: string;
   tagline: string;
   description: string;
-  category: "Browser Extension" | "Desktop App" | "Developer Tool" | "Design Tool";
+  status: ProductStatus;
+  category: string;
+  categorySlug: ProductCategorySlug;
   price: string;
-  priceValue: number;
-  license: "Personal" | "Pro" | "Team";
+  license: string;
   icon: string;
+  heroImage: string;
+  screenshots: string[];
   features: string[];
   platforms: string[];
+  browsers: string[];
+  installSteps: string[];
+  permissions: ProductPermission[];
   featured: boolean;
-  rating: number;
-  downloads: string;
 }
 
-export const PRODUCTS: SoftwareProduct[] = [
+export interface ProductCategory {
+  slug: ProductCategorySlug;
+  name: string;
+  description: string;
+  icon: "Puzzle" | "Monitor" | "Code2" | "Sparkles" | "ListChecks";
+  availability: "available" | "planned";
+}
+
+export const PRODUCT_CATEGORIES: ProductCategory[] = [
   {
-    slug: "tab-saver-pro",
-    name: "Tab Saver Pro",
-    tagline: "Save, organize, and restore browser tabs effortlessly",
-    description:
-      "A powerful browser extension that lets you save your open tabs into sessions, restore them anytime, and sync across devices. Never lose your workflow again.",
-    category: "Browser Extension",
-    price: "$9",
-    priceValue: 9,
-    license: "Pro",
-    icon: "BookmarkIcon",
-    features: [
-      "Unlimited tab sessions",
-      "Cross-device sync",
-      "One-click session restore",
-      "Smart tab grouping",
-      "Cloud backup",
-      "Works with Chrome, Edge & Firefox",
-    ],
-    platforms: ["Chrome", "Edge", "Firefox"],
-    featured: true,
-    rating: 4.9,
-    downloads: "12k+",
+    slug: "browser-extensions",
+    name: "Browser Extensions",
+    description: "Focused additions for everyday browser workflows.",
+    icon: "Puzzle",
+    availability: "available",
   },
   {
-    slug: "screen-capture-studio",
-    name: "Screen Capture Studio",
-    tagline: "Capture, annotate, and share screenshots in seconds",
-    description:
-      "A full-featured screen capture tool for macOS and Windows. Capture regions, windows, or full screens, annotate with a rich toolkit, and share instantly.",
-    category: "Desktop App",
-    price: "$15",
-    priceValue: 15,
-    license: "Pro",
-    icon: "CameraIcon",
-    features: [
-      "Region, window & full-screen capture",
-      "Scrolling screenshot support",
-      "Rich annotation tools",
-      "Cloud sharing with links",
-      "GIF & video recording",
-      "OCR text extraction",
-    ],
-    platforms: ["macOS", "Windows"],
-    featured: true,
-    rating: 4.8,
-    downloads: "8.5k+",
+    slug: "desktop-apps",
+    name: "Desktop Apps",
+    description: "Native tools for macOS, Windows, and Linux.",
+    icon: "Monitor",
+    availability: "planned",
   },
   {
-    slug: "json-studio",
-    name: "JSON Studio",
-    tagline: "The ultimate API testing and JSON visualization tool",
-    description:
-      "A developer-focused desktop app for API testing, JSON formatting, and data visualization. Built for speed with a clean, intuitive interface.",
-    category: "Developer Tool",
-    price: "$29",
-    priceValue: 29,
-    license: "Pro",
-    icon: "CodeIcon",
-    features: [
-      "API request builder (GET, POST, PUT, DELETE)",
-      "JSON tree visualization",
-      "Schema validation & generation",
-      "Environment variables",
-      "Request history & collections",
-      "Export to cURL & code snippets",
-    ],
-    platforms: ["macOS", "Windows", "Linux"],
-    featured: true,
-    rating: 4.9,
-    downloads: "5.2k+",
+    slug: "developer-tools",
+    name: "Developer Tools",
+    description: "Practical utilities for building and debugging software.",
+    icon: "Code2",
+    availability: "planned",
   },
   {
-    slug: "color-picker-plus",
-    name: "Color Picker+",
-    tagline: "Pick, manage, and export colors with ease",
-    description:
-      "A designer's best friend. Pick any color from your screen, build palettes, and export to your favorite formats. Available as a browser extension and desktop app.",
-    category: "Design Tool",
-    price: "$7",
-    priceValue: 7,
-    license: "Pro",
-    icon: "PaletteIcon",
-    features: [
-      "Pixel-perfect screen color picker",
-      "Palette generator & manager",
-      "Export to HEX, RGB, HSL, Tailwind",
-      "Contrast checker (WCAG)",
-      "Gradient builder",
-      "Color history & favorites",
-    ],
-    platforms: ["Chrome", "macOS", "Windows"],
-    featured: false,
-    rating: 4.7,
-    downloads: "15k+",
+    slug: "ai-tools",
+    name: "AI Utilities",
+    description: "Small, purposeful tools for AI-assisted work.",
+    icon: "Sparkles",
+    availability: "planned",
   },
   {
-    slug: "markdown-pro",
-    name: "Markdown Pro",
-    tagline: "Write beautiful documents with a powerful Markdown editor",
-    description:
-      "A clean, distraction-free Markdown editor with live preview, syntax highlighting, and export to PDF, HTML, and DOCX. Perfect for writers and developers.",
-    category: "Desktop App",
-    price: "$12",
-    priceValue: 12,
-    license: "Pro",
-    icon: "FileTextIcon",
-    features: [
-      "Live preview with syntax highlighting",
-      "Export to PDF, HTML & DOCX",
-      "Dark & light themes",
-      "Mermaid diagram support",
-      "Math equation rendering",
-      "Git-backed document sync",
-    ],
-    platforms: ["macOS", "Windows", "Linux"],
-    featured: false,
-    rating: 4.8,
-    downloads: "6.8k+",
-  },
-  {
-    slug: "devtools-bundle",
-    name: "DevTools Bundle",
-    tagline: "A complete toolkit for modern developers",
-    description:
-      "Get all five OakTech developer tools in one bundle: JSON Studio, Color Picker+, Markdown Pro, plus exclusive access to the Regex Tester and Base64 Toolkit. Best value for developers.",
-    category: "Developer Tool",
-    price: "$49",
-    priceValue: 49,
-    license: "Team",
-    icon: "WrenchIcon",
-    features: [
-      "Includes JSON Studio",
-      "Includes Color Picker+",
-      "Includes Markdown Pro",
-      "Regex Tester & Debugger",
-      "Base64 Encode/Decode Toolkit",
-      "Lifetime updates for all tools",
-      "Up to 5 team members",
-      "Priority support",
-    ],
-    platforms: ["macOS", "Windows", "Linux"],
-    featured: false,
-    rating: 5.0,
-    downloads: "3.1k+",
+    slug: "productivity-tools",
+    name: "Productivity Tools",
+    description: "Less busywork and more control over repetitive tasks.",
+    icon: "ListChecks",
+    availability: "planned",
   },
 ];
 
-export function getProductBySlug(slug: string): SoftwareProduct | undefined {
-  return PRODUCTS.find((p) => p.slug === slug);
+export const PRODUCTS: SoftwareProduct[] = [
+  {
+    slug: "x-tweet-extractor",
+    name: "X Tweet Extractor",
+    tagline: "Turn visible X profiles into structured, local exports.",
+    description:
+      "A focused Chrome extension for extracting visible tweets from X (Twitter) user profiles and exporting structured text data for personal backup, research, and review.",
+    status: "beta",
+    category: "Browser Extension",
+    categorySlug: "browser-extensions",
+    price: "Free during beta",
+    license: "Beta access",
+    icon: "/x-tweet-extractor/store-logo-128.png",
+    heroImage: "/x-tweet-extractor/promo440x280.png",
+    screenshots: ["/x-tweet-extractor/screenshot1.png"],
+    features: [
+      "Extract up to 10,000 visible tweets per run",
+      "Export JSON, CSV, TXT, HTML, or Markdown",
+      "Limit results with optional start and end dates",
+      "Stop extraction at any time and keep collected results",
+      "Use the interface in 14 languages",
+      "Process profile content locally in your browser",
+    ],
+    platforms: ["Chrome", "macOS", "Windows", "Linux"],
+    browsers: ["Google Chrome"],
+    installSteps: [
+      "Request the current beta build from OakTech support.",
+      "Open Chrome Extensions, enable Developer mode, and choose Load unpacked.",
+      "Open an X user profile, launch the extension, and start the extraction.",
+      "Choose an export format and save the collected data locally.",
+    ],
+    permissions: [
+      {
+        name: "activeTab",
+        description: "Accesses the X page you are viewing after you launch the extension.",
+      },
+      {
+        name: "scripting",
+        description: "Runs the extraction logic on the active X profile page.",
+      },
+      {
+        name: "storage",
+        description: "Stores interface preferences such as your selected language.",
+      },
+      {
+        name: "downloads",
+        description: "Saves the export file you request to your computer.",
+      },
+      {
+        name: "x.com / twitter.com",
+        description: "Limits site access to the two domains where extraction works.",
+      },
+    ],
+    featured: true,
+  },
+];
+
+export function getProductBySlug(slug: string) {
+  return PRODUCTS.find((product) => product.slug === slug);
 }
 
-export const PRODUCT_CATEGORIES = [
-  "All",
-  "Browser Extension",
-  "Desktop App",
-  "Developer Tool",
-  "Design Tool",
-] as const;
+export function getCategoryBySlug(slug: string) {
+  return PRODUCT_CATEGORIES.find((category) => category.slug === slug);
+}
+
+export function getProductsByCategory(categorySlug: string) {
+  return PRODUCTS.filter((product) => product.categorySlug === categorySlug);
+}
+
+export const PRODUCT_STATUS_LABELS: Record<ProductStatus, string> = {
+  beta: "Beta",
+  released: "Released",
+  "coming-soon": "Coming soon",
+};

@@ -22,9 +22,9 @@ export default function Header({ user }: HeaderProps) {
   const isDashboard = pathname?.startsWith("/dashboard");
 
   const mainNavItems: NavItem[] = [
-    { label: "Home", href: "/" },
-    { label: "Products", href: "/#products" },
-    { label: "Pricing", href: "/#pricing" },
+    { label: "Products", href: "/products" },
+    { label: "Browser Extensions", href: "/categories/browser-extensions" },
+    { label: "Support", href: "/support" },
   ];
 
   const dashboardItems: NavItem[] = [];
@@ -39,12 +39,12 @@ export default function Header({ user }: HeaderProps) {
         </div>
         
         {/* Centered Navigation */}
-        <nav className="hidden md:flex items-center gap-8 absolute left-1/2 transform -translate-x-1/2">
+        <nav className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-7 md:flex">
           {navItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="text-lg font-semibold text-muted-foreground transition-colors hover:text-primary"
+              className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
             >
               {item.label}
             </Link>

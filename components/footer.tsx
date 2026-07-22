@@ -6,16 +6,18 @@ import { Mail } from "lucide-react";
 
 const footerLinks = [
   {
-    title: "Products",
+    title: "Browse",
     links: [
-      { label: "All Products", href: "/#products" },
-      { label: "Pricing", href: "/#pricing" },
+      { label: "All products", href: "/products" },
+      { label: "Browser extensions", href: "/categories/browser-extensions" },
+      { label: "X Tweet Extractor", href: "/products/x-tweet-extractor" },
     ],
   },
   {
     title: "Company",
     links: [
       { label: "About", href: "/about" },
+      { label: "Support", href: "/support" },
     ],
   },
   {
@@ -35,8 +37,8 @@ export function Footer() {
           <div className="col-span-full lg:col-span-2">
             <Logo />
             <p className="mt-4 text-sm text-muted-foreground">
-              Premium software tools for developers, designers, and productivity.
-              Buy once, use forever.
+              Independent software for focused work, from practical browser tools
+              to future desktop and developer utilities.
             </p>
             <div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
               <Mail className="w-4 h-4" />

@@ -1,35 +1,42 @@
-import { notFound } from "next/navigation";
+import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { PRODUCTS, getProductBySlug } from "@/config/products";
+import { notFound } from "next/navigation";
 import {
-  Bookmark,
-  Camera,
-  Code,
-  Palette,
-  FileText,
-  Wrench,
-  Star,
   ArrowLeft,
   CheckCircle2,
-  Download,
-  Shield,
+  ExternalLink,
+  Globe2,
+  LockKeyhole,
   Monitor,
+  ShieldCheck,
 } from "lucide-react";
-
-const iconMap: Record<string, typeof Bookmark> = {
-  BookmarkIcon: Bookmark,
-  CameraIcon: Camera,
-  CodeIcon: Code,
-  PaletteIcon: Palette,
-  FileTextIcon: FileText,
-  WrenchIcon: Wrench,
-};
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { ProductCard } from "@/components/product-card";
+import {
+  PRODUCTS,
+  PRODUCT_STATUS_LABELS,
+  getProductBySlug,
+} from "@/config/products";
 
 export function generateStaticParams() {
   return PRODUCTS.map((product) => ({ slug: product.slug }));
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const product = getProductBySlug(slug);
+  if (!product) return {};
+
+  return {
+    title: `${product.name} - OakTech`,
+    description: product.description,
+  };
 }
 
 export default async function ProductPage({
@@ -40,146 +47,140 @@ export default async function ProductPage({
   const { slug } = await params;
   const product = getProductBySlug(slug);
 
-  if (!product) {
-    notFound();
-  }
+  if (!product) notFound();
 
-  const Icon = iconMap[product.icon] || Wrench;
+  const relatedProducts = PRODUCTS.filter(
+    (item) => item.slug !== product.slug && item.categorySlug === product.categorySlug,
+  );
 
   return (
-    <div className="container px-4 py-12 md:py-20">
-      {/* Breadcrumb */}
-      <Link
-        href="/#products"
-        className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors mb-8"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        Back to Products
-      </Link>
-
-      <div className="grid gap-12 lg:grid-cols-2">
-        {/* Left: Product Info */}
-        <div>
-          <div className="flex items-center gap-4 mb-6">
-            <div className="flex items-center justify-center w-16 h-16 rounded-xl bg-primary/10">
-              <Icon className="w-8 h-8 text-primary" />
-            </div>
+    <>
+      <section className="border-b">
+        <div className="container px-4 py-8 md:py-12">
+          <Link href={`/categories/${product.categorySlug}`} className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+            <ArrowLeft className="h-4 w-4" />
+            {product.category}
+          </Link>
+          <div className="mt-8 grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
             <div>
-              <Badge variant="secondary" className="mb-1">
-                {product.category}
-              </Badge>
-              <h1 className="text-3xl font-bold tracking-tight">{product.name}</h1>
+              <div className="flex items-center gap-4">
+                <Image src={product.icon} alt="" width={64} height={64} className="rounded-xl border" />
+                <div className="flex flex-wrap gap-2">
+                  <Badge variant="secondary">{product.category}</Badge>
+                  <Badge variant="outline">{PRODUCT_STATUS_LABELS[product.status]}</Badge>
+                </div>
+              </div>
+              <h1 className="mt-6 text-4xl font-bold tracking-normal md:text-5xl">{product.name}</h1>
+              <p className="mt-4 text-xl leading-8 text-muted-foreground">{product.tagline}</p>
+              <p className="mt-5 leading-7 text-muted-foreground">{product.description}</p>
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <Button asChild size="lg">
+                  <Link href="mailto:support@oaktech.dev?subject=X%20Tweet%20Extractor%20beta%20access">
+                    Request beta access
+                    <ExternalLink className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button asChild size="lg" variant="outline">
+                  <Link href="#installation">Installation steps</Link>
+                </Button>
+              </div>
+              <div className="mt-7 flex flex-wrap gap-2">
+                {product.browsers.map((browser) => <Badge key={browser} variant="secondary">{browser}</Badge>)}
+                <Badge variant="secondary">{product.price}</Badge>
+              </div>
+            </div>
+            <div className="overflow-hidden rounded-lg border bg-muted shadow-sm">
+              <Image
+                src={product.screenshots[0]}
+                alt={`${product.name} extension interface`}
+                width={1440}
+                height={900}
+                priority
+                className="h-auto w-full"
+              />
             </div>
           </div>
+        </div>
+      </section>
 
-          <p className="text-lg text-muted-foreground mb-6">{product.description}</p>
-
-          <div className="flex items-center gap-4 mb-8 text-sm">
-            <span className="flex items-center gap-1">
-              <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-              <span className="font-medium">{product.rating}</span>
-              <span className="text-muted-foreground">rating</span>
-            </span>
-            <span className="text-muted-foreground">{product.downloads} downloads</span>
-            <Badge variant="outline">{product.license} License</Badge>
-          </div>
-
-          {/* Features */}
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold mb-4">What&apos;s included</h2>
-            <ul className="space-y-3">
-              {product.features.map((feature, i) => (
-                <li key={i} className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-                  <span>{feature}</span>
+      <section className="py-14 md:py-18">
+        <div className="container grid gap-10 px-4 lg:grid-cols-[1.35fr_0.65fr]">
+          <div>
+            <p className="text-sm font-medium text-primary">What it does</p>
+            <h2 className="mt-2 text-3xl font-bold tracking-normal">Export visible profile content with control.</h2>
+            <ul className="mt-8 grid gap-4 sm:grid-cols-2">
+              {product.features.map((feature) => (
+                <li key={feature} className="flex gap-3 border-t pt-4">
+                  <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+                  <span className="text-sm leading-6">{feature}</span>
                 </li>
               ))}
             </ul>
           </div>
-
-          {/* Platforms */}
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold mb-4">Supported platforms</h2>
-            <div className="flex flex-wrap gap-2">
-              {product.platforms.map((platform) => (
-                <Badge key={platform} variant="secondary" className="flex items-center gap-1">
-                  <Monitor className="w-3 h-3" />
-                  {platform}
-                </Badge>
-              ))}
+          <aside className="border-l-0 border-border lg:border-l lg:pl-8">
+            <div className="flex items-center gap-2 text-sm font-medium"><Monitor className="h-4 w-4" /> Compatible platforms</div>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {product.platforms.map((platform) => <Badge key={platform} variant="outline">{platform}</Badge>)}
             </div>
+            <div className="mt-8 flex items-center gap-2 text-sm font-medium"><Globe2 className="h-4 w-4" /> Current availability</div>
+            <p className="mt-3 text-sm leading-6 text-muted-foreground">
+              This product is in beta. Access is currently distributed directly while the Chrome Web Store release is prepared.
+            </p>
+          </aside>
+        </div>
+      </section>
+
+      <section id="installation" className="border-y bg-muted/35 py-14 md:py-18">
+        <div className="container grid gap-10 px-4 lg:grid-cols-[0.75fr_1.25fr]">
+          <div>
+            <p className="text-sm font-medium text-primary">Beta installation</p>
+            <h2 className="mt-2 text-3xl font-bold tracking-normal">From profile to export in four steps.</h2>
+            <p className="mt-4 text-muted-foreground">The beta is currently tested through Chrome Developer mode before public store distribution.</p>
+          </div>
+          <ol className="grid gap-4 sm:grid-cols-2">
+            {product.installSteps.map((step, index) => (
+              <li key={step} className="border bg-background p-5">
+                <span className="text-sm font-semibold text-primary">0{index + 1}</span>
+                <p className="mt-4 text-sm leading-6">{step}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      <section className="py-14 md:py-18">
+        <div className="container grid gap-10 px-4 lg:grid-cols-[0.75fr_1.25fr]">
+          <div>
+            <div className="flex items-center gap-2 text-sm font-medium text-primary"><LockKeyhole className="h-4 w-4" /> Privacy and permissions</div>
+            <h2 className="mt-2 text-3xl font-bold tracking-normal">What the extension can access.</h2>
+            <p className="mt-4 text-muted-foreground">Extraction runs on the X page in your browser. Export files are saved locally and the extension does not send tweet text to an OakTech service.</p>
+          </div>
+          <div className="divide-y border-y">
+            {product.permissions.map((permission) => (
+              <div key={permission.name} className="grid gap-2 py-5 sm:grid-cols-[180px_1fr]">
+                <code className="text-sm font-semibold">{permission.name}</code>
+                <p className="text-sm leading-6 text-muted-foreground">{permission.description}</p>
+              </div>
+            ))}
           </div>
         </div>
+      </section>
 
-        {/* Right: Purchase Card */}
-        <div>
-          <Card className="sticky top-24">
-            <CardHeader>
-              <CardTitle className="text-2xl">Purchase {product.name}</CardTitle>
-              <div className="mt-4 flex items-baseline">
-                <span className="text-4xl font-bold">{product.price}</span>
-                <span className="text-muted-foreground ml-2">one-time payment</span>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm">
-                  <Download className="w-4 h-4 text-primary" />
-                  <span>Instant download after purchase</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <Shield className="w-4 h-4 text-primary" />
-                  <span>Lifetime license with free updates</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <CheckCircle2 className="w-4 h-4 text-primary" />
-                  <span>30-day money-back guarantee</span>
-                </div>
-              </div>
-
-              <Button className="w-full" size="lg" asChild>
-                <Link href="/sign-up">Buy Now — {product.price}</Link>
-              </Button>
-
-              <p className="text-xs text-center text-muted-foreground">
-                Secure checkout powered by Creem. Need help?{" "}
-                <Link href="mailto:support@oaktech.dev" className="text-primary hover:underline">
-                  Contact support
-                </Link>
-              </p>
-            </CardContent>
-          </Card>
-
-          {/* Related Products */}
-          <div className="mt-8">
-            <h3 className="text-lg font-semibold mb-4">You might also like</h3>
-            <div className="grid gap-4 sm:grid-cols-2">
-              {PRODUCTS.filter((p) => p.slug !== product.slug)
-                .slice(0, 2)
-                .map((related) => {
-                  const RelatedIcon = iconMap[related.icon] || Wrench;
-                  return (
-                    <Link key={related.slug} href={`/products/${related.slug}`}>
-                      <Card className="hover:shadow-md transition-shadow cursor-pointer">
-                        <CardContent className="p-4">
-                          <div className="flex items-center gap-3">
-                            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10 shrink-0">
-                              <RelatedIcon className="w-5 h-5 text-primary" />
-                            </div>
-                            <div>
-                              <p className="font-medium text-sm">{related.name}</p>
-                              <p className="text-xs text-muted-foreground">{related.price}</p>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </Link>
-                  );
-                })}
-            </div>
+      <section className="border-t py-14 md:py-18">
+        <div className="container flex flex-col justify-between gap-6 px-4 md:flex-row md:items-center">
+          <div>
+            <div className="flex items-center gap-2 text-sm font-medium"><ShieldCheck className="h-4 w-4 text-primary" /> Built for personal backup and research</div>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">You are responsible for complying with X terms and applicable laws when you use exported data.</p>
           </div>
+          <Button asChild variant="outline"><Link href="/privacy">Read privacy policy</Link></Button>
         </div>
-      </div>
-    </div>
+      </section>
+
+      {relatedProducts.length > 0 && (
+        <section className="border-t py-14">
+          <div className="container px-4"><h2 className="text-2xl font-bold">More in {product.category}</h2><div className="mt-6 grid gap-6 lg:grid-cols-2">{relatedProducts.map((item) => <ProductCard key={item.slug} product={item} />)}</div></div>
+        </section>
+      )}
+    </>
   );
 }

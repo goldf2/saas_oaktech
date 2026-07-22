@@ -62,7 +62,7 @@ export default function DashboardPage() {
               You haven&apos;t purchased any products yet.
             </p>
             <Button asChild>
-              <Link href="/#products">Browse Products</Link>
+              <Link href="/products">Browse Products</Link>
             </Button>
           </div>
         </CardContent>

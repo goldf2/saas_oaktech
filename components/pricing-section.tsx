@@ -68,17 +68,17 @@ export function PricingSection({ className }: PricingSectionProps) {
       <div className="container px-4 md:px-6">
         <div className="text-center space-y-4 mb-12">
           <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-            Simple, Transparent Pricing
+            Simple Pricing
           </h2>
           <p className="mx-auto max-w-2xl text-muted-foreground text-lg">
-            Buy individual tools or get the full bundle. No hidden fees.
+            Start free, upgrade when your browser workflows need unlimited saved sessions and sync.
           </p>
         </div>
 
         <Tabs defaultValue="subscription" className="w-full flex flex-col items-center">
           <TabsList className="mb-8">
-            <TabsTrigger value="subscription">License Plans</TabsTrigger>
-            <TabsTrigger value="credits">Buy Individual Tools</TabsTrigger>
+            <TabsTrigger value="subscription">Plans</TabsTrigger>
+            <TabsTrigger value="credits">Add-ons</TabsTrigger>
           </TabsList>
 
           <TabsContent value="subscription" className="w-full">
@@ -143,7 +143,7 @@ function PricingCard({
       }`}>
         {tier.featured && (
           <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-            <Badge className="bg-primary px-3 py-1">Most Popular</Badge>
+            <Badge className="bg-primary px-3 py-1">Recommended</Badge>
           </div>
         )}
 
@@ -153,7 +153,7 @@ function PricingCard({
           <div className="mt-4 flex items-baseline">
             <span className="text-4xl font-bold">{tier.priceMonthly}</span>
             <span className="text-muted-foreground ml-1">
-              {type === 'subscription' ? (tier.priceMonthly === '$0' ? '/forever' : '/year') : ' one-time'}
+              {type === 'subscription' ? (tier.priceMonthly === '$0' ? '/forever' : ' one-time') : ' one-time'}
             </span>
           </div>
         </CardHeader>
@@ -176,7 +176,7 @@ function PricingCard({
             onClick={() => onPurchase(tier)}
             disabled={isProcessing === tier.id}
           >
-            {isProcessing === tier.id ? "Processing..." : "Get Started"}
+            {isProcessing === tier.id ? "Processing..." : "Choose Plan"}
           </Button>
         </CardFooter>
       </Card>

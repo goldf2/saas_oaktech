@@ -1,0 +1,32 @@
+import { PackageSearch } from "lucide-react";
+import { ProductCard } from "@/components/product-card";
+import { PRODUCTS } from "@/config/products";
+
+export const metadata = {
+  title: "All Products - OakTech",
+  description: "Browse browser extensions, desktop apps, and practical software from OakTech.",
+};
+
+export default function ProductsPage() {
+  return (
+    <div className="container px-4 py-12 md:py-18">
+      <div className="mb-10 max-w-2xl">
+        <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-md bg-accent">
+          <PackageSearch className="h-5 w-5" />
+        </div>
+        <h1 className="text-4xl font-bold tracking-normal md:text-5xl">All products</h1>
+        <p className="mt-4 text-lg leading-8 text-muted-foreground">
+          Independent tools for browser workflows, development, and focused productivity.
+          Product pages show their real release status before you download or buy.
+        </p>
+      </div>
+      <div className="mb-6 flex items-center justify-between border-y py-4 text-sm">
+        <span className="font-medium">{PRODUCTS.length} product</span>
+        <span className="text-muted-foreground">More categories are in development</span>
+      </div>
+      <div className="grid gap-6 lg:grid-cols-2">
+        {PRODUCTS.map((product) => <ProductCard key={product.slug} product={product} />)}
+      </div>
+    </div>
+  );
+}

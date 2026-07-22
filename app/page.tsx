@@ -1,203 +1,197 @@
-"use client";
-
+import Image from "next/image";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { motion } from "framer-motion";
-import { PricingSection } from "@/components/pricing-section";
-import { PRODUCTS } from "@/config/products";
 import {
-  Bookmark,
-  Camera,
-  Code,
-  Palette,
-  FileText,
-  Wrench,
-  Star,
   ArrowRight,
-  Shield,
-  Zap,
-  Download,
-  HeadphonesIcon,
-  CheckCircle2,
+  Check,
+  Code2,
+  Headphones,
+  ListChecks,
+  Monitor,
+  Puzzle,
+  ShieldCheck,
+  Sparkles,
 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { ProductCard } from "@/components/product-card";
+import { PRODUCT_CATEGORIES, PRODUCTS } from "@/config/products";
 
-const iconMap: Record<string, typeof Bookmark> = {
-  BookmarkIcon: Bookmark,
-  CameraIcon: Camera,
-  CodeIcon: Code,
-  PaletteIcon: Palette,
-  FileTextIcon: FileText,
-  WrenchIcon: Wrench,
-};
+const categoryIcons = { Puzzle, Monitor, Code2, Sparkles, ListChecks };
+
+const principles = [
+  {
+    icon: ShieldCheck,
+    title: "Clear by design",
+    description: "Every product explains its permissions, data handling, and current release status.",
+  },
+  {
+    icon: Check,
+    title: "Purpose-built tools",
+    description: "Small software with a defined job, direct workflows, and no inflated feature lists.",
+  },
+  {
+    icon: Headphones,
+    title: "Direct maker support",
+    description: "Questions and beta feedback go to the person building and maintaining the product.",
+  },
+];
 
 export default function Home() {
+  const featuredProduct = PRODUCTS.find((product) => product.featured) ?? PRODUCTS[0];
+
   return (
     <>
-      {/* Hero Section */}
-      <section className="relative overflow-hidden">
-        <div className="container px-4 py-20 md:py-28 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <Badge variant="secondary" className="mb-4">
-              Premium Software Tools Store
-            </Badge>
-            <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-foreground">
-              Powerful tools for{" "}
-              <span className="bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-                developers & creators
-              </span>
+      <section className="border-b bg-background">
+        <div className="container grid min-h-[620px] gap-10 px-4 py-14 md:grid-cols-[0.9fr_1.1fr] md:items-center md:py-20">
+          <div className="max-w-2xl">
+            <Badge variant="outline" className="mb-5">Independent software store</Badge>
+            <h1 className="text-4xl font-bold leading-tight tracking-normal sm:text-5xl lg:text-6xl">
+              OakTech software for focused work.
             </h1>
-            <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
-              Browse our catalog of premium browser extensions, desktop apps, and
-              developer tools. Buy once, use forever. No subscriptions required.
+            <p className="mt-6 max-w-xl text-lg leading-8 text-muted-foreground">
+              Browse practical browser extensions, desktop apps, and developer
+              tools built with clear pricing, transparent permissions, and direct support.
             </p>
-            <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Button asChild size="lg">
-                <Link href="#products">
-                  Browse Products
+                <Link href="/products">
+                  Browse products
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
               <Button asChild size="lg" variant="outline">
-                <Link href="#pricing">View Pricing</Link>
+                <Link href="/categories/browser-extensions">Browser extensions</Link>
               </Button>
             </div>
-          </motion.div>
+            <div className="mt-10 flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground">
+              <span>Transparent release status</span>
+              <span>Local-first where possible</span>
+              <span>Support from the maker</span>
+            </div>
+          </div>
+
+          <Link
+            href={`/products/${featuredProduct.slug}`}
+            className="group relative overflow-hidden rounded-lg border bg-muted shadow-sm"
+          >
+            <div className="relative aspect-[11/7]">
+              <Image
+                src={featuredProduct.heroImage}
+                alt={`${featuredProduct.name} product preview`}
+                fill
+                priority
+                sizes="(min-width: 768px) 55vw, 100vw"
+                className="object-cover"
+              />
+            </div>
+            <div className="flex items-center gap-4 border-t bg-background p-4 sm:p-5">
+              <Image
+                src={featuredProduct.icon}
+                alt=""
+                width={48}
+                height={48}
+                className="rounded-lg border"
+              />
+              <div className="min-w-0 flex-1">
+                <div className="text-xs font-medium uppercase text-muted-foreground">Featured beta</div>
+                <div className="truncate font-semibold">{featuredProduct.name}</div>
+              </div>
+              <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+            </div>
+          </Link>
         </div>
       </section>
 
-      {/* Why OakTech */}
-      <section className="w-full py-16 bg-muted/30">
-        <div className="container px-4 md:px-6">
-          <div className="text-center space-y-4 mb-12">
-            <h2 className="text-3xl font-bold tracking-tight">
-              Why choose OakTech?
-            </h2>
-            <p className="mx-auto max-w-2xl text-muted-foreground text-lg">
-              We build software that just works. Every tool is crafted with care.
-            </p>
+      <section className="border-b bg-muted/35 py-14 md:py-18">
+        <div className="container px-4">
+          <div className="mb-8 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
+            <div>
+              <p className="text-sm font-medium text-primary">Shop by category</p>
+              <h2 className="mt-2 text-3xl font-bold tracking-normal">Tools organized around the work.</h2>
+            </div>
+            <Link href="/products" className="text-sm font-medium text-primary hover:underline">
+              View all products
+            </Link>
           </div>
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4 max-w-6xl mx-auto">
-            {[
-              { icon: Zap, title: "Instant Delivery", desc: "Get your license key and download link immediately after purchase." },
-              { icon: Shield, title: "Lifetime License", desc: "Buy once, own forever. Free updates included with every purchase." },
-              { icon: Download, title: "Cross-Platform", desc: "Tools that work on macOS, Windows, Linux, and major browsers." },
-              { icon: HeadphonesIcon, title: "Priority Support", desc: "Reach our support team at support@oaktech.dev anytime." },
-            ].map((feature, i) => (
-              <motion.div
-                key={feature.title}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: i * 0.1 }}
-              >
-                <Card className="h-full">
-                  <CardHeader>
-                    <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-primary/10 mb-2">
-                      <feature.icon className="w-6 h-6 text-primary" />
-                    </div>
-                    <CardTitle className="text-xl">{feature.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-muted-foreground">{feature.desc}</p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+          <div className="grid gap-px overflow-hidden rounded-lg border bg-border sm:grid-cols-2 lg:grid-cols-5">
+            {PRODUCT_CATEGORIES.map((category) => {
+              const Icon = categoryIcons[category.icon];
+              const isAvailable = category.availability === "available";
+              const content = (
+                <>
+                  <div className="flex h-10 w-10 items-center justify-center rounded-md bg-accent">
+                    <Icon className="h-5 w-5 text-accent-foreground" />
+                  </div>
+                  <h3 className="mt-5 font-semibold">{category.name}</h3>
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground">{category.description}</p>
+                  <span className="mt-5 text-xs font-medium text-muted-foreground">
+                    {isAvailable ? "Explore category" : "Planned"}
+                  </span>
+                </>
+              );
 
-      {/* Products Section */}
-      <section id="products" className="w-full py-16">
-        <div className="container px-4 md:px-6">
-          <div className="text-center space-y-4 mb-12">
-            <h2 className="text-3xl font-bold tracking-tight">
-              Our Products
-            </h2>
-            <p className="mx-auto max-w-2xl text-muted-foreground text-lg">
-              Explore our collection of premium software tools.
-            </p>
-          </div>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto">
-            {PRODUCTS.map((product, index) => {
-              const Icon = iconMap[product.icon] || Wrench;
-              return (
-                <motion.div
-                  key={product.slug}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
+              return isAvailable ? (
+                <Link
+                  key={category.slug}
+                  href={`/categories/${category.slug}`}
+                  className="bg-background p-5 transition-colors hover:bg-accent/40"
                 >
-                  <Card className="h-full flex flex-col hover:shadow-lg transition-shadow">
-                    <CardHeader>
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-primary/10">
-                          <Icon className="w-6 h-6 text-primary" />
-                        </div>
-                        <Badge variant="secondary">{product.category}</Badge>
-                      </div>
-                      <CardTitle className="text-xl mt-3">{product.name}</CardTitle>
-                      <CardDescription>{product.tagline}</CardDescription>
-                    </CardHeader>
-                    <CardContent className="flex-1">
-                      <div className="flex items-center gap-4 mb-3 text-sm text-muted-foreground">
-                        <span className="flex items-center gap-1">
-                          <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                          {product.rating}
-                        </span>
-                        <span>{product.downloads} downloads</span>
-                      </div>
-                      <ul className="space-y-2">
-                        {product.features.slice(0, 4).map((feature, i) => (
-                          <li key={i} className="flex items-start gap-2 text-sm">
-                            <CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                            <span className="text-muted-foreground">{feature}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </CardContent>
-                    <CardFooter className="flex items-center justify-between">
-                      <div>
-                        <span className="text-2xl font-bold">{product.price}</span>
-                        <span className="text-sm text-muted-foreground ml-1">one-time</span>
-                      </div>
-                      <Button asChild size="sm">
-                        <Link href={`/products/${product.slug}`}>
-                          View Details
-                          <ArrowRight className="ml-1 h-4 w-4" />
-                        </Link>
-                      </Button>
-                    </CardFooter>
-                  </Card>
-                </motion.div>
+                  {content}
+                </Link>
+              ) : (
+                <div key={category.slug} className="bg-background p-5">{content}</div>
               );
             })}
           </div>
         </div>
       </section>
 
-      {/* Pricing */}
-      <PricingSection />
+      <section className="py-16 md:py-20">
+        <div className="container px-4">
+          <div className="mb-8 max-w-2xl">
+            <p className="text-sm font-medium text-primary">Featured product</p>
+            <h2 className="mt-2 text-3xl font-bold tracking-normal">Available to test now.</h2>
+            <p className="mt-3 text-muted-foreground">
+              Start with the first OakTech browser extension and follow its progress toward release.
+            </p>
+          </div>
+          <div className="max-w-3xl">
+            <ProductCard product={featuredProduct} />
+          </div>
+        </div>
+      </section>
 
-      {/* CTA */}
-      <section className="w-full py-16 bg-primary/5">
-        <div className="container px-4 md:px-6 text-center">
-          <h2 className="text-3xl font-bold tracking-tight mb-4">
-            Ready to upgrade your workflow?
-          </h2>
-          <p className="mx-auto max-w-2xl text-muted-foreground text-lg mb-8">
-            Join the community of developers and designers who trust OakTech tools.
-          </p>
+      <section className="border-y bg-foreground py-16 text-background">
+        <div className="container px-4">
+          <div className="grid gap-8 lg:grid-cols-[0.7fr_1.3fr]">
+            <div>
+              <p className="text-sm font-medium text-background/70">The OakTech standard</p>
+              <h2 className="mt-2 text-3xl font-bold tracking-normal">Software you can evaluate clearly.</h2>
+            </div>
+            <div className="grid gap-8 sm:grid-cols-3">
+              {principles.map((principle) => (
+                <div key={principle.title}>
+                  <principle.icon className="h-6 w-6 text-background" />
+                  <h3 className="mt-4 font-semibold">{principle.title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-background/70">{principle.description}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-16 md:py-20">
+        <div className="container flex flex-col justify-between gap-6 px-4 md:flex-row md:items-center">
+          <div className="max-w-2xl">
+            <Badge variant="secondary">Product beta</Badge>
+            <h2 className="mt-4 text-3xl font-bold tracking-normal">Help shape X Tweet Extractor.</h2>
+            <p className="mt-3 text-muted-foreground">
+              The extension is in active development. Request beta access or send product feedback directly.
+            </p>
+          </div>
           <Button asChild size="lg">
-            <Link href="#products">
-              Browse All Products
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
+            <Link href="/products/x-tweet-extractor">View beta details</Link>
           </Button>
         </div>
       </section>
