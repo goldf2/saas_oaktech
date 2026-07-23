@@ -1,8 +1,7 @@
-"use client";
-
 import { Logo } from "./logo";
 import Link from "next/link";
 import { Mail } from "lucide-react";
+import packageJson from "@/package.json";
 
 const footerLinks = [
   {
@@ -66,8 +65,9 @@ export function Footer() {
             ))}
           </div>
         </div>
-        <div className="border-t mt-8 pt-8 text-center text-sm text-muted-foreground">
+        <div className="mt-8 flex flex-col gap-1 border-t pt-8 text-center text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
           <p>&copy; {new Date().getFullYear()} OakTech. All rights reserved.</p>
+          <p>Store v{packageJson.version}</p>
         </div>
       </div>
     </footer>
