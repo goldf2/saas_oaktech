@@ -146,7 +146,7 @@
 
 7. 隐私、权限、数据说明
    - 对浏览器插件尤其重要。
-   - 用明确语言解释 `activeTab`、`scripting`、`storage`、`downloads`、`host_permissions`。
+   - 用明确语言解释当前 manifest 中实际声明的权限，例如 `scripting`、`storage`、`downloads`、`host_permissions`；不要保留已移除的权限说明。
 
 8. FAQ
    - 是否上传数据？
@@ -218,7 +218,6 @@ interface Product {
 
 权限说明：
 
-- `activeTab`：用户点击插件后访问当前 X 页面。
 - `scripting`：向 X 页面注入提取脚本。
 - `storage`：保存语言偏好，未来可保存授权状态。
 - `downloads`：保存导出文件到本机。
@@ -348,4 +347,3 @@ interface Product {
 
 - Chrome Web Store listing 可引用隐私政策公网 URL。
 - 权限说明与插件 manifest 一致。
-

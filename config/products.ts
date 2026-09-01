@@ -109,7 +109,8 @@ export const PRODUCTS: SoftwareProduct[] = [
     screenshots: ["/x-tweet-extractor/screenshot1.png"],
     features: [
       "Extract up to 10,000 visible tweets per run",
-      "Export JSON, CSV, TXT, HTML, or Markdown",
+      "Export JSON, CSV, TXT, HTML, Markdown, or media URL CSV",
+      "Download visible tweet images, video thumbnails, and direct MP4 media when exposed by X/Twitter",
       "Limit results with optional start and end dates",
       "Stop extraction at any time and keep collected results",
       "Use the interface in 14 languages",
@@ -125,31 +126,27 @@ export const PRODUCTS: SoftwareProduct[] = [
     ],
     permissions: [
       {
-        name: "activeTab",
-        description: "Accesses the X page you are viewing after you launch the extension.",
-      },
-      {
         name: "scripting",
-        description: "Runs the extraction logic on the active X profile page.",
+        description: "Runs the local extraction script on x.com and twitter.com pages selected by you.",
       },
       {
         name: "storage",
-        description: "Stores interface preferences such as your selected language.",
+        description: "Stores interface preferences such as your selected language and future local license state.",
       },
       {
         name: "downloads",
-        description: "Saves the export file you request to your computer.",
+        description: "Saves exported files, media URL lists, and user-triggered media downloads to your computer.",
       },
       {
         name: "x.com / twitter.com",
-        description: "Limits site access to the two domains where extraction works.",
+        description: "Limits extension access and extraction logic to X/Twitter pages selected by you.",
       },
     ],
     faqs: [
       {
         question: "Does the extension upload tweet data?",
         answer:
-          "No. Extraction runs in the browser on the X page you open, and exports are saved to your computer. The extension does not send collected tweet text to an OakTech service.",
+          "No. Extraction runs in the browser on the X/Twitter page you open, and exports are saved to your computer. The extension does not upload extracted tweet text, media URLs, or media files to an OakTech service.",
       },
       {
         question: "Do I need an account during beta?",
@@ -159,7 +156,7 @@ export const PRODUCTS: SoftwareProduct[] = [
       {
         question: "Which export formats are supported?",
         answer:
-          "The current beta exports JSON, CSV, TXT, HTML, and Markdown files.",
+          "The current beta exports JSON, CSV, TXT, HTML, Markdown, and media URL CSV files. User-triggered media downloads can save visible tweet images, video thumbnails, and direct MP4 files when X/Twitter exposes downloadable video.twimg.com media URLs; HLS playlist URLs are not included.",
       },
       {
         question: "What happens when an extraction is stopped?",
