@@ -39,6 +39,7 @@ export default async function ProductPrivacyPage({
           <h2 className="text-2xl font-semibold">Local processing</h2>
           <p className="mt-4 text-sm leading-6 text-muted-foreground">{product.name} runs its extraction on the supported website in your browser. Export files are created only when you request them and are saved to your computer.</p>
           <p className="mt-4 text-sm leading-6 text-muted-foreground">The extension does not upload extracted profile content, media URLs, or media files to an OakTech service.</p>
+          <p className="mt-4 text-sm leading-6 text-muted-foreground">The current version does not use analytics, advertising SDKs, tracking pixels, or any external API for licensing, analytics, or data processing.</p>
           <p className="mt-4 text-sm leading-6 text-muted-foreground">Media downloads are user-triggered local browser downloads. The current version can save visible tweet images, video thumbnails, and direct MP4 files only when the selected X/Twitter page exposes a downloadable video.twimg.com media URL. HLS playlist URLs are not included in the media download queue.</p>
         </div>
         <div className="divide-y border-y">

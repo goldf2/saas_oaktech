@@ -146,7 +146,7 @@ export const PRODUCTS: SoftwareProduct[] = [
       {
         question: "Does the extension upload tweet data?",
         answer:
-          "No. Extraction runs in the browser on the X/Twitter page you open, and exports are saved to your computer. The extension does not upload extracted tweet text, media URLs, or media files to an OakTech service.",
+          "No. Extraction runs in the browser on the X/Twitter page you open, and exports are saved to your computer. The extension does not upload extracted tweet text, media URLs, or media files to an OakTech service, and the current version does not use analytics or any external API for licensing, analytics, or data processing.",
       },
       {
         question: "Do I need an account during beta?",
