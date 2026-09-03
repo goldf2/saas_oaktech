@@ -1,6 +1,5 @@
 import { createReadStream } from "node:fs";
 import { stat } from "node:fs/promises";
-import { Readable } from "node:stream";
 import { NextRequest } from "next/server";
 import { resolvePublicDownload } from "@/lib/store/downloads";
 
@@ -23,6 +22,26 @@ function rangeFor(value: string | null, size: number) {
   if (start < 0 || end < start || start >= size) return false;
   end = Math.min(end, size - 1);
   return { start, end };
+}
+
+function readableFile(filePath: string, start: number, end: number) {
+  const source = createReadStream(filePath, { start, end });
+  const iterator = source[Symbol.asyncIterator]();
+  return new ReadableStream<Uint8Array>({
+    async pull(controller) {
+      try {
+        const chunk = await iterator.next();
+        if (chunk.done) controller.close();
+        else controller.enqueue(new Uint8Array(chunk.value));
+      } catch (error) {
+        try { controller.error(error); } catch { source.destroy(); }
+      }
+    },
+    async cancel() {
+      source.destroy();
+      await iterator.return?.();
+    },
+  });
 }
 
 async function serve(request: NextRequest, parts: string[], headOnly: boolean) {
@@ -50,7 +69,7 @@ async function serve(request: NextRequest, parts: string[], headOnly: boolean) {
     "CDN-Cache-Control": "no-store",
   });
   if (requestedRange) headers.set("Content-Range", `bytes ${start}-${end}/${details.size}`);
-  const body = headOnly ? null : Readable.toWeb(createReadStream(descriptor.absolutePath, { start, end })) as ReadableStream;
+  const body = headOnly ? null : readableFile(descriptor.absolutePath, start, end);
   return new Response(body, { status: requestedRange ? 206 : 200, headers });
 }
 
