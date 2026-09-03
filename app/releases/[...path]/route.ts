@@ -46,7 +46,8 @@ async function serve(request: NextRequest, parts: string[], headOnly: boolean) {
     "Content-Type": descriptor.contentType,
     "Content-Length": String(end - start + 1),
     "Content-Disposition": `attachment; filename*=UTF-8''${encodeURIComponent(descriptor.fileName)}`,
-    "Cache-Control": descriptor.immutable ? "public, max-age=31536000, immutable" : "no-store",
+    "Cache-Control": descriptor.immutable ? "public, max-age=31536000, immutable, no-transform" : "no-store",
+    "CDN-Cache-Control": "no-store",
   });
   if (requestedRange) headers.set("Content-Range", `bytes ${start}-${end}/${details.size}`);
   const body = headOnly ? null : Readable.toWeb(createReadStream(descriptor.absolutePath, { start, end })) as ReadableStream;
