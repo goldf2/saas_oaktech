@@ -1,13 +1,17 @@
 import { PackageSearch } from "lucide-react";
 import { ProductCatalog } from "@/components/product-catalog";
-import { PRODUCT_CATEGORIES, PRODUCTS } from "@/config/products";
+import { PRODUCT_CATEGORIES } from "@/config/products";
+import { listPublicProducts, storeProductToSoftwareProduct } from "@/lib/store/public-data";
+
+export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "All Products - OakTech",
   description: "Browse browser extensions, desktop apps, and practical software from OakTech.",
 };
 
-export default function ProductsPage() {
+export default async function ProductsPage() {
+  const { products } = await listPublicProducts("en");
   return (
     <div className="container px-4 py-12 md:py-18">
       <div className="mb-10 max-w-2xl">
@@ -20,7 +24,7 @@ export default function ProductsPage() {
           Product pages show their real release status before you download or buy.
         </p>
       </div>
-      <ProductCatalog products={PRODUCTS} categories={PRODUCT_CATEGORIES} />
+      <ProductCatalog products={products.map(storeProductToSoftwareProduct)} categories={PRODUCT_CATEGORIES} />
     </div>
   );
 }

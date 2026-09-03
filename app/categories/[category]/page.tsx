@@ -5,8 +5,10 @@ import { ProductCatalog } from "@/components/product-catalog";
 import {
   PRODUCT_CATEGORIES,
   getCategoryBySlug,
-  getProductsByCategory,
 } from "@/config/products";
+import { listPublicProducts, storeProductToSoftwareProduct } from "@/lib/store/public-data";
+
+export const dynamic = "force-dynamic";
 
 export function generateStaticParams() {
   return PRODUCT_CATEGORIES.filter((category) => category.availability === "available").map(
@@ -24,7 +26,10 @@ export default async function CategoryPage({
 
   if (!category || category.availability !== "available") notFound();
 
-  const products = getProductsByCategory(slug);
+  const { products: catalogProducts } = await listPublicProducts("en");
+  const products = catalogProducts
+    .filter((product) => product.categorySlug === slug)
+    .map(storeProductToSoftwareProduct);
 
   return (
     <div className="container px-4 py-12 md:py-18">

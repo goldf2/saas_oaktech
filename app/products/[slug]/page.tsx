@@ -16,6 +16,9 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/product-card";
+import { GitFinderProductPage } from "@/components/gitfinder-product-page";
+import { DatabaseProductPage } from "@/components/database-product-page";
+import { getPublicProduct, getPublishedProductReleases } from "@/lib/store/public-data";
 import {
   PRODUCTS,
   PRODUCT_STATUS_LABELS,
@@ -32,7 +35,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const { product } = await getPublicProduct(slug, "en");
   if (!product) return {};
 
   return {
@@ -47,9 +50,19 @@ export default async function ProductPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const [{ product: storeProduct, source }, releaseData] = await Promise.all([
+    getPublicProduct(slug, "en"),
+    getPublishedProductReleases(slug, "en"),
+  ]);
+  if (!storeProduct) notFound();
 
-  if (!product) notFound();
+  if (storeProduct.slug === "gitfinder-2") {
+    return <GitFinderProductPage product={storeProduct} locale="en" releases={releaseData.releases} source={releaseData.source === "migration-fallback" ? releaseData.source : source} />;
+  }
+
+  const configuredProduct = getProductBySlug(slug);
+  if (!configuredProduct) return <DatabaseProductPage product={storeProduct} releases={releaseData.releases} locale="en" />;
+  const product = { ...configuredProduct, name: storeProduct.name, tagline: storeProduct.tagline, description: storeProduct.description, icon: storeProduct.iconUrl, heroImage: storeProduct.heroImageUrl, platforms: storeProduct.supportedPlatforms, status: storeProduct.status };
 
   const relatedProducts = PRODUCTS.filter(
     (item) => item.slug !== product.slug && item.categorySlug === product.categorySlug,

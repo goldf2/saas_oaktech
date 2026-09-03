@@ -7,6 +7,9 @@ import { ThemeSwitcher } from "./theme-switcher";
 import { Logo } from "./logo";
 import { usePathname } from "next/navigation";
 import { MobileNav } from "./mobile-nav";
+import { LanguageSwitcher } from "./language-switcher";
+import { localeFromPathname } from "@/i18n/config";
+import { getMessages } from "@/i18n/messages";
 
 interface HeaderProps {
   user: any;
@@ -19,12 +22,15 @@ interface NavItem {
 
 export default function Header({ user }: HeaderProps) {
   const pathname = usePathname();
+  const locale = localeFromPathname(pathname);
+  const copy = getMessages(locale).common;
+  const localized = pathname?.startsWith(`/${locale}`);
   const isDashboard = pathname?.startsWith("/dashboard");
 
   const mainNavItems: NavItem[] = [
-    { label: "Products", href: "/products" },
-    { label: "Browser Extensions", href: "/categories/browser-extensions" },
-    { label: "Support", href: "/support" },
+    { label: copy.products, href: localized ? `/${locale}` : "/products" },
+    { label: copy.browserExtensions, href: "/categories/browser-extensions" },
+    { label: copy.support, href: "/support" },
   ];
 
   const dashboardItems: NavItem[] = [];
@@ -35,7 +41,7 @@ export default function Header({ user }: HeaderProps) {
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between px-4">
         <div className="flex items-center">
-          <Logo />
+          <Logo href={localized ? `/${locale}` : "/"} />
         </div>
         
         {/* Centered Navigation */}
@@ -52,6 +58,7 @@ export default function Header({ user }: HeaderProps) {
         </nav>
 
         <div className="flex items-center gap-2">
+          <LanguageSwitcher />
           <ThemeSwitcher />
           {user ? (
             <div className="hidden md:flex items-center gap-2">
@@ -62,26 +69,26 @@ export default function Header({ user }: HeaderProps) {
               )}
               {!isDashboard && (
                 <Button asChild size="sm" variant="outline">
-                  <Link href="/dashboard">Dashboard</Link>
+                  <Link href="/dashboard">{copy.dashboard}</Link>
                 </Button>
               )}
               <form action={signOutAction}>
                 <Button type="submit" variant="outline" size="sm">
-                  Sign out
+                  {copy.signOut}
                 </Button>
               </form>
             </div>
           ) : (
             <div className="hidden md:flex gap-2">
               <Button asChild size="sm" variant="outline">
-                <Link href="/sign-in">Sign in</Link>
+                <Link href="/sign-in">{copy.signIn}</Link>
               </Button>
               <Button asChild size="sm">
-                <Link href="/sign-up">Sign up</Link>
+                <Link href="/sign-up">{copy.signUp}</Link>
               </Button>
             </div>
           )}
-          <MobileNav items={navItems} user={user} isDashboard={isDashboard} />
+          <MobileNav items={navItems} user={user} isDashboard={isDashboard} labels={{ navigation: copy.navigation, toggleMenu: copy.toggleMenu, dashboard: copy.dashboard, signIn: copy.signIn, signUp: copy.signUp, signOut: copy.signOut }} />
         </div>
       </div>
     </header>

@@ -67,7 +67,7 @@ export const PRODUCT_CATEGORIES: ProductCategory[] = [
     name: "Desktop Apps",
     description: "Native tools for macOS, Windows, and Linux.",
     icon: "Monitor",
-    availability: "planned",
+    availability: "available",
   },
   {
     slug: "developer-tools",
@@ -179,6 +179,75 @@ export const PRODUCTS: SoftwareProduct[] = [
       },
     ],
     featured: true,
+  },
+  {
+    slug: "gitfinder-2",
+    name: "GitFinder 2",
+    tagline: "See local repositories, deployments, and access points in one spatial workspace.",
+    description:
+      "A local-first desktop workspace for organizing projects and directories, inspecting Git repositories, and mapping deployment relationships without turning routine navigation into another dashboard chore.",
+    status: "beta",
+    category: "Desktop App",
+    categorySlug: "desktop-apps",
+    price: "Private alpha",
+    license: "Evaluation build",
+    icon: "/gitfinder-2/icon.png",
+    heroImage: "/gitfinder-2/hero.svg",
+    screenshots: ["/gitfinder-2/hero.svg"],
+    features: [
+      "Organize projects, Git repositories, and directories in one local library",
+      "Explore deployment relationships on a visual whiteboard",
+      "Connect to Coolify with read-scoped access for deployment context",
+      "Keep whiteboard documents and workspace preferences on your computer",
+      "Open managed folders quickly in Finder or File Explorer",
+      "Use native packages for Apple silicon Macs and Windows x64 PCs",
+    ],
+    platforms: ["macOS", "Windows"],
+    browsers: [],
+    installSteps: [
+      "Download the package for your operating system from the GitFinder 2 release page.",
+      "On macOS, unzip the app and move it to Applications. On Windows, run the x64 installer.",
+      "Grant access only to the folders you want GitFinder 2 to manage.",
+      "Add a project directory and optionally connect a read-scoped Coolify account.",
+    ],
+    permissions: [],
+    faqs: [
+      {
+        question: "Is GitFinder 2 a cloud file manager?",
+        answer:
+          "No. Project paths, repository discovery, whiteboards, and workspace preferences are designed around your local computer. Online services are optional sources of deployment status, not storage for your project files.",
+      },
+      {
+        question: "Do I need Coolify to use it?",
+        answer:
+          "No. You can use the project, repository, and directory library without Coolify. A Coolify connection adds deployment and access-point context to the relationship board.",
+      },
+      {
+        question: "Are public downloads available yet?",
+        answer:
+          "Yes. Alpha.85 is available as a checksum-verified evaluation build. The macOS package is ad-hoc signed and the Windows installer is unsigned.",
+      },
+      {
+        question: "How will updates be delivered?",
+        answer:
+          "GitFinder 2 is preparing an in-app update channel hosted by OakTech. Alpha builds will continue to show the exact version and release notes before an update is installed.",
+      },
+    ],
+    releaseNotes: [
+      {
+        label: "2.0.0-alpha.85",
+        title: "First public evaluation packages",
+        description:
+          "Publishes verified macOS arm64 and Windows x64 evaluation packages through the OakTech software store.",
+      },
+      {
+        label: "Alpha series",
+        title: "Relationship whiteboard and desktop packaging",
+        description:
+          "Introduces project grouping, repository-aware deployments, local whiteboard documents, macOS packaging, and Windows x64 installer validation.",
+      },
+    ],
+    featured: false,
   },
 ];
 

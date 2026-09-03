@@ -16,20 +16,21 @@ interface MobileNavProps {
   items: { label: string; href: string }[];
   user: any;
   isDashboard: boolean;
+  labels: { navigation: string; toggleMenu: string; dashboard: string; signIn: string; signUp: string; signOut: string };
 }
 
-export function MobileNav({ items, user, isDashboard }: MobileNavProps) {
+export function MobileNav({ items, user, isDashboard, labels }: MobileNavProps) {
   return (
     <Sheet>
       <SheetTrigger asChild>
         <Button variant="ghost" size="icon" className="md:hidden">
           <Menu className="h-5 w-5" />
-          <span className="sr-only">Toggle menu</span>
+          <span className="sr-only">{labels.toggleMenu}</span>
         </Button>
       </SheetTrigger>
       <SheetContent side="left" className="flex flex-col">
         <SheetHeader>
-          <SheetTitle>Navigation</SheetTitle>
+          <SheetTitle>{labels.navigation}</SheetTitle>
         </SheetHeader>
         <nav className="flex flex-col gap-4 mt-4">
           {items.map((item) => (
@@ -50,22 +51,22 @@ export function MobileNav({ items, user, isDashboard }: MobileNavProps) {
               )}
               {!isDashboard && (
                 <Button asChild variant="outline" className="w-full">
-                  <Link href="/dashboard">Dashboard</Link>
+                  <Link href="/dashboard">{labels.dashboard}</Link>
                 </Button>
               )}
               <form action={signOutAction} className="w-full">
                 <Button type="submit" variant="outline" className="w-full">
-                  Sign out
+                  {labels.signOut}
                 </Button>
               </form>
             </div>
           ) : (
             <div className="flex flex-col gap-2">
               <Button asChild variant="outline" className="w-full">
-                <Link href="/sign-in">Sign in</Link>
+                <Link href="/sign-in">{labels.signIn}</Link>
               </Button>
               <Button asChild variant="default" className="w-full">
-                <Link href="/sign-up">Sign up</Link>
+                <Link href="/sign-up">{labels.signUp}</Link>
               </Button>
             </div>
           )}
