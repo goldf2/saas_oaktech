@@ -1,11 +1,12 @@
 import "server-only";
 
 import { createHash, randomUUID } from "node:crypto";
-import { createReadStream, createWriteStream } from "node:fs";
+import { createWriteStream } from "node:fs";
 import { link, mkdir, rename, stat, unlink } from "node:fs/promises";
 import path from "node:path";
 import { Readable, Transform } from "node:stream";
 import { pipeline } from "node:stream/promises";
+import { hashFile } from "./file-hash";
 import type { AdminProductReleaseRow } from "./types";
 import { selectUpdaterArtifacts } from "./release-contract";
 
@@ -124,13 +125,7 @@ export async function appendUploadChunk(input: {
   const storagePath = releaseStoragePath(input.productSlug, input.channel, input.version, input.fileName);
   const destination = absoluteReleasePath(storagePath);
   await mkdir(path.dirname(destination), { recursive: true });
-  const hash = createHash("sha512");
-  await pipeline(createReadStream(temporary), new Transform({
-    transform(chunk, _encoding, callback) {
-      hash.update(chunk);
-      callback(null, chunk);
-    },
-  }));
+  const sha512 = await hashFile(temporary);
   const details = await stat(temporary);
   await link(temporary, destination);
   await unlink(temporary);
@@ -139,7 +134,7 @@ export async function appendUploadChunk(input: {
     storagePath,
     publicPath: `/releases/${storagePath}`,
     sizeBytes: details.size,
-    sha512: hash.digest("hex"),
+    sha512,
   };
 }
 
@@ -151,14 +146,7 @@ export async function verifyStoredArtifact(artifact: AdminProductReleaseRow["rel
   const filePath = absoluteReleasePath(artifact.storage_path);
   const details = await stat(filePath);
   if (!details.isFile() || details.size !== Number(artifact.size_bytes)) throw new Error(`ARTIFACT_SIZE_MISMATCH:${artifact.file_name}`);
-  const hash = createHash("sha512");
-  await pipeline(createReadStream(filePath), new Transform({
-    transform(chunk, _encoding, callback) {
-      hash.update(chunk);
-      callback(null, chunk);
-    },
-  }));
-  if (hash.digest("hex") !== artifact.sha512.toLowerCase()) throw new Error(`ARTIFACT_SHA512_MISMATCH:${artifact.file_name}`);
+  if (await hashFile(filePath) !== artifact.sha512.toLowerCase()) throw new Error(`ARTIFACT_SHA512_MISMATCH:${artifact.file_name}`);
 }
 
 function yamlString(value: string) {
