@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { isStoreAdmin, selectPublishedRows } from "../lib/store/policy.ts";
+import { parseReleaseImport, selectUpdaterArtifacts } from "../lib/store/release-contract.ts";
+import { authenticateReleaseWriter } from "../lib/store/release-writer.ts";
 
 test("admin access fails closed when no allowlist is configured", () => {
   assert.equal(isStoreAdmin({ id: "user-1", email: "owner@example.com" }, {}), false);
@@ -19,4 +21,42 @@ test("public release selection removes drafts and keeps the current release firs
     { id: "current", status: "published" as const, is_current: true, published_at: "2026-07-01T00:00:00Z" },
   ]);
   assert.deepEqual(rows.map((row) => row.id), ["current", "old"]);
+});
+
+test("release workflow token fails closed and uses constant identity", () => {
+  const token = "a".repeat(48);
+  assert.equal(authenticateReleaseWriter(null, token), null);
+  assert.equal(authenticateReleaseWriter("Bearer wrong", token), null);
+  assert.equal(authenticateReleaseWriter(`Bearer ${"é".repeat(48)}`, token), null);
+  assert.deepEqual(authenticateReleaseWriter(`Bearer ${token}`, token), {
+    id: "release-workflow",
+    email: "release-workflow@oaktechz.internal",
+  });
+});
+
+test("release import contract requires version, commit and bilingual content", () => {
+  const value = {
+    schemaVersion: 1,
+    productSlug: "gitfinder-2",
+    version: "2.0.0-alpha.88",
+    channel: "alpha",
+    sourceCommit: "0123456789abcdef0123456789abcdef01234567",
+    title: { en: "Release", zh: "发布" },
+    notes: { en: "Changes", zh: "更新内容" },
+  };
+  assert.deepEqual(parseReleaseImport(value), value);
+  assert.throws(() => parseReleaseImport({ ...value, sourceCommit: "dirty" }), /SOURCE_COMMIT/);
+  assert.throws(() => parseReleaseImport({ ...value, notes: { en: "", zh: "" } }), /BILINGUAL/);
+});
+
+test("updater manifests exclude Windows portable ZIP and blockmap", () => {
+  const artifacts = [
+    { platform: "macos", package_kind: "zip" },
+    { platform: "windows", package_kind: "nsis" },
+    { platform: "windows", package_kind: "portable" },
+    { platform: "windows", package_kind: "blockmap" },
+  ] as never;
+  const selected = selectUpdaterArtifacts(artifacts);
+  assert.deepEqual(selected.mac.map((item) => item.package_kind), ["zip"]);
+  assert.deepEqual(selected.windows.map((item) => item.package_kind), ["nsis"]);
 });

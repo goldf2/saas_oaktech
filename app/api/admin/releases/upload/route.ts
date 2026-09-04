@@ -3,6 +3,7 @@ import { requireStoreAdmin } from "@/lib/store/admin";
 import { appendStoreAudit, mutateStoreCatalog, newCatalogId, readStoreCatalog } from "@/lib/store/file-catalog";
 import { isSafeFileName } from "@/lib/store/policy";
 import { appendUploadChunk, removeStoredFile } from "@/lib/store/storage";
+import { authenticateReleaseWriter } from "@/lib/store/release-writer";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -10,8 +11,14 @@ export const dynamic = "force-dynamic";
 export async function POST(request: NextRequest) {
   let stored: Extract<Awaited<ReturnType<typeof appendUploadChunk>>, { complete: true }> | null = null;
   try {
-    if (request.headers.get("x-oaktech-admin-upload") !== "1") return NextResponse.json({ error: "UPLOAD_HEADER_REQUIRED" }, { status: 403 });
-    const admin = await requireStoreAdmin();
+    const writer = authenticateReleaseWriter(request.headers.get("authorization"));
+    if (!writer && request.headers.get("authorization")) {
+      return NextResponse.json({ error: "RELEASE_WRITER_UNAUTHORIZED" }, { status: 401 });
+    }
+    if (!writer && request.headers.get("x-oaktech-admin-upload") !== "1") {
+      return NextResponse.json({ error: "UPLOAD_HEADER_REQUIRED" }, { status: 403 });
+    }
+    const admin = writer ?? await requireStoreAdmin();
     const releaseId = request.nextUrl.searchParams.get("releaseId")?.trim() ?? "";
     const platform = request.nextUrl.searchParams.get("platform")?.trim() ?? "";
     const architecture = request.nextUrl.searchParams.get("architecture")?.trim() ?? "";

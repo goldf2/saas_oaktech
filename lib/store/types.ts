@@ -72,6 +72,7 @@ export type AdminProductReleaseRow = {
   status: PublicationStatus;
   is_current: boolean;
   published_at: string | null;
+  source_commit?: string | null;
   title_en: string;
   title_zh: string;
   notes_en: string;

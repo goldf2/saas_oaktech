@@ -35,6 +35,11 @@ CREEM_API_URL=https://test-api.creem.io/v1
 
 BASE_URL=https://你的域名
 CREEM_SUCCESS_URL=https://你的域名/dashboard
+
+RELEASE_STORAGE_ROOT=/app/data/releases
+OAKTECH_ADMIN_USER_IDS=管理员的Supabase用户ID
+OAKTECH_ADMIN_EMAILS=管理员邮箱
+OAKTECH_RELEASE_WRITE_TOKEN=至少32字符的随机发布机器凭据
 ```
 
 生产收款时改成：
@@ -50,6 +55,7 @@ CREEM_API_URL=https://api.creem.io
 
 - `NEXT_PUBLIC_SUPABASE_URL`、`NEXT_PUBLIC_SUPABASE_ANON_KEY`、`BASE_URL`：保留 Build Variable 和 Runtime Variable。
 - `SUPABASE_SERVICE_ROLE_KEY`、`CREEM_API_KEY`、`CREEM_WEBHOOK_SECRET`：只需要 Runtime Variable，建议关闭 Build Variable。
+- `OAKTECH_RELEASE_WRITE_TOKEN`：只需要 Runtime Variable，禁止显示在构建日志或写入仓库；GitFinder GitHub Environment 保存同一值。
 - `CREEM_TEST_MODE`、`CREEM_API_URL`、`CREEM_SUCCESS_URL`：Runtime Variable 即可。
 
 ## 4. 更新第三方回调
