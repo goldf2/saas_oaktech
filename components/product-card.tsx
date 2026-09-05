@@ -1,57 +1,59 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import {
-  PRODUCT_STATUS_LABELS,
-  type SoftwareProduct,
-} from "@/config/products";
+import { ArrowUpRight } from "lucide-react";
+import { localePath } from "@/i18n/config";
+import type { Locale } from "@/lib/store/types";
+import type { SoftwareProduct } from "@/config/products";
 
-export function ProductCard({ product }: { product: SoftwareProduct }) {
+function statusLabel(status: SoftwareProduct["status"], locale?: Locale) {
+  if (locale === "zh") {
+    return { beta: "测试版", released: "已发布", "coming-soon": "即将推出" }[status];
+  }
+  return { beta: "Beta", released: "Released", "coming-soon": "Coming soon" }[status];
+}
+
+export function ProductCard({ product, locale }: { product: SoftwareProduct; locale?: Locale }) {
+  const plainHref = `/products/${product.slug}`;
+  const href = locale ? localePath(locale, plainHref) : plainHref;
+
   return (
-    <Card className="group h-full overflow-hidden transition-colors hover:border-primary/50">
-      <div className="relative aspect-[11/7] overflow-hidden border-b bg-muted">
-        <Image
-          src={product.heroImage}
-          alt={`${product.name} interface preview`}
-          fill
-          sizes="(min-width: 1024px) 50vw, 100vw"
-          loading="eager"
-          className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
-        />
-      </div>
-      <CardContent className="p-5 md:p-6">
-        <div className="flex items-start gap-4">
+    <article className="store-surface store-pressable group h-full overflow-hidden">
+      <Link href={href} className="flex h-full flex-col" aria-label={`${product.name}: ${product.tagline}`}>
+        <div className="relative aspect-[16/10] overflow-hidden bg-[hsl(var(--store-surface-muted))]">
           <Image
-            src={product.icon}
-            alt=""
-            width={52}
-            height={52}
-            className="h-[52px] w-[52px] rounded-lg border bg-background"
+            src={product.heroImage}
+            alt={`${product.name} interface preview`}
+            fill
+            sizes="(min-width: 1024px) 38rem, 100vw"
+            className="object-cover transition-transform duration-500 group-hover:scale-[1.018]"
           />
-          <div className="min-w-0 flex-1">
-            <div className="mb-2 flex flex-wrap gap-2">
-              <Badge variant="secondary">{product.category}</Badge>
-              <Badge variant="outline">{PRODUCT_STATUS_LABELS[product.status]}</Badge>
+        </div>
+        <div className="flex flex-1 flex-col p-6 sm:p-7">
+          <div className="flex items-start gap-4">
+            <Image
+              src={product.icon}
+              alt=""
+              width={56}
+              height={56}
+              className="h-14 w-14 shrink-0 rounded-2xl bg-white object-cover shadow-sm"
+            />
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap gap-2">
+                <span className="store-chip">{product.category}</span>
+                <span className="store-chip">{statusLabel(product.status, locale)}</span>
+              </div>
+              <h3 className="mt-3 text-2xl font-semibold tracking-[-0.035em]">{product.name}</h3>
             </div>
-            <h3 className="text-xl font-semibold">{product.name}</h3>
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[hsl(var(--store-surface-muted))] text-[hsl(var(--store-blue))] transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+              <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
+            </span>
+          </div>
+          <p className="mt-5 text-base leading-7 text-[hsl(var(--store-secondary))]">{product.tagline}</p>
+          <div className="mt-auto flex flex-wrap gap-2 pt-6">
+            {product.platforms.map((platform) => <span key={platform} className="text-xs font-medium text-[hsl(var(--store-secondary))]">{platform}</span>)}
           </div>
         </div>
-        <p className="mt-4 text-sm leading-6 text-muted-foreground">
-          {product.tagline}
-        </p>
-        <div className="mt-5 flex items-center justify-between gap-4 border-t pt-4">
-          <span className="text-sm font-medium">{product.price}</span>
-          <Button asChild variant="ghost" size="sm">
-            <Link href={`/products/${product.slug}`}>
-              View product
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+      </Link>
+    </article>
   );
 }

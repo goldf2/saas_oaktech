@@ -11,11 +11,13 @@ import {
   type ProductCategory,
   type SoftwareProduct,
 } from "@/config/products";
+import type { Locale } from "@/lib/store/types";
 
 type CatalogProps = {
   products: SoftwareProduct[];
   categories: ProductCategory[];
   showCategoryFilter?: boolean;
+  locale?: Locale;
 };
 
 const STATUS_VALUES = ["beta", "released", "coming-soon"] as const;
@@ -28,6 +30,7 @@ export function ProductCatalog({
   products,
   categories,
   showCategoryFilter = true,
+  locale,
 }: CatalogProps) {
   const pathname = usePathname();
   const router = useRouter();
@@ -83,7 +86,7 @@ export function ProductCatalog({
 
   return (
     <div>
-      <div className="border-y bg-muted/30 py-4">
+      <div className="store-glass rounded-[1.5rem] p-4">
         <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_180px_180px_180px_150px_auto]">
           <label className="relative block">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -91,7 +94,7 @@ export function ProductCatalog({
               value={query}
               onChange={(event) => updateParam("q", event.target.value)}
               placeholder="Search products"
-              className="pl-9"
+              className="h-11 rounded-full border-[hsl(var(--store-line))] bg-[hsl(var(--store-surface))] pl-9"
             />
           </label>
           {showCategoryFilter && (
@@ -99,7 +102,7 @@ export function ProductCatalog({
               value={category}
               onChange={(event) => updateParam("category", event.target.value)}
               aria-label="Filter by category"
-              className="h-10 w-full rounded-md border bg-background px-3 text-sm"
+              className="h-11 w-full rounded-full border border-[hsl(var(--store-line))] bg-[hsl(var(--store-surface))] px-3 text-sm"
             >
               <option value="all">All categories</option>
               {availableCategories.map((item) => <option key={item.slug} value={item.slug}>{item.name}</option>)}
@@ -109,7 +112,7 @@ export function ProductCatalog({
             value={status ?? "all"}
             onChange={(event) => updateParam("status", event.target.value)}
             aria-label="Filter by release status"
-            className="h-10 w-full rounded-md border bg-background px-3 text-sm"
+            className="h-11 w-full rounded-full border border-[hsl(var(--store-line))] bg-[hsl(var(--store-surface))] px-3 text-sm"
           >
             <option value="all">All statuses</option>
             {STATUS_VALUES.filter((value) => products.some((product) => product.status === value)).map((value) => (
@@ -120,7 +123,7 @@ export function ProductCatalog({
             value={platform}
             onChange={(event) => updateParam("platform", event.target.value)}
             aria-label="Filter by platform"
-            className="h-10 w-full rounded-md border bg-background px-3 text-sm"
+            className="h-11 w-full rounded-full border border-[hsl(var(--store-line))] bg-[hsl(var(--store-surface))] px-3 text-sm"
           >
             <option value="all">All platforms</option>
             {platforms.map((item) => <option key={item} value={item}>{item}</option>)}
@@ -129,13 +132,13 @@ export function ProductCatalog({
             value={sort}
             onChange={(event) => updateParam("sort", event.target.value)}
             aria-label="Sort products"
-            className="h-10 w-full rounded-md border bg-background px-3 text-sm"
+            className="h-11 w-full rounded-full border border-[hsl(var(--store-line))] bg-[hsl(var(--store-surface))] px-3 text-sm"
           >
             <option value="featured">Featured first</option>
             <option value="name">Name</option>
           </select>
           {hasFilters ? (
-            <Button type="button" variant="ghost" onClick={resetFilters} className="justify-start lg:justify-center">
+            <Button type="button" variant="ghost" onClick={resetFilters} className="h-11 justify-start rounded-full lg:justify-center">
               <X className="mr-2 h-4 w-4" />
               Clear
             </Button>
@@ -145,20 +148,20 @@ export function ProductCatalog({
         </div>
       </div>
 
-      <div className="flex items-center justify-between py-5 text-sm">
+      <div className="flex items-center justify-between py-6 text-sm">
         <span className="font-medium">{filteredProducts.length} {filteredProducts.length === 1 ? "product" : "products"}</span>
         <span className="flex items-center gap-2 text-muted-foreground"><SlidersHorizontal className="h-4 w-4" /> Filters update this link</span>
       </div>
 
       {filteredProducts.length > 0 ? (
         <div className="grid gap-6 lg:grid-cols-2">
-          {filteredProducts.map((product) => <ProductCard key={product.slug} product={product} />)}
+          {filteredProducts.map((product) => <ProductCard key={product.slug} product={product} locale={locale} />)}
         </div>
       ) : (
-        <div className="border-y py-16 text-center">
+        <div className="store-surface py-16 text-center">
           <h2 className="text-xl font-semibold">No products match these filters.</h2>
           <p className="mt-2 text-sm text-muted-foreground">Try another search term or clear the active filters.</p>
-          <Button type="button" variant="outline" className="mt-6" onClick={resetFilters}>Clear filters</Button>
+          <Button type="button" variant="outline" className="mt-6 rounded-full" onClick={resetFilters}>Clear filters</Button>
         </div>
       )}
     </div>

@@ -26,27 +26,27 @@ export function MobileNav({ items, user, authProvider, isDashboard, labels }: Mo
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="md:hidden">
+        <Button variant="ghost" size="icon" className="rounded-full lg:hidden">
           <Menu className="h-5 w-5" />
           <span className="sr-only">{labels.toggleMenu}</span>
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="flex flex-col">
+      <SheetContent side="left" className="store-glass flex flex-col border-r-0">
         <SheetHeader>
           <SheetTitle>{labels.navigation}</SheetTitle>
         </SheetHeader>
-        <nav className="flex flex-col gap-4 mt-4">
+        <nav className="mt-6 flex flex-col gap-1">
           {items.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="text-lg font-semibold text-muted-foreground transition-colors hover:text-primary"
+              className="rounded-2xl px-4 py-3 text-lg font-semibold tracking-[-0.02em] text-[hsl(var(--store-secondary))] transition-colors hover:bg-[hsl(var(--store-surface-muted))] hover:text-[hsl(var(--store-ink))]"
             >
               {item.label}
             </Link>
           ))}
         </nav>
-        <div className="mt-auto pt-4 border-t">
+        <div className="mt-auto border-t border-[hsl(var(--store-line))] pt-4">
           {user ? (
             <div className="flex flex-col gap-2">
               {(user.email || user.name) && (

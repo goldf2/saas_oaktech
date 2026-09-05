@@ -43,7 +43,7 @@ export default async function CategoryPage({
       </div>
       {products.length > 0 ? (
         <div className="mt-10">
-          <ProductCatalog products={products} categories={[category]} showCategoryFilter={false} />
+          <ProductCatalog products={products} categories={[category]} showCategoryFilter={false} locale="en" />
         </div>
       ) : (
         <div className="mt-10 border-y py-16 text-center">

@@ -17,15 +17,15 @@ export function Footer() {
     { title: copy.browse, links: [
       { label: copy.allProducts, href: localized ? `/${locale}` : "/products" },
       { label: copy.browserExtensions, href: "/categories/browser-extensions" },
-      { label: copy.xTweetExtractor, href: "/products/x-tweet-extractor" },
+      { label: copy.xTweetExtractor, href: localePath(locale, "/products/x-tweet-extractor") },
       { label: "GitFinder 2", href: localePath(locale, "/products/gitfinder-2") },
     ] },
     { title: copy.company, links: [{ label: copy.about, href: "/about" }, { label: copy.support, href: "/support" }] },
     { title: copy.legal, links: [{ label: copy.privacyPolicy, href: "/privacy" }, { label: copy.terms, href: "/terms" }] },
   ];
   return (
-    <footer className="border-t">
-      <div className="container px-4 py-8 md:py-12">
+    <footer className="border-t border-[hsl(var(--store-line)/0.75)] bg-[hsl(var(--store-surface))]">
+      <div className="store-shell py-10 md:py-14">
         <div className="grid grid-cols-2 gap-8 md:grid-cols-4 lg:grid-cols-6">
           <div className="col-span-full lg:col-span-2">
             <Logo href={localized ? `/${locale}` : "/"} />
@@ -58,7 +58,7 @@ export function Footer() {
             ))}
           </div>
         </div>
-        <div className="mt-8 flex flex-col gap-1 border-t pt-8 text-center text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-10 flex flex-col gap-1 border-t border-[hsl(var(--store-line))] pt-7 text-center text-xs text-[hsl(var(--store-secondary))] sm:flex-row sm:items-center sm:justify-between">
           <p>&copy; {new Date().getFullYear()} OakTech. {copy.rights}</p>
           <p>{copy.storeVersion} v{packageJson.version}</p>
         </div>
