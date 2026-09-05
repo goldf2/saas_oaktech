@@ -15,7 +15,6 @@ test("Casdoor mode fails closed when required configuration is incomplete", () =
     "NEXTAUTH_SECRET",
     "CASDOOR_ISSUER",
     "CASDOOR_CLIENT_ID",
-    "CASDOOR_CLIENT_SECRET",
   ]);
 });
 
@@ -28,7 +27,6 @@ test("Casdoor logout uses the fixed store return URL without exposing a secret o
     NEXTAUTH_URL: "https://store.example.com",
     CASDOOR_ISSUER: "https://identity.example.com/",
     CASDOOR_CLIENT_ID: "store web",
-    CASDOOR_CLIENT_SECRET: "must-not-be-in-url",
   }));
   assert.equal(url.origin + url.pathname, "https://identity.example.com/api/logout");
   assert.deepEqual(Object.fromEntries(url.searchParams), {

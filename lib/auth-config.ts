@@ -5,8 +5,7 @@ export type AuthEnvironment = Partial<Record<
   | "NEXTAUTH_URL"
   | "NEXTAUTH_SECRET"
   | "CASDOOR_ISSUER"
-  | "CASDOOR_CLIENT_ID"
-  | "CASDOOR_CLIENT_SECRET",
+  | "CASDOOR_CLIENT_ID",
   string
 >>;
 
@@ -15,7 +14,6 @@ const CASDOOR_REQUIRED_ENV = [
   "NEXTAUTH_SECRET",
   "CASDOOR_ISSUER",
   "CASDOOR_CLIENT_ID",
-  "CASDOOR_CLIENT_SECRET",
 ] as const;
 
 export function getAuthProvider(env: AuthEnvironment = process.env): AuthProvider {

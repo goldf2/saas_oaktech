@@ -23,7 +23,7 @@ export function createAuthOptions(env: AuthEnvironment = process.env): NextAuthO
           type: "oauth",
           wellKnown: `${casdoorIssuer}/.well-known/openid-configuration`,
           clientId: env.CASDOOR_CLIENT_ID,
-          clientSecret: env.CASDOOR_CLIENT_SECRET,
+          client: { token_endpoint_auth_method: "none" },
           idToken: true,
           checks: ["pkce", "state"],
           authorization: { params: { scope: "openid" } },

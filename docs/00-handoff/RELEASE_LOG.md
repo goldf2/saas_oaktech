@@ -1,5 +1,12 @@
 # 发布记录
 
+## 0.1.14 · Casdoor 无客户端密钥登录
+
+- 源码：授权码交换显式使用 `token_endpoint_auth_method=none` 和 S256 PKCE，移除 Casdoor client secret 要求，商店仅保留独立会话密钥。
+- 配置：Casdoor 创建独立 `oaktech-store` 业务组织及 `software-store-web` 应用，Grant Types 仅授权码、JWT-Custom 仅 id。
+- 验证：18项测试、无增量TypeScript检查、Webpack生产构建通过；回归实测NextAuth token请求携带code_verifier，且没有client_secret/Authorization。
+- 部署：待推送与Con01部署后的真实用户登录验收。
+
 ## 0.1.13 · Casdoor 登录代码
 
 - 状态：源码验证通过，待提交和部署；生产 Casdoor 开关暂不启用，独立应用与凭据配置待确认。

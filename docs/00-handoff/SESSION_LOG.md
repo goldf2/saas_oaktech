@@ -1,5 +1,14 @@
 # 研发记录
 
+## 2026-09-05T08:33:25+08:00 · PKCE-20260905 · Casdoor 无客户端密钥登录 0.1.14
+
+- 目标：商店使用 S256 PKCE 登录，不接收具有 Casdoor 管理 API 能力的应用 client secret。
+- 根因与证据：Casdoor v4.1.0 `object/token_oauth.go` 支持正确 S256 verifier 加空 secret 交换授权码；`routers/base.go` 的直接应用 secret 鉴权不受 Client Credentials grant 开关限制。官方固定版本源码链接见 [接入文档](../casdoor-login.md)。
+- 改动：`lib/auth-options.ts` 配置 `token_endpoint_auth_method: none`；`lib/auth-config.ts` 移除应用密钥要求；保留 PKCE/state/openid/ID Token 与商店独立会话密钥。更新 `.env.example`、接入文档、现有认证测试，以及 `package.json`/`package-lock.json` 的 `0.1.14` 版本声明。
+- 回归：新增 `tests/auth-pkce.test.ts` 在修改前因缺失应用密钥失败；修改后通过 NextAuth 实际 OIDC client callback 的本地 HTTP 请求确认无 Authorization header/client secret，且提交 client ID、code verifier 和固定回调地址。
+- 验证：`npm test` 18/18；`npx tsc --noEmit --incremental false` 通过；`npm run build -- --webpack` 通过；无凭据进入文件或日志。
+- 下一步：同步验证后的改动并部署，再完成生产真实登录、退出、管理员映射和匿名公开下载验收。本次记录只证明隔离 worktree 的源码与本地验证，未宣称生产已完成。
+
 ## 2026-09-05T08:07:16+08:00 · 软件商店 Casdoor 登录 0.1.13
 
 - 目标：让商店使用现有 Casdoor 登录，保留未提交页面设计改动。

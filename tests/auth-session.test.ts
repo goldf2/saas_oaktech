@@ -8,7 +8,6 @@ const options = createAuthOptions({
   NEXTAUTH_SECRET: "session-secret-for-test-only",
   CASDOOR_ISSUER: "https://identity.example.com",
   CASDOOR_CLIENT_ID: "store-web",
-  CASDOOR_CLIENT_SECRET: "client-secret-for-test-only",
 });
 
 test("Casdoor callbacks discard personal claims and retain the exact business identity", async () => {

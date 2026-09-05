@@ -2,8 +2,8 @@
 
 ## P0 · 软件商店 Casdoor 登录
 
-1. 等待用户确认在现有 Casdoor 新建 `software-store-web` 独立应用并将该客户端密钥存入 Con01 `softbank`。
-2. 按 [Casdoor 登录](../casdoor-login.md) 配置最小 Token、精确回调、NEXTAUTH/CASDOOR 运行变量和管理员 subject。
+1. 在现有 Casdoor 配置 `software-store-web` 独立应用，使用无需 client secret 的 S256 PKCE 授权码流程；应用密钥留在 Casdoor。
+2. 按 [Casdoor 登录](../casdoor-login.md) 配置最小 Token、精确回调、商店独立 `NEXTAUTH_SECRET`、issuer/client ID 和管理员 subject。
 3. 启用并部署后验证真实授权回调、Dashboard、退出及匿名公开下载；当前尚未完成真实生产登录。
 
 ## 软件发布历史后续
