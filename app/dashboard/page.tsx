@@ -5,13 +5,17 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowRight, Download, KeyRound, Package, HeadphonesIcon, Sparkles } from "lucide-react";
 import { PRODUCTS, PRODUCT_STATUS_LABELS } from "@/config/products";
+import { getCurrentUser } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
 export const metadata = {
   title: "Dashboard - OakTech",
   description: "Manage your OakTech software licenses and downloads.",
 };
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  if (!(await getCurrentUser())) redirect("/sign-in");
+
   return (
     <div className="container px-4 py-12">
       <h1 className="text-3xl font-bold tracking-tight mb-2">Your Dashboard</h1>

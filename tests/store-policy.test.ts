@@ -10,8 +10,24 @@ test("admin access fails closed when no allowlist is configured", () => {
 
 test("admin access accepts an exact configured user id or normalized email", () => {
   assert.equal(isStoreAdmin({ id: "user-1" }, { userIds: "user-1,user-2" }), true);
+  assert.equal(isStoreAdmin({ provider: "casdoor", subject: "casdoor-user-1" }, { subjects: "casdoor-user-1" }), true);
   assert.equal(isStoreAdmin({ email: "Owner@Example.com" }, { emails: "owner@example.com" }), true);
-  assert.equal(isStoreAdmin({ id: "other", email: "other@example.com" }, { userIds: "user-1", emails: "owner@example.com" }), false);
+  assert.equal(isStoreAdmin({ id: "other", subject: "other", email: "other@example.com" }, { userIds: "user-1", subjects: "casdoor-user-1", emails: "owner@example.com" }), false);
+});
+
+test("Casdoor administrator subjects are matched exactly", () => {
+  const config = { subjects: "User-A, User-B" };
+  assert.equal(isStoreAdmin({ provider: "casdoor", subject: "User-A" }, config), true);
+  assert.equal(isStoreAdmin({ provider: "casdoor", subject: "user-a" }, config), false);
+  assert.equal(isStoreAdmin({ provider: "casdoor", subject: " User-A" }, config), false);
+});
+
+test("Casdoor administrator access cannot fall back to a legacy user id or email", () => {
+  const config = { subjects: "Casdoor-Owner", userIds: "legacy-owner", emails: "owner@example.com" };
+  assert.equal(isStoreAdmin({ provider: "casdoor", subject: "Other-User", id: "legacy-owner", email: "owner@example.com" }, config), false);
+  assert.equal(isStoreAdmin({ provider: "casdoor", id: "legacy-owner", email: "owner@example.com" }, config), false);
+  assert.equal(isStoreAdmin({ provider: "supabase", id: "legacy-owner" }, config), true);
+  assert.equal(isStoreAdmin({ provider: "supabase", subject: "Casdoor-Owner" }, config), false);
 });
 
 test("public release selection removes drafts and keeps the current release first", () => {

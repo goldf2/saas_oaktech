@@ -1,21 +1,26 @@
 import type { PublicationStatus } from "./types.ts";
 
-export type AdminIdentity = { id?: string | null; email?: string | null };
+export type AdminIdentity = { provider?: "casdoor" | "supabase"; id?: string | null; subject?: string | null; email?: string | null };
 
-function parseAllowlist(value: string | undefined) {
+function parseAllowlist(value: string | undefined, caseSensitive = false) {
   return new Set(
     (value ?? "")
       .split(",")
-      .map((item) => item.trim().toLowerCase())
+      .map((item) => caseSensitive ? item.trim() : item.trim().toLowerCase())
       .filter(Boolean),
   );
 }
 
 export function isStoreAdmin(
   identity: AdminIdentity | null | undefined,
-  config: { userIds?: string; emails?: string },
+  config: { userIds?: string; subjects?: string; emails?: string },
 ) {
   if (!identity) return false;
+  if (identity.provider === "casdoor") {
+    const subjects = parseAllowlist(config.subjects, true);
+    return Boolean(identity.subject && subjects.has(identity.subject));
+  }
+
   const ids = parseAllowlist(config.userIds);
   const emails = parseAllowlist(config.emails);
   if (ids.size === 0 && emails.size === 0) return false;

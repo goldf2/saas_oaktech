@@ -1,21 +1,22 @@
 import "server-only";
 
-import { createClient } from "@/utils/supabase/server";
+import { getCurrentUser } from "@/lib/auth";
 import { isStoreAdmin } from "./policy";
 import { readStoreCatalog } from "./file-catalog";
 
 export type StoreAdmin = { id: string; email: string };
 
 export async function getStoreAdmin(): Promise<StoreAdmin | null> {
-  const supabase = await createClient();
-  const { data: { user }, error } = await supabase.auth.getUser();
-  if (error || !user?.email) return null;
+  const user = await getCurrentUser();
+  if (!user) return null;
 
   const allowed = isStoreAdmin(user, {
     userIds: process.env.OAKTECH_ADMIN_USER_IDS,
+    subjects: process.env.OAKTECH_ADMIN_SUBJECTS,
     emails: process.env.OAKTECH_ADMIN_EMAILS,
   });
-  return allowed ? { id: user.id, email: user.email } : null;
+  const auditIdentity = user.email ?? user.name ?? user.subject ?? user.id;
+  return allowed ? { id: user.id, email: auditIdentity } : null;
 }
 
 export async function requireStoreAdmin() {

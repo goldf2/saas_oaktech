@@ -1,7 +1,7 @@
 import Header from "@/components/header";
 import { Footer } from "@/components/footer";
 import { ThemeProvider } from "next-themes";
-import { createClient } from "@/utils/supabase/server";
+import { authProvider, getCurrentUser } from "@/lib/auth";
 import { Toaster } from "@/components/ui/toaster";
 import "./globals.css";
 
@@ -32,10 +32,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -47,7 +44,7 @@ export default async function RootLayout({
           disableTransitionOnChange
         >
           <div className="relative min-h-screen">
-            <Header user={user} />
+            <Header user={user} authProvider={authProvider} />
             <main className="flex-1">{children}</main>
             <Footer />
           </div>

@@ -10,16 +10,19 @@ import {
 } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
 import Link from "next/link";
-import { signOutAction } from "@/app/actions";
+import { AuthSignOutButton } from "@/components/auth-sign-out-button";
+import type { AppUser } from "@/lib/auth";
+import type { AuthProvider } from "@/lib/auth-config";
 
 interface MobileNavProps {
   items: { label: string; href: string }[];
-  user: any;
+  user: AppUser | null;
+  authProvider: AuthProvider;
   isDashboard: boolean;
   labels: { navigation: string; toggleMenu: string; dashboard: string; signIn: string; signUp: string; signOut: string };
 }
 
-export function MobileNav({ items, user, isDashboard, labels }: MobileNavProps) {
+export function MobileNav({ items, user, authProvider, isDashboard, labels }: MobileNavProps) {
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -46,19 +49,15 @@ export function MobileNav({ items, user, isDashboard, labels }: MobileNavProps) 
         <div className="mt-auto pt-4 border-t">
           {user ? (
             <div className="flex flex-col gap-2">
-              {user.email && (
-                <p className="text-sm text-muted-foreground">{user.email}</p>
+              {(user.email || user.name) && (
+                <p className="text-sm text-muted-foreground">{user.email ?? user.name}</p>
               )}
               {!isDashboard && (
                 <Button asChild variant="outline" className="w-full">
                   <Link href="/dashboard">{labels.dashboard}</Link>
                 </Button>
               )}
-              <form action={signOutAction} className="w-full">
-                <Button type="submit" variant="outline" className="w-full">
-                  {labels.signOut}
-                </Button>
-              </form>
+              <AuthSignOutButton provider={authProvider} label={labels.signOut} className="w-full" />
             </div>
           ) : (
             <div className="flex flex-col gap-2">

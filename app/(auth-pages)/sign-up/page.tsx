@@ -9,11 +9,15 @@ import { createClient } from "@/utils/supabase/server";
 import { encodedRedirect } from "@/utils/utils";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
+import { CasdoorAuthPanel } from "@/components/casdoor-auth-panel";
+import { isCasdoorAuthEnabled } from "@/lib/auth";
 
 export default async function SignUp(props: {
   searchParams: Promise<Message>;
 }) {
   const searchParams = await props.searchParams;
+
+  if (isCasdoorAuthEnabled) return <CasdoorAuthPanel mode="sign-up" />;
 
   const signUpWithGoogle = async () => {
     "use server";

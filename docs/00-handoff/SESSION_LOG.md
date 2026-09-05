@@ -1,5 +1,14 @@
 # 研发记录
 
+## 2026-09-05T08:07:16+08:00 · 软件商店 Casdoor 登录 0.1.13
+
+- 目标：让商店使用现有 Casdoor 登录，保留未提交页面设计改动。
+- 实现：从 `a7cd1c5` 隔离提取认证变更；OIDC code/PKCE/state、最小 JWT/session、精确 subject 管理员规则、Dashboard 门禁、Casdoor 退出和公开下载绕过认证代理。
+- 验证：17 项测试、无增量 TypeScript 检查、Webpack 生产构建通过；实际 discovery HTTP 200、授权 URL 参数与最小会话 HTTP 检查通过。
+- 配置基线：AL03 Casdoor healthy，Con01 `softbank` 仍为 0.1.11，尚无 Casdoor/NEXTAUTH 环境变量。
+- 下一步：等待新建独立 Application 与客户端密钥写入 Con01 的确认，再完成真实生产登录验收；未存储任何实际凭据。
+
+
 ## 2026-09-04T12:51:05+08:00 · 生产端点与流水线环境核验
 
 - 生产证据：`POST https://oaktechz.com/api/admin/releases/import` 在无凭据时返回 `401 RELEASE_WRITER_UNAUTHORIZED`，确认新版导入接口已部署并默认拒绝写入。

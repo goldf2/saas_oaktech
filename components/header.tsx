@@ -1,6 +1,8 @@
 "use client";
 
-import { signOutAction } from "@/app/actions";
+import { AuthSignOutButton } from "./auth-sign-out-button";
+import type { AppUser } from "@/lib/auth";
+import type { AuthProvider } from "@/lib/auth-config";
 import Link from "next/link";
 import { Button } from "./ui/button";
 import { ThemeSwitcher } from "./theme-switcher";
@@ -12,7 +14,8 @@ import { localeFromPathname } from "@/i18n/config";
 import { getMessages } from "@/i18n/messages";
 
 interface HeaderProps {
-  user: any;
+  user: AppUser | null;
+  authProvider: AuthProvider;
 }
 
 interface NavItem {
@@ -20,7 +23,7 @@ interface NavItem {
   href: string;
 }
 
-export default function Header({ user }: HeaderProps) {
+export default function Header({ user, authProvider }: HeaderProps) {
   const pathname = usePathname();
   const locale = localeFromPathname(pathname);
   const copy = getMessages(locale).common;
@@ -64,7 +67,7 @@ export default function Header({ user }: HeaderProps) {
             <div className="hidden md:flex items-center gap-2">
               {isDashboard && (
                 <span className="hidden sm:inline text-sm text-muted-foreground">
-                  {user.email}
+                  {user.email ?? user.name}
                 </span>
               )}
               {!isDashboard && (
@@ -72,11 +75,7 @@ export default function Header({ user }: HeaderProps) {
                   <Link href="/dashboard">{copy.dashboard}</Link>
                 </Button>
               )}
-              <form action={signOutAction}>
-                <Button type="submit" variant="outline" size="sm">
-                  {copy.signOut}
-                </Button>
-              </form>
+              <AuthSignOutButton provider={authProvider} label={copy.signOut} />
             </div>
           ) : (
             <div className="hidden md:flex gap-2">
@@ -88,7 +87,7 @@ export default function Header({ user }: HeaderProps) {
               </Button>
             </div>
           )}
-          <MobileNav items={navItems} user={user} isDashboard={isDashboard} labels={{ navigation: copy.navigation, toggleMenu: copy.toggleMenu, dashboard: copy.dashboard, signIn: copy.signIn, signUp: copy.signUp, signOut: copy.signOut }} />
+          <MobileNav items={navItems} user={user} authProvider={authProvider} isDashboard={isDashboard} labels={{ navigation: copy.navigation, toggleMenu: copy.toggleMenu, dashboard: copy.dashboard, signIn: copy.signIn, signUp: copy.signUp, signOut: copy.signOut }} />
         </div>
       </div>
     </header>
