@@ -2,9 +2,30 @@ import type { Locale } from "@/lib/store/types";
 
 export const LOCALES = ["en", "zh"] as const;
 export const DEFAULT_LOCALE: Locale = "en";
+export const LOCALE_COOKIE = "oaktech-locale";
 
 export function isLocale(value: string | undefined): value is Locale {
   return value === "en" || value === "zh";
+}
+
+export function localeFromAcceptLanguage(value: string | null | undefined): Locale {
+  const candidates = (value ?? "")
+    .split(",")
+    .map((entry, index) => {
+      const [rawTag, ...parameters] = entry.trim().toLowerCase().split(";");
+      const qualityParameter = parameters.find((parameter) => parameter.trim().startsWith("q="));
+      const quality = qualityParameter ? Number(qualityParameter.trim().slice(2)) : 1;
+      return { tag: rawTag, quality: Number.isFinite(quality) ? quality : 0, index };
+    })
+    .filter((candidate) => candidate.tag && candidate.quality > 0)
+    .sort((left, right) => right.quality - left.quality || left.index - right.index);
+
+  for (const candidate of candidates) {
+    if (candidate.tag === "zh" || candidate.tag.startsWith("zh-")) return "zh";
+    if (candidate.tag === "en" || candidate.tag.startsWith("en-")) return "en";
+  }
+
+  return DEFAULT_LOCALE;
 }
 
 export function localeFromPathname(pathname: string | null | undefined): Locale {

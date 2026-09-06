@@ -19,7 +19,7 @@ interface MobileNavProps {
   user: AppUser | null;
   authProvider: AuthProvider;
   isDashboard: boolean;
-  labels: { navigation: string; toggleMenu: string; dashboard: string; signIn: string; signUp: string; signOut: string };
+  labels: { navigation: string; toggleMenu: string; dashboard: string; account: string; signOut: string };
 }
 
 export function MobileNav({ items, user, authProvider, isDashboard, labels }: MobileNavProps) {
@@ -62,10 +62,7 @@ export function MobileNav({ items, user, authProvider, isDashboard, labels }: Mo
           ) : (
             <div className="flex flex-col gap-2">
               <Button asChild variant="outline" className="w-full">
-                <Link href="/sign-in">{labels.signIn}</Link>
-              </Button>
-              <Button asChild variant="default" className="w-full">
-                <Link href="/sign-up">{labels.signUp}</Link>
+                <Link href="/sign-in">{labels.account}</Link>
               </Button>
             </div>
           )}

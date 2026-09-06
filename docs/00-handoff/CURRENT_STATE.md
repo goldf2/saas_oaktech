@@ -1,21 +1,21 @@
 # 当前状态
 
-更新时间：2026-09-06T07:48:19+08:00
+更新时间：2026-09-06T20:02:30+08:00
 
 - 公共存储决策已确认：实际 OSS 列表已出现 `oaktech-public` 和多个相近的测试名称，将 `oaktech-public` 定为唯一正式公共 Bucket，各应用使用 `apps/<app-id>/` 前缀隔离。OSS 保存原始资源与发布事实，未来 CDN 只作缓存与分发层。其他相近 Bucket 在盘点对象和 ACL 前不删除。公开读不等于公开写入；用户数据和密敏文件仍放在私有存储。截图中的 MES/文档 Bucket 不复用。
-- 当前源码版本：`0.1.17`，用于 Apple 风格 storefront 用户侧第一切片；生产公网版本仍需在本次推送后的 CI/Coolify 部署完成后，以 `/api/health` 单独验收。
+- 当前源码版本：`0.1.18`，用于 Apple 风格 storefront、统一账户入口和根地址的浏览器语言选择；生产公网版本仍需在本次推送后的 CI/Coolify 部署完成后，以 `/api/health` 单独验收。
 - 软件商城以持久卷中的 `catalog.json` 管理产品、Release Draft、Published Release 和制品元数据；网站认证支持 Casdoor/Supabase 显式切换，生产现已启用 Casdoor。
 - 商店Logo已上传并配置：`https://oaktechz.com/brand/oaktech-logo-v1.png` 返回HTTP200、image/png、1031886字节；Casdoor `admin/software-store-web` 的Logo已保存为此URL，公开get-application接口再次读取确认。登录/注册共用该字段；CUA截图不可用、浏览器预览创建超时，因此像素级显示验收未完成，不能记录为截图通过。
 - 已确认统一认证方向：所有 OakTech 第一方工具复用自托管 Casdoor + 标准 OIDC/OAuth 2.0 技术栈；是否共享用户账户由各产品选择，并非强制。每个网站、桌面 App、插件和机器任务仍使用独立 Application 与权限边界。
 - 已确认软件商店采用 Apple 风格设计体系：Figma 用于设计规范与交互原型，Next.js 继续承载正式实现；重点是信息层级、系统字体、克制材质、即时反馈、可中断动效和无障碍，而非照搬 Apple 页面。
-- Apple 风格用户侧第一切片已完成源码实现：中英文首页共用实时目录组件，GitFinder 与通用产品详情、当前版本下载、历史版本下载和 Header/Nav 使用同一组轻量 storefront token 与组件；未改动认证、发布或下载 API。
+- Apple 风格用户侧第一切片已完成源码实现：中英文首页共用实时目录组件，GitFinder 与通用产品详情、当前版本下载、历史版本下载和 Header/Nav 使用同一组轻量 storefront token 与组件；未改动认证、发布或下载 API。未登录 Header 与移动菜单统一为一个“登录 / 注册”入口，认证页仍保留上下文切换链接；根地址根据浏览器 `Accept-Language` 选择语言，手动语言选择以 Cookie 记忆。
 - 可访问性适配已覆盖系统深浅色、`prefers-reduced-motion`、`prefers-reduced-transparency` 与 `prefers-contrast`；桌面 1440px、移动 390px 均完成无横向溢出截图检查，临时发布目录也验证了 macOS/Windows 当前及历史版本下载卡片。
 - 已确认部署边界：Casdoor、身份数据库和直接身份资料保留在阿里云中国内地节点；OakTech 软件商店主站部署在境外。境外商店只接收完成登录所需的最小 OIDC 声明，不保存密码、手机号或完整身份档案。
 - Casdoor 登录已上线：独立业务组织 `oaktech-store`、应用 `software-store-web`、精确回调、JWT-Custom/id 和五项运行变量均已保存。授权码兑换使用 S256 PKCE，显式 `token_endpoint_auth_method: none`，不使用 Casdoor client secret。本站只保留 issuer/subject 会话；Casdoor 模式仅接受精确 `sub` 管理员 allowlist，旧邮箱/用户 ID 授权不再生效，管理员 subject 尚待确认。
 - 积分、订阅、支付和数据库 RLS 仍依赖 Supabase `auth.users/auth.uid()`；迁移期间必须保留 Supabase 数据库与旧 Auth 回滚路径，通过 `issuer + subject` 映射后再迁移业务接口。
 - 已提供发布描述导入接口和机器分片上传入口。机器身份只能准备草稿，最终公开仍需管理员在 `/admin/releases` 确认。
 - 发布时服务端重新计算制品 SHA-512，并且只使用 macOS ZIP 与 Windows NSIS 生成 electron-updater 清单。
-- 本地验证：完整测试套件 21/21 通过、TypeScript 检查和 Next.js 生产构建通过；其中 3 项 storefront 回归检查约束设计 token、双语首页数据源与当前/历史版本下载组件复用。Casdoor 地址故意不可达时，公开 `/releases/**` 请求约 9ms 返回且 Dashboard 正确 307 到登录页，证明更新源不再依赖身份服务。
+- 本地验证：本次改动完整测试套件 23/23 通过、TypeScript 检查和 Next.js 生产构建通过；回归检查覆盖账户入口、浏览器语言解析、设计 token、双语首页数据源与当前/历史版本下载组件复用。运行中的 Next.js HTTP 验收确认中文 `Accept-Language` 重定向 `/zh`、英文重定向 `/en`、保存的 `oaktech-locale=zh` 覆盖英文请求，显式 `/zh` 返回 200。Casdoor 地址故意不可达时，公开 `/releases/**` 请求约 9ms 返回且 Dashboard 正确 307 到登录页，证明更新源不再依赖身份服务。
 - Con01 生产站点已配置过渡发布机器凭据；带匹配凭据和错误描述的 POST 实测返回 `400 UNSUPPORTED_RELEASE_SCHEMA`，证明请求已通过鉴权。凭据值不进入代码、日志或文档。
 - GitFinder alpha.89 的 macOS ZIP、Windows NSIS、blockmap 和便携 ZIP 共 4 个制品已上传到持久卷，大小与 SHA-512 全部复核一致。该 Release 保持 `draft`、`is_current=false`，当前公开版本仍是 alpha.86。
 - 2026-09-05 用户指出官网仍为 alpha.86，本轮已将最新已提交 GitFinder alpha.93（`1d7704e408beecab193b3769dcb68442bcc3ec21`）在 GitHub Actions `33930396752` 完成双平台构建、Windows 安装/启动/卸载验收及四个制品上传，整条工作流成功。8 MiB 分片路径本轮已实测成功。

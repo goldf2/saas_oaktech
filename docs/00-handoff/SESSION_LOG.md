@@ -1,5 +1,12 @@
 # 研发记录
 
+## 2026-09-06T20:02:30+08:00 · 统一账户入口与浏览器语言识别 v0.1.18
+
+- 用户确认右上角只保留一个账户入口；Header 与移动菜单移除并列的 Sign in / Sign up，统一显示本地化的 `Sign in / Sign up` 或 `登录 / 注册`，统一进入 `/sign-in`。
+- Casdoor 认证逻辑未改动；登录页和注册页内部仍保留上下文切换链接，Supabase 回退模式保持不变。
+- 新增结构回归测试，验证桌面/移动导航只暴露一个账户入口；根地址按 `Accept-Language` 自动选择中英文，手动切换通过 `oaktech-locale` Cookie 持久化，显式 `/en`、`/zh` 路径优先。
+- 完整 `npm test` 23/23、`npm run typecheck` 和 `npm run build` 通过；运行中的 Next.js HTTP 验收确认中文/英文 `Accept-Language`、Cookie 覆盖和显式语言路径的优先级。
+
 ## 2026-09-06T07:48:19+08:00 · Apple storefront v0.1.17 提交准备
 
 - 用户明确授权提交并推送软件商店的 Apple 风格用户侧垂直切片；版本由已推送基线 `0.1.16` 递增为 `0.1.17`。

@@ -78,16 +78,13 @@ export default function Header({ user, authProvider }: HeaderProps) {
               <AuthSignOutButton provider={authProvider} label={copy.signOut} />
             </div>
           ) : (
-            <div className="hidden gap-2 lg:flex">
-              <Button asChild size="sm" variant="ghost" className="rounded-full">
-                <Link href="/sign-in">{copy.signIn}</Link>
-              </Button>
+            <div className="hidden lg:flex">
               <Button asChild size="sm" className="rounded-full bg-[hsl(var(--store-blue))] hover:bg-[hsl(var(--store-blue-hover))]">
-                <Link href="/sign-up">{copy.signUp}</Link>
+                <Link href="/sign-in">{copy.account}</Link>
               </Button>
             </div>
           )}
-          <MobileNav items={navItems} user={user} authProvider={authProvider} isDashboard={isDashboard} labels={{ navigation: copy.navigation, toggleMenu: copy.toggleMenu, dashboard: copy.dashboard, signIn: copy.signIn, signUp: copy.signUp, signOut: copy.signOut }} />
+          <MobileNav items={navItems} user={user} authProvider={authProvider} isDashboard={isDashboard} labels={{ navigation: copy.navigation, toggleMenu: copy.toggleMenu, dashboard: copy.dashboard, account: copy.account, signOut: copy.signOut }} />
         </div>
       </div>
     </header>
