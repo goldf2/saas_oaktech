@@ -71,7 +71,7 @@ const initialCatalog: StoreCatalog = {
     {
       id: "bootstrap-chanxu-tradingview",
       slug: "chanxu-tradingview",
-      category_slug: "developer-tools",
+      category_slug: "trading-tools",
       status: "beta",
       visibility: "published",
       name_en: "Chanxu TradingView",
