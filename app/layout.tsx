@@ -2,6 +2,7 @@ import Header from "@/components/header";
 import { Footer } from "@/components/footer";
 import { ThemeProvider } from "next-themes";
 import { authProvider, getCurrentUser } from "@/lib/auth";
+import { getStoreAdmin } from "@/lib/store/admin";
 import { Toaster } from "@/components/ui/toaster";
 import "./globals.css";
 
@@ -33,6 +34,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const user = await getCurrentUser();
+  const admin = user ? await getStoreAdmin() : null;
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -44,7 +46,7 @@ export default async function RootLayout({
           disableTransitionOnChange
         >
           <div className="relative min-h-screen">
-            <Header user={user} authProvider={authProvider} />
+            <Header user={user} authProvider={authProvider} isAdmin={Boolean(admin)} />
             <main className="flex-1">{children}</main>
             <Footer />
           </div>

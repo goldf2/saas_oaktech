@@ -16,6 +16,7 @@ import type { AuthProvider } from "@/lib/auth-config";
 interface HeaderProps {
   user: AppUser | null;
   authProvider: AuthProvider;
+  isAdmin?: boolean;
 }
 
 interface NavItem {
@@ -23,7 +24,7 @@ interface NavItem {
   href: string;
 }
 
-export default function Header({ user, authProvider }: HeaderProps) {
+export default function Header({ user, authProvider, isAdmin = false }: HeaderProps) {
   const pathname = usePathname();
   const locale = localeFromPathname(pathname);
   const copy = getMessages(locale).common;
@@ -75,6 +76,7 @@ export default function Header({ user, authProvider }: HeaderProps) {
                 <Link href="/dashboard">{copy.dashboard}</Link>
                 </Button>
               )}
+              {isAdmin && <Button asChild size="sm" variant="outline" className="rounded-full"><Link href="/admin/products">管理控制台</Link></Button>}
               <AuthSignOutButton provider={authProvider} label={copy.signOut} />
             </div>
           ) : (
