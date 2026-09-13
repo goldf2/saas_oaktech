@@ -1,0 +1,76 @@
+name: Software store - verify and deploy
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    name: Test and build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install dependencies
+        env:
+          PUPPETEER_SKIP_DOWNLOAD: "true"
+        run: npm ci
+      - run: npm test
+      - run: npm run typecheck
+      - name: Build production application
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          BASE_URL: ${{ vars.PUBLIC_BASE_URL || 'https://oaktechz.com' }}
+        run: npm run build
+
+  deploy:
+    name: Deploy through Coolify
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: verify
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - name: Require deployment credentials
+        env:
+          COOLIFY_WEBHOOK: ${{ secrets.COOLIFY_WEBHOOK }}
+          COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}
+        run: test -n "$COOLIFY_WEBHOOK" && test -n "$COOLIFY_TOKEN"
+      - name: Trigger Coolify deployment
+        env:
+          COOLIFY_WEBHOOK: ${{ secrets.COOLIFY_WEBHOOK }}
+          COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}
+        run: >-
+          curl --fail --silent --show-error --request GET "$COOLIFY_WEBHOOK"
+          --header "Authorization: Bearer $COOLIFY_TOKEN"
+      - name: Wait for the expected public version
+        env:
+          PUBLIC_BASE_URL: ${{ vars.PUBLIC_BASE_URL || 'https://oaktechz.com' }}
+        run: |
+          expected="$(node -p "require('./package.json').version")"
+          for attempt in $(seq 1 60); do
+            actual="$(curl --fail --silent --show-error "$PUBLIC_BASE_URL/api/health" | node -e "let body='';process.stdin.on('data',c=>body+=c).on('end',()=>{try{process.stdout.write(JSON.parse(body).version||'')}catch{}})")" || true
+            if [ "$actual" = "$expected" ]; then
+              echo "Deployed $actual"
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "Expected $expected but the public health endpoint did not converge."
+          exit 1
+      - name: Verify public updater endpoints remain anonymous
+        env:
+          PUBLIC_BASE_URL: ${{ vars.PUBLIC_BASE_URL || 'https://oaktechz.com' }}
+        run: |
+          curl --fail --silent --show-error --head "$PUBLIC_BASE_URL/releases/gitfinder-2/alpha/latest-mac.yml"
+          curl --fail --silent --show-error --head "$PUBLIC_BASE_URL/releases/gitfinder-2/alpha/latest.yml"

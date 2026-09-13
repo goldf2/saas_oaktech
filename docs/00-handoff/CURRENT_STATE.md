@@ -25,7 +25,7 @@
 
 ## AUTH-20260905-01 · 软件商店登录接入
 
-- 当前 Casdoor 已在 AL03 运行且 Coolify 显示 healthy，现有 issuer `https://qtkqgiprku5ccvlzemjhz57j.xiangshu.me` 的 discovery HTTP 200；`auth.oaktechz.com` 未绑定到该实例，当前 HTTP 503。
+- 当前 Casdoor 已在 AL03 运行且 Coolify 显示 healthy。生产统一使用 `https://casdoor.xiangshu.me`；Casdoor Compose 的 `origin` 必须同步使用该域名，否则 discovery 会宣告旧临时域名并导致登录跳转 503。
 - 验证：0.1.14 隔离认证提交 18 项测试、无增量类型检查和 Webpack 生产构建通过；新增测试使用 NextAuth 实际 OIDC 客户端，确认 token 请求包含 code verifier、没有 client secret/Authorization header。Coolify 部署 `fc2hrp5yxgvd2surj5l5aypn` 在 08:46:45+08:00 滚动更新完成；公网登录页 HTTP 200，显示 0.1.14 与 Casdoor 入口，浏览器点击后到达正确商店授权页，URL 为 openid/code/S256 和精确回调。
 - 配置：NEXTAUTH_URL、NEXTAUTH_SECRET、CASDOOR_ISSUER、CASDOOR_CLIENT_ID、CASDOOR_AUTH_ENABLED 仅 Runtime=true/Buildtime=false；确认不存在 CASDOOR_CLIENT_SECRET。Casdoor 应用密钥可调用管理 API，因此先前复制该密钥到商店的方案已撤销。注册页已隐藏并取消必填的 Email/Phone，避免依赖未配置的验证码发送服务；保留用户名、显示名称、密码、确认和用户协议。
 - 当前等待：已在 Chrome 打开商店注册页，请用户亲自创建账号。真实回调、会话刷新、退出与管理员授权尚未完成；不能把登录入口上线等同于端到端登录通过。

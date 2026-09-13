@@ -249,7 +249,13 @@ export const PRODUCTS: SoftwareProduct[] = [
     ],
     featured: false,
   },
-];
+
+  {
+    slug: "open-play", name: "open play", tagline: "本地管理 Codex 认证配置与套餐额度。", description: "在 macOS 和 Windows 上导入、切换、移除和导出本地 auth.json，并查看账号套餐额度。", status: "released", category: "Desktop App", categorySlug: "desktop-apps", price: "Free", license: "Free", icon: "/open-play/icon.png", heroImage: "/open-play/hero.png", screenshots: [], features: ["多账号 auth.json 管理", "套餐额度查看", "单个或全部导出", "macOS 和 Windows 支持"], platforms: ["macOS", "Windows"], browsers: [], installSteps: ["下载对应平台版本", "安装或解压后运行", "导入 auth.json 并选择配置"], permissions: [], faqs: [{ question: "会上传 auth.json 吗？", answer: "不会，认证文件只在本机处理。" }], releaseNotes: [{ label: "0.6.6.9", title: "跨平台桌面版本", description: "增加产品页、下载和检查更新入口。" }], featured: false,
+  },
+  {
+    slug: "chanxu-tradingview", name: "缠序 TradingView 缠论工具", tagline: "缠论结构识别与独立信号筛选。", description: "面向 TradingView 的缠论研究工具，帮助观察结构并筛选研究候选。", status: "beta", category: "Developer Tool", categorySlug: "developer-tools", price: "Research preview", license: "Personal", icon: "/chanxu-tradingview/icon.png", heroImage: "/chanxu-tradingview/overview.png", screenshots: [], features: ["主图结构观察", "独立信号规则", "Pine Screener 批量筛选"], platforms: ["TradingView", "Web"], browsers: [], installSteps: ["申请研究预览", "在 TradingView Pine Editor 中安装脚本"], permissions: [], faqs: [{ question: "结果可以直接用于下单吗？", answer: "不能，结果仅用于研究候选和图表复核。" }], releaseNotes: [], featured: false,
+  },];
 
 export function getProductBySlug(slug: string) {
   return PRODUCTS.find((product) => product.slug === slug);

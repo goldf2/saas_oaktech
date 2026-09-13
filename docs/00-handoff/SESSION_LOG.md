@@ -146,3 +146,9 @@
 - 当前事实：软件商店已推送 `a138072`（`0.1.16`）包含 Logo 作为兼容路径，但公网验证 `https://oaktechz.com/apps/gitfinder-desktop/brand/logo-horizontal-v2.png` 暂时返回 404，尚未宣称部署完成。
 - 提案：`gitfinder.oaktechz.com` 独立承载产品官网、版本说明和更新入口；`oaktechz.com` 仅保留软件目录、账户和管理后台；Con01 的静态源仅服务公开小资源，安装包仍优先使用持久 OSS 存储。
 - 状态：架构提案待用户确认，未删除已推送的兼容资源。
+
+## 2026-09-14 · 0.1.19 · 商品与发布后台收敛
+- 目标：将早期商城中的 open play 与缠序产品接入当前 saas_oaktech，并完善网页发布管理与 Coolify 持久化边界。
+- 完成：新增两个产品配置与初始目录数据；补充 open play 0.6.6.9、缠序研究预览版本；补充产品图标/封面资源；补充 Coolify 持久卷、商品后台、版本草稿、安装包校验、发布/回退说明。
+- 验证：Next.js 生产构建启动并进入页面数据收集阶段；本地开发首页与产品目录可访问。
+- 迁移：oaktools-platform 标记为 ARCHIVED，后续主线为 saas_oaktech。

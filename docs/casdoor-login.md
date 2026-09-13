@@ -5,7 +5,7 @@
 ## 生产配置
 
 - 商店：`https://oaktechz.com`，Con01 / 在线商城 / production / `softbank`。
-- 当前可用 issuer：`https://qtkqgiprku5ccvlzemjhz57j.xiangshu.me`。2026-09-05 discovery 实测 HTTP 200，AL03 Coolify 显示 Casdoor `Running (healthy)`。
+- 生产 issuer 应使用 `https://casdoor.xiangshu.me`。Casdoor 服务自身的 Compose `origin` 必须同步设置为该地址，否则 discovery 会继续宣告旧的临时域名。
 - `https://auth.oaktechz.com` 当前 HTTP 503，未配置到该 Casdoor 服务；不得填为生产 issuer。
 - Organization：`oaktech-store`，软件商店账号使用普通业务组织，不放入内置管理组织 `built-in`。
 - Application：`software-store-web`，Type 为 Web、Grant Types 仅 `authorization_code`、不共享应用，独立 client ID；应用 client secret 留在 Casdoor，不复制到商店、Con01 或 CI。
@@ -20,7 +20,7 @@ Coolify Production Environment Variables：
 CASDOOR_AUTH_ENABLED=false
 NEXTAUTH_URL=https://oaktechz.com
 NEXTAUTH_SECRET=<独立生成的随机会话密钥>
-CASDOOR_ISSUER=https://qtkqgiprku5ccvlzemjhz57j.xiangshu.me
+CASDOOR_ISSUER=https://casdoor.xiangshu.me
 CASDOOR_CLIENT_ID=<software-store-web 的客户端 ID>
 OAKTECH_ADMIN_SUBJECTS=<已确认商店管理员的精确 sub>
 ```
@@ -28,6 +28,29 @@ OAKTECH_ADMIN_SUBJECTS=<已确认商店管理员的精确 sub>
 这些变量只需运行时生效。`NEXTAUTH_SECRET` 是商店独立生成的会话密钥，仅存 Coolify，不进入仓库、构建参数或日志；它不是 Casdoor 应用密钥。公开下载不依赖 Casdoor；保留原 Supabase 配置以便回滚。
 
 ## 上线验收
+
+## 域名填写位置（逐项核对）
+
+生产环境统一使用 `https://casdoor.xiangshu.me`，以下三处必须完全一致：
+
+| 页面 | 字段 | 值 |
+|---|---|---|
+| Coolify → Casdoor 服务 → Domains | Public domain | `https://casdoor.xiangshu.me` |
+| Coolify → Casdoor 服务 → Compose | `origin` | `https://casdoor.xiangshu.me` |
+| Coolify → OakTech → Environment Variables | `CASDOOR_ISSUER` | `https://casdoor.xiangshu.me` |
+
+Casdoor 管理后台 → Applications → `software-store-web` 中填写：
+
+- Redirect URLs：`https://oaktechz.com/api/auth/callback/casdoor`
+- Logout Redirect URL：`https://oaktechz.com/sign-in`
+- Grant Type：`authorization_code`
+- Scope：`openid`
+
+修改 Coolify 环境变量或 Compose 后，必须保存并重新部署/重启对应服务。完成后访问 `https://casdoor.xiangshu.me/.well-known/openid-configuration`，确认 `issuer`、`authorization_endpoint` 和 `token_endpoint` 都使用同一域名，不能出现旧临时域名。
+
+2026-09-08 配置修复：商店 Coolify Production 的 `CASDOOR_ISSUER` 已指向 `https://casdoor.xiangshu.me`；Casdoor 服务 Compose 的 `origin` 也必须同步为同一地址并重新应用服务。验收时检查 discovery 的 `issuer`、`authorization_endpoint` 和 `token_endpoint` 均使用 `casdoor.xiangshu.me`，不得出现旧的临时域名。
+
+2026-09-05T08:51:22+08:00：`0.1.14` / `7442de3` 已部署，生产开关为 true，五项运行变量已核对；浏览器从商店进入 Casdoor 专属授权页成功。注册项 Email/Phone 已设为不可见且非必填；目前使用用户名、显示名称、密码和确认。等待用户创建业务账号后验证真实登录/退出和管理员映射；尚不能称为端到端验收通过。公开 manifest 正常，但 macOS ZIP Range 返回 200，见 `docs/00-handoff/DEBUG_LOG.md`。
 
 1. 保存独立业务组织和 Application，核对精确回调 URL、`authorization_code` 与最小 Token 字段；不导出应用 client secret。
 2. 配置 Coolify 运行时环境变量，确认不存在 Casdoor 应用密钥，将 `CASDOOR_AUTH_ENABLED` 改为 `true` 后部署。

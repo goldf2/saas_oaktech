@@ -216,3 +216,9 @@ npm run dev
 ├── types/              # TypeScript 类型定义
 └── utils/              # 工具函数和中间件辅助
 ```
+
+## Codex 恢复入口（2026-09-04）
+
+- 项目历史记忆：[CODEX_MEMORY.md](./CODEX_MEMORY.md)
+- 全局恢复档案：`/Volumes/project/Codex持久化归档-2026-09-04/`
+- 继续发布工作前，重新验证当前数据、持久卷、下载路由与更新产物。
