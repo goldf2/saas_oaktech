@@ -36,8 +36,10 @@ RUN addgroup --system --gid 1001 nodejs \
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/scripts/restore-product-listings.mjs ./scripts/restore-product-listings.mjs
+COPY --from=builder --chown=nextjs:nodejs /app/scripts/migrations/20260916-product-listings.json ./scripts/migrations/20260916-product-listings.json
 
 USER nextjs
 EXPOSE 3000
 
-CMD ["node", "server.js"]
+CMD ["sh", "-c", "node scripts/restore-product-listings.mjs && exec node server.js"]

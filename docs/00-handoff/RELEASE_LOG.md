@@ -95,3 +95,10 @@
 - 状态：源码验证完成，生产发布待执行。
 - 内容：GitFinder 构建系统可创建或复用 OakTech 发布草稿并分片上传验证后的平台制品。
 - 回滚：回滚应用到上一版本；新增接口在没有 `OAKTECH_RELEASE_WRITE_TOKEN` 时默认拒绝机器访问，原浏览器后台上传路径不受影响。
+
+## 2026-09-16T13:46:53+08:00 · 0.1.24 · PRODUCT-RECOVERY-20260916
+
+- 用户截图确认两目标商品仍不可见；此前只修模板/素材，没有补生产catalog。
+- 实施仅针对open-play和chanxu-tradingview的一次性启动迁移，原始备份与完成标记，保留全部软件Release、其他商品和权限。详见 `../product-listings-recovery-2026-09-16.md`。
+- 独立工作区51/51测试、类型/构建和6组浏览器验证通过；主工作区并行Auth代码未覆盖。
+- 生产是否已恢复以 `.local-verification/0.1.24/product-recovery-deployment.json` 的公网首页/详情证据为准，代码推送本身不代表恢复成功。

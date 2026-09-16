@@ -25,3 +25,10 @@
 - 回归：原3项测试全部失败，当前完整41项通过；浏览器覆盖真实新增/反馈/数据源/移动导航/角色门禁，最终结果写入.local-verification/0.1.23。
 - 事实修正：本轮开始公网为0.1.22，不再沿用上轮尚未部署状态；两个商品公开页仍404，不能以旧Dashboard卡片代替上架事实。
 - 详见 `../store-product-admin-fix-2026-09-16.md`。
+
+## 2026-09-16T13:46:53+08:00 · 0.1.24 · PRODUCT-RECOVERY-20260916
+
+- 用户截图确认两目标商品仍不可见；此前只修模板/素材，没有补生产catalog。
+- 实施仅针对open-play和chanxu-tradingview的一次性启动迁移，原始备份与完成标记，保留全部软件Release、其他商品和权限。详见 `../product-listings-recovery-2026-09-16.md`。
+- 独立工作区51/51测试、类型/构建和6组浏览器验证通过；主工作区并行Auth代码未覆盖。
+- 生产是否已恢复以 `.local-verification/0.1.24/product-recovery-deployment.json` 的公网首页/详情证据为准，代码推送本身不代表恢复成功。

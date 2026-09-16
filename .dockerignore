@@ -18,3 +18,7 @@ yarn-error.log*
 Dockerfile
 docker-compose.yml
 compose.yaml
+
+# Local screenshots, test receipts and git worktree metadata are not build inputs.
+.local-verification
+.gitfinder

@@ -1,0 +1,36 @@
+[
+  {
+    "id": "restored-open-play-20260916",
+    "slug": "open-play",
+    "category_slug": "desktop-apps",
+    "status": "released",
+    "visibility": "published",
+    "name_en": "open play — Auth Manager",
+    "name_zh": "open play 认证管理工具",
+    "tagline_en": "Manage local Codex auth profiles and usage.",
+    "tagline_zh": "本地管理 Codex / auth.json 认证配置与套餐额度。",
+    "description_en": "A local-first macOS and Windows utility for importing, switching, exporting, and removing auth.json profiles. Software downloads are listed separately when verified release packages are published.",
+    "description_zh": "面向 macOS 和 Windows 的本地工具，用于导入、切换、导出和移除 auth.json 配置。软件安装包在单独完成校验与发布后提供下载。",
+    "icon_url": "/open-play/icon.png",
+    "hero_image_url": "/open-play/hero.png",
+    "supported_platforms": ["macOS", "Windows"],
+    "featured": false
+  },
+  {
+    "id": "restored-chanxu-tradingview-20260916",
+    "slug": "chanxu-tradingview",
+    "category_slug": "trading-tools",
+    "status": "beta",
+    "visibility": "published",
+    "name_en": "Chanxu TradingView",
+    "name_zh": "缠序 TradingView 缠论工具",
+    "tagline_en": "Research chart structure and independent signal rules.",
+    "tagline_zh": "缠论结构识别与独立信号筛选。",
+    "description_en": "A TradingView research tool for observing chart structure and screening independent signal rules. This product is separate from the open play authentication manager.",
+    "description_zh": "面向 TradingView 的缠论研究工具，用于观察结构并筛选研究候选。它与 open play 认证管理工具是两个独立商品。",
+    "icon_url": "/chanxu-tradingview/icon-chanxu-v2.png",
+    "hero_image_url": "/chanxu-tradingview/overview.png",
+    "supported_platforms": ["TradingView", "Web"],
+    "featured": false
+  }
+]
