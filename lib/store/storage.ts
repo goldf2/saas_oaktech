@@ -2,13 +2,14 @@ import "server-only";
 
 import { createHash, randomUUID } from "node:crypto";
 import { createWriteStream } from "node:fs";
-import { link, mkdir, rename, stat, unlink } from "node:fs/promises";
+import { link, mkdir, readFile, rename, stat, unlink } from "node:fs/promises";
 import path from "node:path";
 import { Readable, Transform } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import { hashFile } from "./file-hash";
 import type { AdminProductReleaseRow } from "./types";
 import { selectUpdaterArtifacts } from "./release-contract";
+import { verifyOpenPlayRelease } from "./open-play-signatures";
 
 const MAX_UPLOAD_BYTES = 4 * 1024 * 1024 * 1024;
 const MAX_CHUNK_BYTES = 20 * 1024 * 1024;
@@ -191,6 +192,10 @@ export async function prepareUpdaterManifests(release: AdminProductReleaseRow) {
   if (!release.release_artifacts.length) throw new Error("RELEASE_ARTIFACT_REQUIRED");
   await Promise.all(release.release_artifacts.map(verifyStoredArtifact));
 
+  if (release.product_slug === "open-play") {
+    await verifyOpenPlayRelease(release, (artifact) => readFile(absoluteReleasePath(artifact.storage_path)));
+    return ["appcast.xml", "windows.json"].map((name) => releaseStoragePath("open-play", release.channel, release.version, name));
+  }
   const { mac, windows } = selectUpdaterArtifacts(release.release_artifacts);
   const base = releaseStoragePath(release.product_slug, release.channel, release.version, "placeholder").replace(/\/placeholder$/, "");
   const files: string[] = [];

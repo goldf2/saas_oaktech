@@ -101,7 +101,7 @@ export function ArtifactUpload({ releaseId }: { releaseId: string }) {
         <label className="min-w-0 text-sm">平台<Input name="platform" list={`${inputId}-platforms`} placeholder="macos / windows / chrome" required /></label>
         <datalist id={`${inputId}-platforms`}>{["macos", "windows", "linux", "chrome", "firefox", "web"].map((value) => <option key={value} value={value} />)}</datalist>
         <label className="min-w-0 text-sm">架构<Input name="architecture" placeholder="arm64 / x64 / universal" required /></label>
-        <label className="min-w-0 text-sm">包类型<Input name="package_kind" placeholder="zip / nsis / dmg / appimage" required /></label>
+        <label className="min-w-0 text-sm">包类型<Input name="package_kind" placeholder="zip / nsis / dmg / appimage / manifest" required /></label>
         <label className="min-w-0 text-sm">软件包<Input name="file" type="file" required /></label>
         <div className="flex flex-wrap items-center gap-3 md:col-span-4">
           <Button type="submit" size="sm" disabled={busy}>{busy ? "上传与校验中…" : "上传软件包"}</Button>

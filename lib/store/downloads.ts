@@ -38,3 +38,20 @@ export async function resolvePublicDownload(parts: string[]): Promise<DownloadDe
     immutable: true,
   };
 }
+
+// Compatibility URLs are aliases of published catalog entries, never arbitrary files.
+export async function resolveOpenPlayDownload(name: string, isFeed: boolean): Promise<DownloadDescriptor | null> {
+  if (isFeed ? !["appcast.xml", "windows.json"].includes(name) : !/^open-play-\d+\.\d+\.\d+\.\d+-(macos|windows-x64)\.zip$/.test(name)) return null;
+  const { catalog, persisted } = await readStoreCatalog();
+  if (!persisted || !catalog.products.some((p) => p.slug === "open-play" && p.visibility === "published")) return null;
+  const candidates = catalog.releases.filter((r) => r.product_slug === "open-play" && r.channel === "stable" && r.status === "published" && (!isFeed || r.is_current));
+  if (isFeed && candidates.length !== 1) return null;
+  const matches = candidates.flatMap((r) => r.release_artifacts.filter((a) => a.file_name === name && a.release_id === r.id
+    && a.storage_path === `open-play/stable/${r.version}/${name}` && a.public_path === `/releases/${a.storage_path}`
+    && (isFeed || name === `open-play-${r.version}-macos.zip` || name === `open-play-${r.version}-windows-x64.zip`)));
+  if (matches.length !== 1) return null;
+  const artifact = matches[0];
+  return { absolutePath: absoluteReleasePath(artifact.storage_path), fileName: name,
+    contentType: name === "appcast.xml" ? "application/xml; charset=utf-8" : name === "windows.json" ? "application/json; charset=utf-8" : "application/zip",
+    immutable: !isFeed };
+}

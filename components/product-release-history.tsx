@@ -1,3 +1,4 @@
+import { isSoftwareDownload } from "@/lib/store/download-visibility";
 import Link from "next/link";
 import { ArrowLeft, CheckCircle2 } from "lucide-react";
 import { StoreDownloadCard } from "@/components/store-download-card";
@@ -38,7 +39,7 @@ export function ProductReleaseHistory({ product, releases, locale, source }: {
 
           <div className="space-y-5">
             {releases.length ? releases.map((release) => {
-              const downloads = release.artifacts.filter((artifact) => artifact.packageKind !== "blockmap");
+              const downloads = release.artifacts.filter(isSoftwareDownload);
               return (
                 <article key={release.id} className="store-surface overflow-hidden">
                   <div className="p-6 sm:p-8">

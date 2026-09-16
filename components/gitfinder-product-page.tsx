@@ -1,3 +1,4 @@
+import { isSoftwareDownload } from "@/lib/store/download-visibility";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, CheckCircle2, Download, Monitor, ShieldCheck } from "lucide-react";
@@ -21,7 +22,7 @@ export function GitFinderProductPage({ product, locale, releases, source }: {
 }) {
   const copy = getMessages(locale).gitfinder;
   const current = releases.find((release) => release.isCurrent) ?? releases[0];
-  const downloads = current?.artifacts.filter((artifact) => artifact.packageKind !== "blockmap") ?? [];
+  const downloads = current?.artifacts.filter(isSoftwareDownload) ?? [];
   const releaseHref = localePath(locale, "/products/gitfinder-2/releases");
 
   return (

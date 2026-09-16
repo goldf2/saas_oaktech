@@ -1,3 +1,4 @@
+import { isSoftwareDownload } from "@/lib/store/download-visibility";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Download, Monitor } from "lucide-react";
@@ -39,7 +40,7 @@ export function DatabaseProductPage({ product, releases, locale }: {
 }) {
   const copy = labels[locale];
   const current = releases.find((release) => release.isCurrent) ?? releases[0];
-  const downloads = current?.artifacts.filter((artifact) => artifact.packageKind !== "blockmap") ?? [];
+  const downloads = current?.artifacts.filter(isSoftwareDownload) ?? [];
   const status = product.status === "released" ? copy.released : product.status === "beta" ? copy.beta : copy.comingSoon;
   const releaseHref = localePath(locale, `/products/${product.slug}/releases`);
 

@@ -1,0 +1,68 @@
+import { createReadStream } from "node:fs";
+import { stat } from "node:fs/promises";
+import type { NextRequest } from "next/server";
+import type { DownloadDescriptor } from "./downloads";
+
+function rangeFor(value: string | null, size: number) {
+  if (!value) return null;
+  const match = /^bytes=(\d*)-(\d*)$/.exec(value);
+  if (!match || size === 0) return false;
+  if ((match[1] && !Number.isSafeInteger(Number(match[1]))) || (match[2] && !Number.isSafeInteger(Number(match[2])))) return false;
+  let start = match[1] ? Number(match[1]) : NaN;
+  let end = match[2] ? Number(match[2]) : NaN;
+  if (Number.isNaN(start) && Number.isNaN(end)) return false;
+  if (Number.isNaN(start)) {
+    start = Math.max(size - end, 0);
+    end = size - 1;
+  } else if (Number.isNaN(end)) {
+    end = size - 1;
+  }
+  if (start < 0 || end < start || start >= size) return false;
+  end = Math.min(end, size - 1);
+  return { start, end };
+}
+
+function readableFile(filePath: string, start: number, end: number) {
+  const source = createReadStream(filePath, { start, end });
+  const iterator = source[Symbol.asyncIterator]();
+  return new ReadableStream<Uint8Array>({
+    async pull(controller) {
+      try {
+        const chunk = await iterator.next();
+        if (chunk.done) controller.close();
+        else controller.enqueue(new Uint8Array(chunk.value));
+      } catch (error) {
+        try { controller.error(error); } catch { source.destroy(); }
+      }
+    },
+    async cancel() {
+      source.destroy();
+      await iterator.return?.();
+    },
+  });
+}
+
+export async function serveDownload(request: NextRequest, descriptor: DownloadDescriptor | null, headOnly: boolean) {
+  if (!descriptor) return new Response("Not found", { status: 404, headers: { "Cache-Control": "no-store" } });
+  const details = await stat(descriptor.absolutePath).catch(() => null);
+  if (!details?.isFile()) return new Response("Not found", { status: 404 });
+  const requestedRange = headOnly ? null : rangeFor(request.headers.get("range"), details.size);
+  if (requestedRange === false) {
+    return new Response(null, { status: 416, headers: { "Content-Range": `bytes */${details.size}` } });
+  }
+
+  const start = requestedRange?.start ?? 0;
+  const end = requestedRange?.end ?? details.size - 1;
+  const headers = new Headers({
+    "Accept-Ranges": "bytes",
+    "Content-Type": descriptor.contentType,
+    "Content-Length": String(end - start + 1),
+    "Content-Disposition": `attachment; filename*=UTF-8''${encodeURIComponent(descriptor.fileName)}`,
+    "Cache-Control": descriptor.immutable ? "public, max-age=31536000, immutable, no-transform" : "no-store, no-transform",
+    "CDN-Cache-Control": "no-store",
+    "X-Content-Type-Options": "nosniff",
+  });
+  if (requestedRange) headers.set("Content-Range", `bytes ${start}-${end}/${details.size}`);
+  const body = headOnly || details.size === 0 ? null : readableFile(descriptor.absolutePath, start, end);
+  return new Response(body, { status: requestedRange ? 206 : 200, headers });
+}

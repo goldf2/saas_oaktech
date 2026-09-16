@@ -102,3 +102,9 @@
 - 实施仅针对open-play和chanxu-tradingview的一次性启动迁移，原始备份与完成标记，保留全部软件Release、其他商品和权限。详见 `../product-listings-recovery-2026-09-16.md`。
 - 独立工作区51/51测试、类型/构建和6组浏览器验证通过；主工作区并行Auth代码未覆盖。
 - 生产是否已恢复以 `.local-verification/0.1.24/product-recovery-deployment.json` 的公网首页/详情证据为准，代码推送本身不代表恢复成功。
+
+## 0.1.25 · open play 独立更新源官网兼容层 · 2026-09-16T14:12:00+08:00
+
+新增四个固定地址兼容：appcast.xml、windows.json、两平台版本ZIP；直接返回已发布catalog对应原始字节，保留草稿/产品权限门禁与HEAD/Range。open-play发布前验证客户端固定公钥、两端版本构建、包签名/摘要与清单有效期，不重新生成Electron清单。下载页面排除更新元数据卡片，上传类型提示增加manifest。
+
+基线保留另一个会话的0.1.24商品恢复提交。63测试、typecheck、生产构建、真实0.6.6.12已公开文件的服务器验证通过。桌面GitHub Release .12/672已公开、两渠道签名和匿名完整下载回读通过；网站代码部署与管理员正式发布是独立步骤，以`.local-verification/0.1.25/`的真实结果为准。未自动写生产catalog、未改权限或加入发布私钥。详见`../open-play-update-compatibility.md`。
