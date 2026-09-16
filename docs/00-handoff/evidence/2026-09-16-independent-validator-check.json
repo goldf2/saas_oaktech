@@ -1,0 +1,115 @@
+{
+  "checked_at": "2026-09-16T07:55:05.891Z",
+  "task": "tsk_88f6f2ca38a4c7db",
+  "source_sha256": "1284d6c61bd4880837c990dc00ba1ad9c4de8e9545a8c592936a0795794b87fd",
+  "baseline_commit": "54a42b33bc5fc3e9c42541fdd3bdd6fae4700bce",
+  "ledger_revision": 1,
+  "task_count": 21,
+  "checks": [
+    {
+      "name": "current canonical ledger validates",
+      "passed": true,
+      "errors": []
+    },
+    {
+      "name": "duplicate task id",
+      "passed": true,
+      "matched_errors": [
+        "Duplicate task: PLAN-01"
+      ]
+    },
+    {
+      "name": "unknown dependency",
+      "passed": true,
+      "matched_errors": [
+        "ADM-01: unknown dependency UNKNOWN-99"
+      ]
+    },
+    {
+      "name": "dependency cycle",
+      "passed": true,
+      "matched_errors": [
+        "Dependency cycle: PLAN-01"
+      ]
+    },
+    {
+      "name": "active task requires owner",
+      "passed": true,
+      "matched_errors": [
+        "PLAN-01: active/completed task requires an owner"
+      ]
+    },
+    {
+      "name": "completed task requires verification",
+      "passed": true,
+      "matched_errors": [
+        "PLAN-01: completed work requires verification evidence"
+      ]
+    },
+    {
+      "name": "cannot claim production completed",
+      "passed": true,
+      "matched_errors": [
+        "Cannot claim production bootstrap verified before ADM-14"
+      ]
+    },
+    {
+      "name": "standard snapshot drift",
+      "passed": true,
+      "matched_errors": [
+        "Adopted standard snapshot has drifted"
+      ]
+    },
+    {
+      "name": "repository traversal",
+      "passed": true,
+      "matched_errors": [
+        "Path escapes repository: ../outside.md"
+      ]
+    },
+    {
+      "name": "missing evidence file",
+      "passed": true,
+      "matched_errors": [
+        "PLAN-01: missing evidence docs/this-evidence-does-not-exist.json"
+      ]
+    },
+    {
+      "name": "progress rendering deterministic",
+      "passed": true
+    }
+  ],
+  "limitations": [
+    {
+      "name": "done feature can retain implementation=not_started",
+      "value": "not_started",
+      "errors": [],
+      "note": "Synthetic in-memory probe only; real TASKS.json unchanged. Consider enforcing implementation/deployment field consistency for completed tasks."
+    }
+  ],
+  "scope": "Independent read-only structural tests, not business implementation/production acceptance. No task ledger or source mutated.",
+  "repository_verification": {
+    "checked_at": "2026-09-16T15:59:15+08:00",
+    "working_version": "0.1.26",
+    "base_head_at_recording": "f9ad90ca0be3c2f8af8dc4b95c84a62b26564260",
+    "handoff_check": {
+      "command": "npm run handoff:check",
+      "exit_code": 0,
+      "result": "passed"
+    },
+    "full_tests": {
+      "command": "npm test",
+      "exit_code": 0,
+      "tests": 70,
+      "passed": 70,
+      "failed": 0,
+      "skipped": 0,
+      "session": "session-9cd21953bc491b43318f5373"
+    },
+    "checker_sha256_at_recording": "defc68496ca626fa802fa7b8048d3265acfcc153c7a5946b3c10a7a0e83a7992",
+    "limitations": [
+      "Full tests cover existing store behavior and 7 handoff checks, not the 40 planned admin acceptance scenarios.",
+      "Typecheck/build/push/CI are owned by the primary integrator and are not claimed passed by this independent result."
+    ]
+  }
+}

@@ -1,224 +1,49 @@
-# Simple Saas Starter Kit
+# OakTech 软件商城 · saas_oaktech
 
-全网最极简的SAAS网站模板！
-帮助开发者快速搭建支持全球用户登录和支付的网站系统。
+商品发布、软件版本管理和已发布文件下载中心。GitHub仓库：`goldf2/saas_oaktech`；当前主站：`oaktechz.com`。旧oaktools-platform已封存。
 
-基于raphael-starterkit-v1做了简化重构，面向小白的启动套件，进一步降低学习成本。
-功能仅包括登录（用户管理）、支付，没了。
+## 人员 / AI 接续从这里开始
 
-别对中国大陆开发者友好。
+**先读 [AGENTS.md](AGENTS.md)，再看 [当前状态](docs/00-handoff/CURRENT_STATE.md) 与 [开发进度](docs/00-handoff/PROGRESS.md)。**
 
+[详细开发方案](docs/00-handoff/DEVELOPMENT_PLAN.md) · [下一位接续单](docs/00-handoff/HANDOFF.md) · [运行手册](docs/00-handoff/RUNBOOK.md) · [测试矩阵](docs/00-handoff/TEST_MATRIX.md) · [全部交接文档](docs/00-handoff/README.md)
 
-## 🌟 简介
+当前首要待实现功能是“一次性初始化超管＋后台管理其他管理员”。容器化标准已确认，但当前商城仍用环境白名单；不能把有后台页面、已写方案或站点版本更新当作超管已配置。
 
-基于 Next.js、Supabase 和 Creem.io 生产就绪的启动套件
-快速构建具有身份验证、订阅和积分系统的 SaaS 应用程序。
+## 现有业务入口
 
-中国版参见，支持微信支付https://github.com/fishfl/simple_saas_cn
+| 入口 | 职责 |
+| --- | --- |
+| `/admin`、`/admin/products/new`、`/admin/products` | 后台总览、新增与编辑商品，仍受服务端权限控制 |
+| `/admin/releases` | 版本草稿、文件上传、校验与人工发布 |
+| `/releases/**` | 已发布制品与兼容更新清单 |
+| `/updates/open-play/**`、`/downloads/open-play/**` | 原生更新与下载兼容；真实软件包是否已发布需单独核验 |
 
-## 核心特色功能
+open play是Auth认证配置工具；缠序是TradingView缠论研究工具，各自商品资料独立。公开商品目录与已发布安装包是两个不同层级。
 
-- 🔐 **全面的身份验证系统**
-  - 基于Supabase
-  - 电子邮件登录支持
-  - Google 登录支持
+## 本地命令
 
-- 💳 **完整的支付与订阅系统**
-  - 与Creem.io集成，支持全球信用卡收款，支持支付宝
-
-- 📱 **响应式设计**
-
-
-
-## 快速开始
-
-![alt text](topology.png)
-
-### 前提条件
-
-- Node.js 18+ 和 npm
-- Supabase 账户
-- Creem.io 账户
-
-### 步骤 1: 克隆仓库
+Node版本与锁文件对齐，开发/验证说明以[RUNBOOK](docs/00-handoff/RUNBOOK.md)为准。
 
 ```bash
-git clone https://github.com/fishfl/simple_saas.git
-cd simple_saas
-```
-
-@@@
-
-强烈建议，先fork代码到自己的仓库里，再执行clone。毕竟你后续还要完善你自己的业务代码。
-直接clone这个代码库仅用作演示。
-
-@@@
-
-
-### 步骤 2: 安装依赖
-
-```bash
-npm i
-```
-
-### 步骤 3: 开启环境变量
-   ```bash
-   cp .env.example .env.local
-   ```
-
-
-### 步骤 4: 设置 Supabase
-
-1. 在 [Supabase](https://app.supabase.com) 上创建一个新项目
-   - 点击"新建项目"
-   - 填写基本信息（项目名称、密码等）
-
-2. Settings > Data API
-   - 复制API URL, 粘贴到.env文件中NEXT_PUBLIC_SUPABASE_URL
-
-   同样，Settings > API Keys 
-   Legacy anon, service_role API keys
-   - 复制anon public 粘贴到NEXT_PUBLIC_SUPABASE_ANON_KEY
-   - 复制service_role 粘贴到SUPABASE_SERVICE_ROLE_KEY
-
-3. 配置登录方式
-   - 选择【Authentication】>【Sign In / Providers】
-   - 开启email登录、开启谷歌登录
-
-4. *设置Google登录
-   - 进入[Google 开发者控制台](https://console.cloud.google.com)，创建新项目
-   - 配置项目权限
-   - 前往【API与服务】>【凭据】
-   - 创建OAuth客户端ID（可能要先创建品牌塑造）
-   - 添加授权来源URL和重定向URI
-   - 重定向URI格式: `https://<项目ID>.supabase.co/auth/v1/callback`
-     （注意是id不是name，在Supabase项目setting页面复制）
-   - 复制OAuth客户端ID和密钥
-
-   回到Supabase配置Google登录
-   - 选择【Authentication】>【Sign In / Providers】
-   - 点击Google登录
-   - 填写从Google开发者控制台获取的客户端ID和密钥
-
-5. 创建数据库表结构
-   - 打开supabase/migrations/20250101000000_init_schema.sql
-   - 复制SQL代码到Supabase SQL编辑器
-   - 执行SQL创建表结构
-
-
-### 步骤 5: 设置 Creem.io
-
-1. 登录到 [Creem.io 仪表板](https://www.creem.io/)
-2. 初始设置
-   - 创建一个商店，填写各种基本信息
-   - 打开测试mode
-   - Developers > API & Webhooks
-   - 复制API Key并粘贴到.env文件中CREEM_API_KEY
-
-3. 创建Webhooks
-   - Developers > API & Webhooks
-   - 创建新的Webhook
-   - 填写URL: `https://你的域名/api/webhooks/creem`
-   - 复制Webhook密钥并粘贴到.env文件中CREEM_WEBHOOK_SECRET
-   这时，你可能还没有域名，没关系，随便填一个，我们稍后回来再改
-
-
-4. 测试API地址和生产地址
-   我们前期都在测试模式，所以这个地址不用改
-   ```
-   CREEM_API_URL=https://test-api.creem.io/v1
-   ```
-
-5. 创建收费Product
-   
-   - 在在Products里创建两个产品，一个订阅项目和一个积分项目
-   - 复制产品ID并配置到代码config/subscriptions.ts中，订阅项目先用同一个id，积分项目先用另一个id
-
-
-### 步骤 6: 运行开发服务器
-
-```bash
+PUPPETEER_SKIP_DOWNLOAD=true npm ci
+# 仅在本地配置不存在时复制；按运行手册设置测试环境
+test -e .env.local || cp .env.example .env.local
 npm run dev
+
+npm run handoff:render
+npm run handoff:check
+npm test
+npm run typecheck
+npm run build
 ```
 
-访问 [http://localhost:3000](http://localhost:3000) 查看你的应用程序。
+`TASKS.json`是进度的唯一编辑源；`PROGRESS.md`生成后提交。每次开发检查点和交接必须更新任务、事实与证据，不依赖聊天窗口。未认领的任务不会在后台自行开发。
 
+## 部署与历史
 
+[Coolify运行说明](docs/deploy-coolify.md) · [CI/CD约定](docs/cicd-web-coolify.md) · [发布记录](docs/00-handoff/RELEASE_LOG.md) · [采用的标准](docs/standards/README.md)
 
-```
-恭喜，整个开发环境已经跑起来了！！！
+代码部署不自动授予管理员，也不自动公开软件草稿。当前商品目录是一份持久JSON目录；新增角色权限需另行满足事务存储、初始化及迁移标准。
 
-接下来我们开始部署到线上！
-```
-
-
-现在，可以去买个自己域名了，或者用Vercel生成的子域名，下面不再提示，都称‘你的域名’
-（Vercel生成的子域名访问性不佳，国内有时需要梯子才能访问到）
-
-
-
-### 步骤 7: Vercel部署
-
-1. 将代码推送到GitHub
-2. 将仓库导入到[Vercel](https://vercel.com)
-3. 添加导入所有环境变量
-4. 完成部署
-5. 修改环境变量BASE_URL、CREEM_SUCCESS_URL，指向你的域名
-
-### 步骤 8: 更新Webhook回调地址
-
-1. 进入Creem.io，进入开发者模式
-2. 更新Webhooks配置
-   - Developers > API & Webhooks
-   - 将URL更新为: `https://你的域名/api/webhooks/creem`
-
-
-### 步骤 9: 更新Supabase回调地址
-1. 进入Supabase，Authentication > URL Configuration
-2. 更新Site URL为：`https://你的域名/`
-
-
-
-### 后续步骤：
-
-1. 测试用户登录功能
-2. 测试订阅支付、积分购买功能（测试信用卡号: 4242 4242 4242 4242）
-3. 切换Creem.io到正式付款，更新环境变量
-   ```
-   CREEM_TEST_MODE=false
-   CREEM_API_URL=https://api.creem.io
-   ```
-
-   
-
-
-## 项目结构
-
-```
-├── app/                   # Next.js 应用目录 (App Router)
-│   ├── (auth-pages)/     # 身份验证相关页面 (登录/注册)
-│   ├── api/             # API 路由 (支付回调/积分接口等)
-│   ├── dashboard/        # 用户仪表板页面
-│   ├── auth/            # Auth 回调处理
-│   ├── globals.css      # 全局样式文件
-│   ├── layout.tsx       # 根布局文件
-│   └── page.tsx         # 落地页 (Landing Page)
-├── components/           # React 组件
-│   ├── dashboard/      # 仪表板业务组件
-│   ├── ui/             # Shadcn/ui 通用组件库
-│   ├── header.tsx      # 顶部导航栏
-│   └── ...             # 其他共享组件
-├── config/              # 配置文件 (订阅计划/积分套餐)
-├── hooks/               # 自定义 React Hooks (use-user, use-toast)
-├── lib/                # 第三方库配置 (utils)
-├── public/             # 静态资源 (图片/图标)
-├── supabase/           # Supabase 迁移脚本和类型
-├── types/              # TypeScript 类型定义
-└── utils/              # 工具函数和中间件辅助
-```
-
-## Codex 恢复入口（2026-09-04）
-
-- 项目历史记忆：[CODEX_MEMORY.md](./CODEX_MEMORY.md)
-- 全局恢复档案：`/Volumes/project/Codex持久化归档-2026-09-04/`
-- 继续发布工作前，重新验证当前数据、持久卷、下载路由与更新产物。
+本项目源自Simple Saas Starter Kit；原始README已[归档保留](docs/00-handoff/archive/2026-09-16-original-starter-README.md)，其中旧仓库、Node18、Vercel、支付模板步骤不再是本商城当前操作手册。遗留Supabase/Creem源码不在本次权限改造中迁移。

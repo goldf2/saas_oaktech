@@ -1,47 +1,29 @@
 # 当前状态
 
-## 0.1.25 · open play 独立更新源官网兼容层 · 2026-09-16T14:12:00+08:00
+基线核验时间：2026-09-16T15:47:03+08:00；基线源码：0.1.25 / `54a42b33bc5fc3e9c42541fdd3bdd6fae4700bce`。本轮交付范围为PLAN-01项目开发方案与进度接续机制。
 
-新增四个固定地址兼容：appcast.xml、windows.json、两平台版本ZIP；直接返回已发布catalog对应原始字节，保留草稿/产品权限门禁与HEAD/Range。open-play发布前验证客户端固定公钥、两端版本构建、包签名/摘要与清单有效期，不重新生成Electron清单。下载页面排除更新元数据卡片，上传类型提示增加manifest。
+## 一眼看清
 
-基线保留另一个会话的0.1.24商品恢复提交。63测试、typecheck、生产构建、真实0.6.6.12已公开文件的服务器验证通过。桌面GitHub Release .12/672已公开、两渠道签名和匿名完整下载回读通过；网站代码部署与管理员正式发布是独立步骤，以`.local-verification/0.1.25/`的真实结果为准。未自动写生产catalog、未改权限或加入发布私钥。详见`../open-play-update-compatibility.md`。
+**超管初始化与后台角色管理尚未实现。** 当前授权仍来自 `OAKTECH_ADMIN_SUBJECTS` 等旧名单。新增bootstrap变量目前不会生效；没有为用户真实账号认领超管。本轮不新增业务权限功能、不配置生产秘密、不修改用户角色。
 
-## 先前状态
+| 能力 | 核实状态 | 依据 |
+| --- | --- | --- |
+| 商品/版本后台与新增页 | 源码已有；不代表当前用户有权限 | app/admin、lib/store/admin.ts |
+| Auth与缠序商品展示 | 本轮两详情HTTP200；此前目录恢复已有记录 | 基线HTTP观察与product recovery记录 |
+| 已发布文件与原生更新兼容代码 | 0.1.25已有，不能推断真实软件包已公开 | lib/store/open-play-signatures.ts、docs/open-play-update-compatibility.md |
+| Open Play官网清单 | 本轮两feed均404；未断言底层失败原因 | 基线HTTP；历史收据称尚未上传/发布 |
+| `/setup/admin`与`/admin/users` | 当前源码无实现，本轮HTTP404 | 路由及授权代码核对 |
+| CT-ADMIN-001 | 已确认标准，项目已收录固定快照 | docs/standards |
+| 详细计划与状态机制 | 本轮交付，独立于业务功能 | TASKS/PROGRESS、计划与校验工具 |
 
-更新时间：2026-09-16T13:46:53+08:00
+已重新运行原有测试：63/63通过。该数字属于新增追踪工具前的源码基线，不代表待开发权限用例已执行。全部基线证据见[evidence/2026-09-16-baseline.json](evidence/2026-09-16-baseline.json)；本轮新增校验工具和最终构建结果见[交付验证](evidence/2026-09-16-plan-validation.json)。
 
-## 0.1.24 · 本轮：恢复两款商品线上展示
+## 当前方向与阻塞
 
-- 用户截图与公网再次确认两个商品未显示；0.1.23只完善素材/模板/入口，没有补录已有生产catalog。
-- 本轮增加一次性生产启动迁移：备份原目录，只插入/公开open-play与chanxu-tradingview，Release/文件/权限保持不变；持久完成标记防止后续管理员下架被重启撤销。
-- 独立worktree51项测试、类型检查、生产构建与6组真实浏览器持久目录迁移验收通过。未包含或覆盖主工作区另一个Auth下载/更新任务的未提交文件。
-- [迁移说明](../product-listings-recovery-2026-09-16.md)。最终线上卡片/详情/CI/版本证据写入 `.local-verification/0.1.24/product-recovery-deployment.json`；不得只凭health版本宣称商品恢复。
+下一开发任务ADM-01：确认事务授权存储及JSON目录最终写授权的一致性方案，见[HANDOFF.md](HANDOFF.md)。生产授权数据库连接、实际部署触发通道、真实账号MFA/近期认证能力尚未完成核验；不猜测值、不读取用户秘密。
 
-## 0.1.23 · 前轮：商品混用与新增后台
+历史GitHub部署job出现凭据检查失败，而站点版本后来更新，二者分开记录。当前公开health基线为0.1.25；本轮文档提交后的版本、CI与公网收据放 `.local-verification/<version>/`，不能靠health变化把ADM任务标为完成。
 
-- 确证缠序原图标与auth项目图标字节一致；已改为缠序原品牌字标，auth保持独立图标。Dashboard不再读取静态beta列表，使用与商城相同的公开目录。
-- 新增 `/admin` 总览和 `/admin/products/new` 独立页面；桌面、手机、个人中心、页脚可进入。非管理员看到权限解释而非编辑表单，写权限未放宽。
-- 新增页提供独立Auth/缠序草稿模板，不自动插入或公开生产商品。
-- 本轮开始时公网实际0.1.22；0.1.23远程提交、CI与生产health分开记录于 `.local-verification/0.1.23/deployment.json`。详细根因见 [修复记录](../store-product-admin-fix-2026-09-16.md)。
-- 完整测试41/41、类型检查、最终生产构建与14组浏览器检查全部通过，结果见验收收据；真实用户账户的管理员授权未验证或更改。
+## 接续规则
 
-## 上轮 0.1.22：商品发布、软件发布与下载
-
-- 当前唯一主项目为 `saas_oaktech`；早期 `oaktools-platform` 已封存。
-- 已完成 `0.1.22` 源码修复：商品防覆盖、草稿身份与来源保留、三/四段版本格式、通用软件包发布、8 MiB 浏览器上传、并发槽位与审计异常保护、发布快照校验、HEAD/Range 边界、后台反馈与表单输入保留。
-- 验证：36/36 测试、类型检查、生产构建、9 组隔离真实浏览器检查通过；9 MiB 文件上传/发布/匿名下载和 390px 页面已验证。
-- 详细证据与风险见 [本轮审查](../software-store-review-2026-09-16.md)。截图与 JSON 在 `/Users/tefulong/.agentdock/tmp/oaktech-store-ui-results-JuUJQv/`。
-- 上轮当时的生产基线实测为商城 `0.1.21`，GitFinder current `2.0.0-alpha.86`。`0.1.22` 的实际远程提交、CI 与公网状态记录于项目本地 `.local-verification/0.1.22/deployment.json`，不能把本地通过等同于已部署。
-- 本轮没有公开真实软件新版本、删除生产软件包或改动管理员/身份配置。
-
-## 稳定架构与历史待验证项
-
-- `RELEASE_STORAGE_ROOT` 持久卷保存 catalog、版本包、临时上传和审计；普通代码部署不得改变持久数据或自动发布草稿。
-- 商品、版本与下载的管理门禁保持原样；机器导入/上传只准备草稿。发布前重新核对所有制品大小和 SHA-512。
-- Casdoor / Supabase 显式切换保持不变，Casdoor 管理员以精确 sub allowlist 授权；本轮仅验证本地模拟会话，不替代生产真实登录验收。
-- 统一身份技术栈不强制所有工具共享账户；境内身份资料、境外商店的已确认部署边界不变，见 DECISIONS.md。
-- 积分/订阅/支付仍依赖 Supabase 身份与 RLS，未在本轮迁移。
-- OSS 公共存储、品牌资源、历史 GitFinder alpha.93 草稿/旧客户端升级等工作没有在本轮验收，旧记录是历史结果而非当前完成证明。
-- 公网安装包已用 curl 复核双平台 Range 206/64字节和文件头；Node 直连此前200/超时与该结果不同，网络/客户端路径差异待定位。当前 JSON 目录不适用于多个写入进程，分片会话回收与恢复协议待补。
-
-唯一后续主线：依据本地部署验收记录核对线上版本后，独立验证真实管理员会话与实际桌面客户端升级；不要自动公开历史草稿。
+唯一任务事实源是[TASKS.json](TASKS.json)，[PROGRESS.md](PROGRESS.md)自动生成。以任务验收和实际证据判定，不依赖本轮聊天。原来的多版本“当前状态”已原样存入 `archive/2026-09-16-before-development-plan-CURRENT_STATE.md`；历史细节看SESSION_LOG和RELEASE_LOG，不继续向本页叠加过期当前状态。

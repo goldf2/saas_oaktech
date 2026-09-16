@@ -1,0 +1,53 @@
+{
+  "checkedAt": "2026-09-16T15:47:03+08:00",
+  "repository": "goldf2/saas_oaktech",
+  "baseCommit": "54a42b33bc5fc3e9c42541fdd3bdd6fae4700bce",
+  "applicationVersion": "0.1.25",
+  "worktreeCleanAtStart": true,
+  "localNode": "24.17.0",
+  "localNext": "16.2.9",
+  "testBaseline": {
+    "command": "npm test",
+    "tests": 63,
+    "passed": 63,
+    "failed": 0,
+    "rerunInThisTask": true
+  },
+  "publicHealth": {
+    "status": "ok",
+    "service": "oaktech-software-store",
+    "version": "0.1.25"
+  },
+  "anonymousHttpChecks": {
+    "/setup/admin": 404,
+    "/admin/users": 404,
+    "/zh/products/open-play": 200,
+    "/zh/products/chanxu-tradingview": 200,
+    "/updates/open-play/appcast.xml": 404,
+    "/updates/open-play/windows.json": 404
+  },
+  "adminImplementation": "legacy environment allowlist only; no bootstrap or role management implementation",
+  "evidenceScope": "Repository and anonymous public checks. No production secrets, role database or private accounts read. A 404 is corroborated by missing routes in current source; it alone does not prove why an update feed is unavailable.",
+  "fileDigests": {
+    "lib/store/admin.ts": "bf777f04b2e298ad63cd04eee56c4aa6058590e5020a3a9377891f3a748c8e28",
+    "lib/store/policy.ts": "c94081180b5219aaa2fc5a0b62b677eb0118693da2950e4abea60a0c2fd42f2f",
+    "lib/auth-options.ts": "8679aa14c99fa56df1ea5c8d9bf4b5a1bdae081a6ef6a9ed92e258106e8f0b43",
+    "lib/auth.ts": "32f998b0dcd0da97b7a5f1e5d61519f9cf29dcf216898072a83aba731ce1d3a0",
+    "lib/store/file-catalog.ts": "b523849084d0a6e53070af437e8aa0b774239ab5c2a6179c661c84f1c2f10d6a",
+    "Dockerfile": "978e02861b7a7d8c31cb48369624cf4e71c659b8a8656ae4e86898b991abb886",
+    ".github/workflows/ci-deploy.yml": "016e8838b7071ef69904b87a17e23fcac80b708912f5ff48744f314849b9617d"
+  },
+  "standard": {
+    "path": "docs/standards/CT-ADMIN-001-v1.0.0.md",
+    "id": "CT-ADMIN-001",
+    "version": "1.0.0",
+    "sha256": "1d31474c2226827846489b8a4fe5fc5b74d8e15a8b03f527b84e9f09f4b2beeb"
+  },
+  "historicalEvidence": {
+    "path": ".local-verification/0.1.25/open-play-publication-closeout.json",
+    "checkedAt": "2026-09-16T14:53:58+08:00",
+    "reportedWebsitePublishedReleaseExists": false,
+    "reportedProductionArtifactsUploaded": false,
+    "note": "Historical local receipt read this session; not an independent inspection of production catalog."
+  }
+}

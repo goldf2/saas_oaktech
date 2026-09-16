@@ -194,3 +194,15 @@
 新增四个固定地址兼容：appcast.xml、windows.json、两平台版本ZIP；直接返回已发布catalog对应原始字节，保留草稿/产品权限门禁与HEAD/Range。open-play发布前验证客户端固定公钥、两端版本构建、包签名/摘要与清单有效期，不重新生成Electron清单。下载页面排除更新元数据卡片，上传类型提示增加manifest。
 
 基线保留另一个会话的0.1.24商品恢复提交。63测试、typecheck、生产构建、真实0.6.6.12已公开文件的服务器验证通过。桌面GitHub Release .12/672已公开、两渠道签名和匿名完整下载回读通过；网站代码部署与管理员正式发布是独立步骤，以`.local-verification/0.1.25/`的真实结果为准。未自动写生产catalog、未改权限或加入发布私钥。详见`../open-play-update-compatibility.md`。
+
+## 2026-09-16T15:59:17+08:00 · PLAN-01 · 详细开发方案和持续接续机制
+
+- 用户要求：在项目内保存详细方案并及时更新进度，便于人员与其他AI接续；重复同一句请求按一次交付处理。
+- 基线：54a42b3 / 0.1.25；起始工作区干净；旧授权为环境白名单，无超管初始化与角色页面。两商品详情200，两个Open Play官网feed404，63项基线回归通过。
+- 交付：根AGENTS/更新README、PROJECT_BRIEF、DEVELOPMENT_PLAN、TASKS/生成PROGRESS、HANDOFF、RUNBOOK、40条TEST_MATRIX、标准固定快照和脱敏基线。共21任务，其中14项ADM主线仍未实现。
+- 跟踪：新增check-handoff生成/校验脚本和7项测试，由既有npm test/CI执行；校验结构和证据引用，不能替代真实业务验收。
+- 范围：只修改文档、开发辅助工具、对应测试和版本号；未更改app/lib业务、生产权限、初始化秘密或软件current。
+- 验证最终状态见 `evidence/2026-09-16-plan-validation.json`；提交部署收据位于 `.local-verification/0.1.26/`。
+- 下一任务：ADM-01先做存储与跨存储一致性ADR/PoC，未认领；不在后台自动开发。
+
+- 2026-09-16T15:59:55+08:00 最终本地验收：文档校验通过；工具7/7、完整70/70、typecheck和生产构建通过。PLAN-01已完成，ADM主线0/14；无业务源文件/生产授权改变。

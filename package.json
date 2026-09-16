@@ -1,6 +1,6 @@
 {
   "name": "saas_oaktech",
-  "version": "0.1.25",
+  "version": "0.1.26",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -8,7 +8,10 @@
     "start": "next start",
     "test": "node --experimental-strip-types --test tests/*.test.ts",
     "typecheck": "tsc --noEmit",
-    "test:store-ui": "node scripts/verify-store-ui.mjs"
+    "test:store-ui": "node scripts/verify-store-ui.mjs",
+    "handoff:check": "node scripts/check-handoff.mjs --check",
+    "handoff:render": "node scripts/check-handoff.mjs --write",
+    "handoff:status": "node scripts/check-handoff.mjs --status"
   },
   "dependencies": {
     "@creem_io/nextjs": "^0.4.0",
