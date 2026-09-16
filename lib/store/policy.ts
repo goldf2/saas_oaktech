@@ -34,6 +34,11 @@ export function isStoreSlug(value: string) {
   return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value);
 }
 
+// Store versions include both SemVer and native four-component desktop versions.
+export function isReleaseVersion(value: string) {
+  return /^\d+\.\d+\.\d+(?:\.\d+)?(?:-[0-9A-Za-z]+(?:[.-][0-9A-Za-z]+)*)?(?:\+[0-9A-Za-z]+(?:[.-][0-9A-Za-z]+)*)?$/.test(value);
+}
+
 export function isHttpsUrl(value: string) {
   try {
     return new URL(value).protocol === "https:";

@@ -204,6 +204,6 @@ export async function prepareUpdaterManifests(release: AdminProductReleaseRow) {
     await atomicWrite(absoluteReleasePath(storagePath), updaterManifest(release, windows));
     files.push(storagePath);
   }
-  if (!files.length) throw new Error("MAC_OR_WINDOWS_ARTIFACT_REQUIRED");
+  // Generic packages remain downloadable; only compatible Electron packages get updater manifests.
   return files;
 }

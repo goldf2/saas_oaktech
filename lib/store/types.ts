@@ -1,3 +1,5 @@
+export type AdminActionResult = { error?: string; code?: string };
+
 export type Locale = "en" | "zh";
 export type ProductStatus = "beta" | "released" | "coming-soon";
 export type PublicationStatus = "draft" | "published";

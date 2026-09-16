@@ -1,6 +1,6 @@
 import { createReadStream } from "node:fs";
 import { stat } from "node:fs/promises";
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import { resolvePublicDownload } from "@/lib/store/downloads";
 
 export const runtime = "nodejs";
@@ -9,7 +9,8 @@ export const dynamic = "force-dynamic";
 function rangeFor(value: string | null, size: number) {
   if (!value) return null;
   const match = /^bytes=(\d*)-(\d*)$/.exec(value);
-  if (!match) return false;
+  if (!match || size === 0) return false;
+  if ((match[1] && !Number.isSafeInteger(Number(match[1]))) || (match[2] && !Number.isSafeInteger(Number(match[2])))) return false;
   let start = match[1] ? Number(match[1]) : NaN;
   let end = match[2] ? Number(match[2]) : NaN;
   if (Number.isNaN(start) && Number.isNaN(end)) return false;
@@ -45,7 +46,7 @@ function readableFile(filePath: string, start: number, end: number) {
 }
 
 async function serve(request: NextRequest, parts: string[], headOnly: boolean) {
-  if (parts.some((part) => !part || part === "." || part === ".." || part.includes("\\"))) {
+  if (parts.some((part) => !part || part === "." || part === ".." || part.includes("/") || part.includes("\\") || part.includes("\0"))) {
     return new Response("Not found", { status: 404 });
   }
   const descriptor = await resolvePublicDownload(parts);
@@ -53,7 +54,7 @@ async function serve(request: NextRequest, parts: string[], headOnly: boolean) {
 
   const details = await stat(descriptor.absolutePath).catch(() => null);
   if (!details?.isFile()) return new Response("Not found", { status: 404 });
-  const requestedRange = rangeFor(request.headers.get("range"), details.size);
+  const requestedRange = headOnly ? null : rangeFor(request.headers.get("range"), details.size);
   if (requestedRange === false) {
     return new Response(null, { status: 416, headers: { "Content-Range": `bytes */${details.size}` } });
   }
@@ -67,9 +68,10 @@ async function serve(request: NextRequest, parts: string[], headOnly: boolean) {
     "Content-Disposition": `attachment; filename*=UTF-8''${encodeURIComponent(descriptor.fileName)}`,
     "Cache-Control": descriptor.immutable ? "public, max-age=31536000, immutable, no-transform" : "no-store",
     "CDN-Cache-Control": "no-store",
+    "X-Content-Type-Options": "nosniff",
   });
   if (requestedRange) headers.set("Content-Range", `bytes ${start}-${end}/${details.size}`);
-  const body = headOnly ? null : readableFile(descriptor.absolutePath, start, end);
+  const body = headOnly || details.size === 0 ? null : readableFile(descriptor.absolutePath, start, end);
   return new Response(body, { status: requestedRange ? 206 : 200, headers });
 }
 

@@ -1,13 +1,14 @@
 {
   "name": "saas_oaktech",
-  "version": "0.1.21",
+  "version": "0.1.22",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "test": "node --experimental-strip-types --test tests/*.test.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:store-ui": "node scripts/verify-store-ui.mjs"
   },
   "dependencies": {
     "@creem_io/nextjs": "^0.4.0",

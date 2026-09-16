@@ -10,6 +10,7 @@ export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
   let stored: Extract<Awaited<ReturnType<typeof appendUploadChunk>>, { complete: true }> | null = null;
+  let committed = false;
   try {
     const writer = authenticateReleaseWriter(request.headers.get("authorization"));
     if (!writer && request.headers.get("authorization")) {
@@ -42,7 +43,12 @@ export async function POST(request: NextRequest) {
     const artifactId = newCatalogId();
     await mutateStoreCatalog((catalog) => {
       const target = catalog.releases.find((item) => item.id === releaseId);
-      if (!target || target.status !== "draft") throw new Error("DRAFT_RELEASE_CHANGED");
+      if (!target || target.status !== "draft" || target.product_slug !== release.product_slug || target.version !== release.version || target.channel !== release.channel) {
+        throw new Error("DRAFT_RELEASE_CHANGED");
+      }
+      if (target.release_artifacts.some((item) => item.platform === platform && item.architecture === architecture && item.package_kind === packageKind)) {
+        throw new Error("ARTIFACT_SLOT_ALREADY_EXISTS");
+      }
       target.release_artifacts.push({
         id: artifactId,
         release_id: releaseId,
@@ -57,10 +63,15 @@ export async function POST(request: NextRequest) {
         content_type: contentType,
       });
     });
+    committed = true;
     await appendStoreAudit({ actorUserId: admin.id, actorEmail: admin.email, action: "store.artifact.uploaded", targetType: "release_artifact", targetId: artifactId, metadata: { releaseId, fileName, sizeBytes: stored.sizeBytes, sha512: stored.sha512 } });
     return NextResponse.json({ ok: true, artifactId, sizeBytes: stored.sizeBytes, sha512: stored.sha512 });
   } catch (error) {
-    if (stored) await removeStoredFile(stored.storagePath);
-    return NextResponse.json({ error: error instanceof Error ? error.message : "UPLOAD_FAILED" }, { status: 400 });
+    // Once catalog metadata is committed, an audit failure must not delete its file.
+    if (stored && !committed) await removeStoredFile(stored.storagePath);
+    const message = error instanceof Error ? error.message : "UPLOAD_FAILED";
+    const conflict = /ALREADY_EXISTS|DRAFT_RELEASE_CHANGED/.test(message) || (error as NodeJS.ErrnoException).code === "EEXIST";
+    const status = committed ? 500 : message === "STORE_ADMIN_FORBIDDEN" ? 403 : conflict ? 409 : 400;
+    return NextResponse.json({ error: committed ? "ARTIFACT_SAVED_AUDIT_FAILED" : message, committed }, { status });
   }
 }

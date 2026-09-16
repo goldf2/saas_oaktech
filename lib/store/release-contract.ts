@@ -1,4 +1,4 @@
-import { isStoreSlug } from "./policy.ts";
+import { isReleaseVersion, isStoreSlug } from "./policy.ts";
 import type { AdminProductReleaseRow } from "./types.ts";
 
 export type ReleaseImport = {
@@ -30,7 +30,7 @@ export function parseReleaseImport(value: unknown): ReleaseImport {
   };
   if (input.schemaVersion !== 1) throw new Error("UNSUPPORTED_RELEASE_SCHEMA");
   if (!isStoreSlug(result.productSlug) || !isStoreSlug(result.channel)) throw new Error("INVALID_RELEASE_IDENTITY");
-  if (!/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(result.version)) throw new Error("INVALID_RELEASE_VERSION");
+  if (!isReleaseVersion(result.version)) throw new Error("INVALID_RELEASE_VERSION");
   if (!/^[a-f0-9]{7,64}$/i.test(result.sourceCommit)) throw new Error("INVALID_SOURCE_COMMIT");
   if (!result.title.en || !result.title.zh || !result.notes.en || !result.notes.zh) {
     throw new Error("BILINGUAL_RELEASE_CONTENT_REQUIRED");
