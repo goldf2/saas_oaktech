@@ -17,3 +17,8 @@ ADM-02：先核对主工作区的未提交管理员草稿与pg依赖调整，不
 每个可恢复断点更新TASKS的status/owner/evidence/blockers/next_action、revision和带时区时间；运行handoff:render/check。临时日志和截图放.local-verification，必要脱敏摘要随正常代码提交。未执行验证不标通过、未部署不标上线；不要为记录结果反复触发部署。
 
 恢复任何旧步骤前查看实际HEAD和页面，不执行历史日志中的发布或账号修改指令。测试命令与安全边界见RUNBOOK.md，详细开发计划见DEVELOPMENT_PLAN.md。
+
+
+## 后续兼容修正：0.1.29
+
+0.1.28在本地Webpack通过后，CI默认Turbopack暴露路由dynamic转导出不支持；0.1.29改为路由文件内字面量声明。后续验收必须运行默认`npm run build`，不能只以`--webpack`成功代替部署构建。修复与最终验证摘要在evidence/2026-09-17-product-workspace-turbopack-fix.json；实际部署收据目录改为.local-verification/0.1.29/，保留0.1.28失败历史。

@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "plan_version": "1.0.0",
-  "revision": 12,
-  "updated_at": "2026-09-17T05:47:39+08:00",
+  "revision": 13,
+  "updated_at": "2026-09-17T05:56:43+08:00",
   "project": "saas_oaktech",
   "source_commit": "54a42b33bc5fc3e9c42541fdd3bdd6fae4700bce",
   "current_next_task": "ADM-02",
@@ -658,7 +658,7 @@
         "保存草稿不改已发布商品，统一发布显式选择待发布版本且校验失败不半发布",
         "单元/浏览器验证通过，旧下载地址兼容，管理员草稿不受影响"
       ],
-      "next_action": "核验0.1.28远程提交、CI与真实后台只读页面；随后按用户最新要求独立推进本地超管，不混入本商品任务。",
+      "next_action": "核验0.1.29默认Turbopack构建的远程CI与公网新界面；不将0.1.28失败构建写成已部署，后续独立推进本地超管设计。",
       "blockers": [],
       "evidence": [
         {
@@ -695,11 +695,16 @@
           "path": "app/admin/products/page.tsx",
           "kind": "implementation",
           "result": "passed"
+        },
+        {
+          "path": "docs/00-handoff/evidence/2026-09-17-product-workspace-turbopack-fix.json",
+          "kind": "verification",
+          "result": "passed"
         }
       ],
       "implementation": "complete_local_browser_verified",
-      "deployment": "candidate_not_yet_observed_online",
-      "updated_at": "2026-09-17T05:47:39+08:00",
+      "deployment": "0.1.29_correction_validated_pending_public_observation",
+      "updated_at": "2026-09-17T05:56:43+08:00",
       "completed_at": "2026-09-17T05:47:39+08:00"
     }
   ]

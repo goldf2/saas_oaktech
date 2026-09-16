@@ -1,2 +1,3 @@
-// The former software-administration overview is now the same product workspace index.
-export { default, dynamic } from "../products/page";
+// Both administration entries share the product list. Route config must remain a local literal.
+export { default } from "../products/page";
+export const dynamic = "force-dynamic";

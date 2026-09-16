@@ -2,7 +2,7 @@
 
 > 不要直接编辑本文件。修改TASKS.json后运行 `npm run handoff:render`。
 
-账本revision：12；更新时间：2026-09-17T05:47:39+08:00；计划版本：1.0.0。
+账本revision：13；更新时间：2026-09-17T05:56:43+08:00；计划版本：1.0.0。
 
 **权限主线任务完成：1/14。这是任务计数，不是代码完成百分比；PLAN-01文档不计入。**
 
@@ -366,9 +366,9 @@
 
 ### STORE-01 · 商品内图文、版本、预览和统一发布工作台
 
-状态：完成；负责人：ChatGPT / tsk_5a4be4c4b63f215d；实施：complete_local_browser_verified；部署：candidate_not_yet_observed_online。
+状态：完成；负责人：ChatGPT / tsk_5a4be4c4b63f215d；实施：complete_local_browser_verified；部署：0.1.29_correction_validated_pending_public_observation。
 
-下一动作：核验0.1.28远程提交、CI与真实后台只读页面；随后按用户最新要求独立推进本地超管，不混入本商品任务。
+下一动作：核验0.1.29默认Turbopack构建的远程CI与公网新界面；不将0.1.28失败构建写成已部署，后续独立推进本地超管设计。
 
 验收条件：
 - 版本管理归属于商品，图文和软件版本在同一编辑工作台操作
@@ -386,3 +386,4 @@
 - verification / passed：`docs/00-handoff/evidence/2026-09-17-product-workspace-complete.json`
 - implementation / passed：`app/admin/products/[slug]/page.tsx`
 - implementation / passed：`app/admin/products/page.tsx`
+- verification / passed：`docs/00-handoff/evidence/2026-09-17-product-workspace-turbopack-fix.json`

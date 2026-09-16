@@ -7,3 +7,8 @@ STORE-01代码与本地完整流程已经验收；部署后核对.local-verifica
 OPS-01部署触发通道与凭据缺口仍单独跟踪。REL任务只在明确的软件版本发布范围内推进，商品已上架不代表安装包已发布。
 
 唯一进度源TASKS.json；不要在这里复制另一份任务勾选表。
+
+
+## 后续兼容修正：0.1.29
+
+0.1.28在本地Webpack通过后，CI默认Turbopack暴露路由dynamic转导出不支持；0.1.29改为路由文件内字面量声明。后续验收必须运行默认`npm run build`，不能只以`--webpack`成功代替部署构建。修复与最终验证摘要在evidence/2026-09-17-product-workspace-turbopack-fix.json；实际部署收据目录改为.local-verification/0.1.29/，保留0.1.28失败历史。

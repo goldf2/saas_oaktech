@@ -131,3 +131,10 @@
 - 保存/发布分离、私有图文、共同发布、手机画布与服务重启持久化经过12组真实浏览器验证；完整91项回归及生产编译通过。详见evidence/2026-09-17-product-workspace-complete.json。
 - 保留原认证与版本动作；本轮不提交主目录未接入的管理员服务或pg运行依赖变更，不发布真实商品或软件版本。
 - 原版本服务中英文必填等限制明确记录；提交/CI/公网真实结果另记.local-verification/0.1.28/。
+
+## 2026-09-17T05:55:11+08:00 · STORE-01 / 0.1.29 · Turbopack路由配置兼容
+
+- 0.1.28的CI运行35154436226：普通测试与真实PG测试已运行，应用构建因dynamic字段转导出失败，deploy跳过；不得称整条CI成功。
+- 修复app/admin/software/page.tsx：默认页面仍共享商品列表，dynamic改为本模块字面量，追加防回归断言。未改任何认证/角色/安装包逻辑。
+- 修复后默认npm run build（Turbopack）已通过；最终0.1.29全量/浏览器记录见evidence/2026-09-17-product-workspace-turbopack-fix.json。
+- 现有lib/admin草稿和pg运行依赖变动仍保留未提交，发布版本与真实线上收据分开核对。

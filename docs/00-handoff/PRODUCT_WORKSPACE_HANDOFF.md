@@ -51,3 +51,8 @@ npm run test:store-ui
 - JSON目录仍是单写入进程设计。PG授权与最终写入协调、跨进程一致性由ADM任务承担，不能把本次界面和单进程发布验证称为已完成权限迁移。
 - 私有草稿、中文文案和多段纯文本已验证；富文本HTML编辑器、素材自动清理及更多平台下载策略不在本次交付范围。
 - 代码提交、CI、实际公网版本和真实页面分开记录；部署后收据放 `.local-verification/0.1.28/`，不为了只更新收据反复触发生产构建。
+
+
+## 后续兼容修正：0.1.29
+
+0.1.28在本地Webpack通过后，CI默认Turbopack暴露路由dynamic转导出不支持；0.1.29改为路由文件内字面量声明。后续验收必须运行默认`npm run build`，不能只以`--webpack`成功代替部署构建。修复与最终验证摘要在evidence/2026-09-17-product-workspace-turbopack-fix.json；实际部署收据目录改为.local-verification/0.1.29/，保留0.1.28失败历史。

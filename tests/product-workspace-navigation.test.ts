@@ -12,6 +12,8 @@ test('product list and create entry use one workspace rather than the flat publi
   assert.match(create,/initialProduct/);
   assert.doesNotMatch(create,/<ProductForm/);
   assert.match(overview,/products\/page/);
+  assert.match(overview,/export const dynamic = "force-dynamic"/);
+  assert.doesNotMatch(overview,/export \{[^}]*dynamic/);
 });
 
 test('legacy release entry validates administration and resolves the actual product before redirecting', async () => {

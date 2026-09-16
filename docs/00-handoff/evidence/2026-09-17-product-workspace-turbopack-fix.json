@@ -1,0 +1,45 @@
+{
+  "checkedAt": "2026-09-17T05:56:43+08:00",
+  "task": "STORE-01",
+  "version": "0.1.29",
+  "priorCommit": "8817062ab7e284079d7b0f2e2b1ba0407308bf13",
+  "priorCi": {
+    "runId": 35154436226,
+    "result": "build_failed",
+    "cause": "Turbopack requires locally declared route config, not a reexported dynamic binding",
+    "deployment": "skipped"
+  },
+  "fix": {
+    "file": "app/admin/software/page.tsx",
+    "behavior": "default product list reused; dynamic is a local literal",
+    "regression": "tests/product-workspace-navigation.test.ts"
+  },
+  "validation": {
+    "unitPassed": 91,
+    "unitFailed": 0,
+    "typecheck": "passed",
+    "defaultTurbopackBuild": "passed",
+    "browserPassed": 12,
+    "browserStatus": "passed",
+    "browserVersion": "0.1.29",
+    "browserChecks": [
+      "anonymous and ordinary users cannot edit, upload, publish or import",
+      "administration has one product list; Add product enters the same four-section editor",
+      "minimal new product saves a private draft and stays in its workspace without another product image",
+      "duplicate creation is rejected with retained inputs; list search returns the correct workspace",
+      "switching sections retains edits; saving new content neither publishes it nor alters another product",
+      "real file selection uploads icon, cover and screenshots; ordering persists while all new images stay private",
+      "version save returns automatically to this product; embedded 8+1 MiB upload remains a private version draft",
+      "preview uses the shared product page and a genuinely responsive phone-width canvas without draft downloads",
+      "one explicit publish promotes this product and its selected version; public media and GET/HEAD/Range downloads work",
+      "editing an already-live product stays private until metadata-only confirmation, without changing its published versions",
+      "old global release links forward safely to product context, and published products appear in the personal catalog",
+      "a real service restart preserves content, media and downloads; 390px editor/storefront have no overflow or runtime errors"
+    ],
+    "exitCode": 0
+  },
+  "evidenceDirectory": ".local-verification/0.1.29",
+  "productionDataOrRolesChanged": false,
+  "pendingAdminCodeIncluded": false,
+  "publicDeployment": "must be observed independently after pushing this correction"
+}
