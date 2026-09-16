@@ -21,6 +21,7 @@ export function ProductCard({ product, locale }: { product: SoftwareProduct; loc
       <Link href={href} className="flex h-full flex-col" aria-label={`${product.name}: ${product.tagline}`}>
         <div className="relative aspect-[16/10] overflow-hidden bg-[hsl(var(--store-surface-muted))]">
           <Image
+            unoptimized={product.heroImage.startsWith("/media/") || product.heroImage.startsWith("https://")}
             src={product.heroImage}
             alt={`${product.name} interface preview`}
             fill
@@ -31,6 +32,7 @@ export function ProductCard({ product, locale }: { product: SoftwareProduct; loc
         <div className="flex flex-1 flex-col p-6 sm:p-7">
           <div className="flex items-start gap-4">
             <Image
+              unoptimized={product.icon.startsWith("/media/") || product.icon.startsWith("https://")}
               src={product.icon}
               alt=""
               width={56}

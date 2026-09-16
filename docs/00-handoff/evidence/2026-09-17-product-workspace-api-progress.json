@@ -1,0 +1,61 @@
+{
+  "checkedAt": "2026-09-17T04:38:12+08:00",
+  "task": "STORE-01",
+  "baseCommit": "8462a3e821c5c35725dd4930dbc3e2246dafde5c",
+  "scope": "isolated product workspace source and protocol verification; product page hookup not completed",
+  "featureBranch": "feat/product-workspace-20260917",
+  "newlyWrittenFiles": [
+    "app/admin/products/editor-actions.ts",
+    "app/api/admin/products/[slug]/media/route.ts",
+    "app/media/products/[slug]/[file]/route.ts",
+    "components/admin/product-workspace.tsx",
+    "components/database-product-page.tsx",
+    "lib/store/public-data.ts",
+    "tests/product-workspace-routes.test.ts",
+    "tests/helpers/workspace-route-loader.mjs"
+  ],
+  "fileSha256": {
+    "app/admin/products/editor-actions.ts": "461ce88deb78c87905c64ef2d995bc4edece528e5a405e60615ec5904dd9c12d",
+    "app/api/admin/products/[slug]/media/route.ts": "c955e356fabcb44b3efe65ce29241aeb9ad0d279425cbab98fbb2e1977fc95f2",
+    "app/media/products/[slug]/[file]/route.ts": "93a7ecc6f0f0444b2d725cf019b1102b67653e03dd27460ba9bf34860d8c0e05",
+    "components/admin/product-workspace.tsx": "bc794c9bee0e7f5879086f84365b7ebba869843f2761bd5f5e6d20a52d4593b2",
+    "components/database-product-page.tsx": "53f6ab043555edb2e0202028c2c9eb5fc4c06ce40a2906c1a8f9786e9972120b",
+    "lib/store/public-data.ts": "fe3e1ede5e5e3a27dfa54dbc8f53af1914b804cfff4f24b121d0a97b33ada6d8",
+    "tests/product-workspace-routes.test.ts": "3dcccf6f1729db94a4c8e244e673280f250684d807f1ce5ae2ca05f41d0f097a",
+    "tests/helpers/workspace-route-loader.mjs": "3b49b34b4a472166eea222c5aa194a2ce459a5c4ded4bca01b01de4877c2d0ea"
+  },
+  "validation": {
+    "workspaceServiceTests": "9/9 passed",
+    "newHttpAndActionTests": "6/6 passed",
+    "fullTests": "88/88 passed",
+    "typecheck": "passed",
+    "webpackProductionBuild": "passed",
+    "existingBrowserWorkflowChecks": "14/14 passed",
+    "newWorkspaceBrowserWorkflow": "not_run_not_mounted",
+    "gitDiffCheck": "passed"
+  },
+  "newProtocolChecks": [
+    "Nonadministrators cannot upload, save or publish",
+    "Image POST requires configured same origin and custom header",
+    "Huge bodies, SVG and invalid image bytes are rejected",
+    "Draft media GET is administrator-only; no-store and nosniff; guessed paths not served",
+    "Save leaves live product unchanged; confirmation required before publication; published image anonymous GET/HEAD verified",
+    "Stale edit tokens and invalid gallery input cannot overwrite data"
+  ],
+  "pendingIntegration": [
+    "app/admin/products/[slug]/page.tsx does not exist",
+    "components/admin/product-releases.tsx does not exist",
+    "existing ProductForm and product index still use the old UI",
+    "legacy release-console redirection and scoped release-action returns not applied"
+  ],
+  "blocker": "The integration batch write was blocked by the tool safety check and did not execute. It was not retried through another tool or route.",
+  "notClaimed": [
+    "No finished product editor accessible to users",
+    "No browser validation of the new editor component",
+    "No production image upload or real product publication",
+    "No administrator authentication changes",
+    "No commit, push or deployment of this partial feature"
+  ],
+  "originalBrowserReport": "existing UI only; result and screenshots copied to .local-verification/store-workspace-resume/existing-ui/",
+  "status": "partial_blocked"
+}

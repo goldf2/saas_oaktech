@@ -79,3 +79,7 @@ curl --silent --show-error --max-time 15 -o /dev/null -w '%{http_code}\n' https:
 ## ADM-01数据库原型（0.1.27）
 
 `npm run test:admin-storage` 已实现，仅访问独立loopback测试库。准备方式、随机schema与清理边界见 [scripts/admin-poc/README.md](../../scripts/admin-poc/README.md)。该命令不会配置生产超管；生产命令仍须按后续任务实施。新增CI服务在自己的PostgreSQL数据库中运行，多进程互斥不是mock。
+
+## 商品工作台（0.1.28）
+
+`npm run test:store-ui`现执行新版商品列表→新建→图文/版本→预览发布→重启检查的隔离浏览器流程；不是旧表单脚本，也不登录生产账号。公网可用后只读查看/admin/products与/admin/products/<slug>，不要公开虚构测试商品。操作和兼容范围见[工作台说明](PRODUCT_WORKSPACE_HANDOFF.md)。

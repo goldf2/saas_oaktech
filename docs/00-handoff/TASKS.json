@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "plan_version": "1.0.0",
-  "revision": 5,
-  "updated_at": "2026-09-16T21:14:40+08:00",
+  "revision": 12,
+  "updated_at": "2026-09-17T05:47:39+08:00",
   "project": "saas_oaktech",
   "source_commit": "54a42b33bc5fc3e9c42541fdd3bdd6fae4700bce",
   "current_next_task": "ADM-02",
@@ -100,26 +100,36 @@
       "kind": "feature",
       "milestone": "M1",
       "priority": "P0",
-      "status": "todo",
-      "owner": null,
+      "status": "blocked",
+      "owner": "ChatGPT / tsk_3177f42a860aa7cd",
       "depends_on": [
         "ADM-01"
       ],
       "planned_files": [
-        "lib/admin/store.ts",
-        "migrations/admin/001_authorization.sql"
+        "lib/admin/schema.mjs",
+        "lib/admin/config.mjs",
+        "lib/admin/backend.mjs"
       ],
       "acceptance": [
         "唯一身份、角色约束、单例installation和授权审计可事务提交",
         "schema和安装ID对账；缺卷、错库、损坏不被视为新安装",
         "故障注入无半状态，并发锁顺序固定"
       ],
-      "next_action": "按ADR实现SQL迁移和真实事务故障测试",
-      "blockers": [],
-      "evidence": [],
-      "implementation": "not_started",
+      "next_action": "先恢复允许的接入操作并审查lib/admin三个未接入草稿；执行真实数据库与浏览器验证后才提交部署。真实超管认领仍未开始。",
+      "blockers": [
+        "认证/授权和后台接入写入被工具安全检查拦截，未执行；恢复允许的操作通道后才继续，不改用其他工具绕过。",
+        "生产专用权限数据库及该商城Coolify可操作页面当前未配置/不可访问；部署负责人需提供已授权入口，秘密仅在部署平台填写。"
+      ],
+      "evidence": [
+        {
+          "path": "docs/00-handoff/evidence/2026-09-17-admin-setup-attempt.json",
+          "kind": "observation",
+          "result": "partial"
+        }
+      ],
+      "implementation": "partial_unintegrated",
       "deployment": "not_started",
-      "updated_at": "2026-09-16T15:47:03+08:00"
+      "updated_at": "2026-09-17T03:57:35+08:00"
     },
     {
       "id": "ADM-03",
@@ -626,6 +636,71 @@
       "implementation": "not_started",
       "deployment": "not_started",
       "updated_at": "2026-09-16T15:47:03+08:00"
+    },
+    {
+      "id": "STORE-01",
+      "title": "商品内图文、版本、预览和统一发布工作台",
+      "kind": "feature",
+      "milestone": "STORE",
+      "priority": "P0",
+      "status": "done",
+      "owner": "ChatGPT / tsk_5a4be4c4b63f215d",
+      "depends_on": [],
+      "planned_files": [
+        "components/admin/product-workspace.tsx",
+        "app/admin/products/[slug]/page.tsx",
+        "lib/store/product-workspace.ts",
+        "lib/store/product-media.ts"
+      ],
+      "acceptance": [
+        "版本管理归属于商品，图文和软件版本在同一编辑工作台操作",
+        "支持安全图片上传、截图排序/移除与真实店面预览",
+        "保存草稿不改已发布商品，统一发布显式选择待发布版本且校验失败不半发布",
+        "单元/浏览器验证通过，旧下载地址兼容，管理员草稿不受影响"
+      ],
+      "next_action": "核验0.1.28远程提交、CI与真实后台只读页面；随后按用户最新要求独立推进本地超管，不混入本商品任务。",
+      "blockers": [],
+      "evidence": [
+        {
+          "path": "docs/00-handoff/evidence/2026-09-17-product-workspace-partial.json",
+          "kind": "verification",
+          "result": "partial"
+        },
+        {
+          "path": "docs/00-handoff/evidence/2026-09-17-product-workspace-api-progress.json",
+          "kind": "verification",
+          "result": "partial"
+        },
+        {
+          "path": "docs/00-handoff/evidence/2026-09-17-product-workspace-route-block.json",
+          "kind": "observation",
+          "result": "failed"
+        },
+        {
+          "path": "docs/00-handoff/evidence/2026-09-17-product-workspace-mounted.json",
+          "kind": "verification",
+          "result": "partial"
+        },
+        {
+          "path": "docs/00-handoff/evidence/2026-09-17-product-workspace-complete.json",
+          "kind": "verification",
+          "result": "passed"
+        },
+        {
+          "path": "app/admin/products/[slug]/page.tsx",
+          "kind": "implementation",
+          "result": "passed"
+        },
+        {
+          "path": "app/admin/products/page.tsx",
+          "kind": "implementation",
+          "result": "passed"
+        }
+      ],
+      "implementation": "complete_local_browser_verified",
+      "deployment": "candidate_not_yet_observed_online",
+      "updated_at": "2026-09-17T05:47:39+08:00",
+      "completed_at": "2026-09-17T05:47:39+08:00"
     }
   ]
 }

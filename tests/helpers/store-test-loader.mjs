@@ -10,7 +10,7 @@ const stubs = {
   "server-only": "export {};",
   "next/cache": "export function revalidatePath() {}",
   "next/navigation": "export function redirect(url) { const error = new Error('TEST_REDIRECT'); error.url = url; throw error; }",
-  "@/lib/store/admin": "export async function requireStoreAdmin() { return { id: 'test-admin', email: 'test-admin@example.invalid' }; }",
+  "@/lib/store/admin": "export async function getStoreAdmin() { return globalThis.__storeTestDenied ? null : { id: 'test-admin', email: 'test-admin@example.invalid' }; } export async function requireStoreAdmin() { const admin = await getStoreAdmin(); if (!admin) throw new Error('STORE_ADMIN_FORBIDDEN'); return admin; }",
 };
 
 registerHooks({

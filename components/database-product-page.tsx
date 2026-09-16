@@ -33,30 +33,31 @@ const labels = {
   },
 } as const;
 
-export function DatabaseProductPage({ product, releases, locale }: {
+export function DatabaseProductPage({ product, releases, locale, preview = false }: {
   product: StoreProduct;
   releases: ProductRelease[];
   locale: Locale;
+  preview?: boolean;
 }) {
   const copy = labels[locale];
-  const current = releases.find((release) => release.isCurrent) ?? releases[0];
-  const downloads = current?.artifacts.filter(isSoftwareDownload) ?? [];
+  const current = preview ? releases[0] : releases.find((release) => release.isCurrent) ?? releases[0];
+  const downloads = preview ? [] : current?.artifacts.filter(isSoftwareDownload) ?? [];
   const status = product.status === "released" ? copy.released : product.status === "beta" ? copy.beta : copy.comingSoon;
   const releaseHref = localePath(locale, `/products/${product.slug}/releases`);
 
   return (
-    <div className="storefront">
+    <div className={preview ? "storefront product-preview-surface" : "storefront"}>
       <section className="py-12 sm:py-16 lg:py-24">
-        <div className="store-shell grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
+        <div className="store-shell product-detail-grid grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
           <div>
             <div className="flex flex-wrap items-center gap-3">
-              <Image src={product.iconUrl} alt="" width={72} height={72} priority className="h-[72px] w-[72px] rounded-[1.35rem] bg-white object-cover shadow-md" />
+              {product.iconUrl ? <Image unoptimized={preview || product.iconUrl.startsWith("/media/") || product.iconUrl.startsWith("https://")} src={product.iconUrl} alt="" width={72} height={72} priority className="h-[72px] w-[72px] rounded-[1.35rem] bg-white object-cover shadow-md" /> : <span className="flex h-[72px] w-[72px] items-center justify-center rounded-2xl border border-dashed text-xs">{locale === "zh" ? "待上传图标" : "Add icon"}</span>}
               <span className="store-chip">{product.categorySlug.replaceAll("-", " ")}</span>
               <span className="store-chip">{status}</span>
             </div>
             <h1 className="store-title mt-7">{product.name}</h1>
             <p className="store-lede mt-6 max-w-xl">{product.tagline}</p>
-            <p className="mt-4 max-w-xl leading-7 text-[hsl(var(--store-secondary))]">{product.description}</p>
+            <p className="mt-4 max-w-xl whitespace-pre-wrap break-words leading-7 text-[hsl(var(--store-secondary))]">{product.description}</p>
             <div className="mt-8 flex flex-wrap gap-3">
               {downloads.length > 0 && (
                 <a href="#downloads" className="store-primary-action">
@@ -64,10 +65,10 @@ export function DatabaseProductPage({ product, releases, locale }: {
                   <Download className="h-4 w-4" aria-hidden="true" />
                 </a>
               )}
-              <Link href={releaseHref} className="store-secondary-action">
+              {!preview && <Link href={releaseHref} className="store-secondary-action">
                 {copy.releaseHistory}
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
-              </Link>
+              </Link>}
             </div>
             <dl className="mt-8 grid max-w-xl grid-cols-2 gap-3">
               <div className="store-glass rounded-2xl p-4">
@@ -81,11 +82,15 @@ export function DatabaseProductPage({ product, releases, locale }: {
             </dl>
           </div>
           <div className="store-surface overflow-hidden p-2 sm:p-3">
-            <Image src={product.heroImageUrl} alt={`${product.name} interface preview`} width={1440} height={900} priority className="h-auto w-full rounded-[1.25rem]" />
+            {product.heroImageUrl ? <Image unoptimized={preview || product.heroImageUrl.startsWith("/media/") || product.heroImageUrl.startsWith("https://")} src={product.heroImageUrl} alt={`${product.name} interface preview`} width={1440} height={900} priority className="h-auto w-full rounded-[1.25rem]" /> : <div className="flex min-h-56 items-center justify-center rounded-xl border border-dashed text-sm">{locale === "zh" ? "上传商品封面后在这里预览" : "Upload a cover to preview it here"}</div>}
           </div>
         </div>
       </section>
 
+      {(product.galleryUrls?.length ?? 0) > 0 && <section className="store-shell pb-12" aria-label={locale === "zh" ? "产品截图" : "Screenshots"}>
+        <h2 className="mb-5 text-2xl font-semibold">{locale === "zh" ? "产品截图" : "Screenshots"}</h2>
+        <div className="product-gallery-grid grid gap-5 sm:grid-cols-2">{product.galleryUrls!.map((url, index) => <Image key={`${url}-${index}`} unoptimized={preview || url.startsWith("/media/") || url.startsWith("https://")} src={url} alt={`${product.name} · ${index + 1}`} width={1280} height={800} className="h-auto w-full rounded-xl border object-contain" />)}</div>
+      </section>}
       <section id="downloads" className="scroll-mt-24 border-t border-[hsl(var(--store-line)/0.7)] bg-[hsl(var(--store-surface)/0.55)] py-16 sm:py-20">
         <div className="store-shell">
           <p className="store-eyebrow">{copy.downloads}</p>
@@ -98,7 +103,7 @@ export function DatabaseProductPage({ product, releases, locale }: {
           ) : (
             <div className="store-surface mt-9 p-10 text-center">
               <Monitor className="mx-auto h-7 w-7 text-[hsl(var(--store-secondary))]" aria-hidden="true" />
-              <p className="mt-4 text-[hsl(var(--store-secondary))]">{copy.unavailable}</p>
+              <p className="mt-4 text-[hsl(var(--store-secondary))]">{preview ? (locale === "zh" ? "预览中的草稿安装包未公开，最终校验发布后才提供下载。" : "Draft packages are not downloadable in preview. Publish verified files to enable downloads.") : copy.unavailable}</p>
             </div>
           )}
         </div>

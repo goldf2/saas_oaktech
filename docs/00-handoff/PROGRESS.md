@@ -2,7 +2,7 @@
 
 > 不要直接编辑本文件。修改TASKS.json后运行 `npm run handoff:render`。
 
-账本revision：5；更新时间：2026-09-16T21:14:40+08:00；计划版本：1.0.0。
+账本revision：12；更新时间：2026-09-17T05:47:39+08:00；计划版本：1.0.0。
 
 **权限主线任务完成：1/14。这是任务计数，不是代码完成百分比；PLAN-01文档不计入。**
 
@@ -12,7 +12,7 @@
 | --- | --- | --- | --- | --- | --- |
 | PLAN-01 · 详细开发方案与进度接续机制 | M0 / documentation | P0 | 完成 | ChatGPT / 本轮计划任务 | 无 |
 | ADM-01 · 授权存储与跨存储一致性PoC | M1 / feature | P0 | 完成 | ChatGPT / tsk_7b03b14c3ddbfb43 | PLAN-01 |
-| ADM-02 · 身份、角色、安装状态与审计schema | M1 / feature | P0 | 待开发 | 未认领 | ADM-01 |
+| ADM-02 · 身份、角色、安装状态与审计schema | M1 / feature | P0 | 阻塞 | ChatGPT / tsk_3177f42a860aa7cd | ADM-01 |
 | ADM-03 · 服务端身份登记与近期认证证据 | M1 / feature | P0 | 待开发 | 未认领 | ADM-02 |
 | ADM-04 · 一次性初始化凭据与持久有效期 | M1 / feature | P0 | 待开发 | 未认领 | ADM-02 |
 | ADM-05 · 原子首位超管认领服务 | M2 / feature | P0 | 待开发 | 未认领 | ADM-03, ADM-04 |
@@ -31,6 +31,7 @@
 | REL-03 · GitFinder历史候选复核及新发布决定 | REL / operations | P2 | 暂缓 | 未认领 | 无 |
 | HARD-01 · 商品JSON目录跨进程写一致性 | HARD / feature | P1 | 暂缓 | 未认领 | 无 |
 | HARD-02 · 分片会话绑定、恢复与过期清理 | HARD / feature | P1 | 暂缓 | 未认领 | 无 |
+| STORE-01 · 商品内图文、版本、预览和统一发布工作台 | STORE / feature | P0 | 完成 | ChatGPT / tsk_5a4be4c4b63f215d | 无 |
 
 ## 任务详情与接续动作
 
@@ -70,18 +71,23 @@
 
 ### ADM-02 · 身份、角色、安装状态与审计schema
 
-状态：待开发；负责人：未认领；实施：not_started；部署：not_started。
+状态：阻塞；负责人：ChatGPT / tsk_3177f42a860aa7cd；实施：partial_unintegrated；部署：not_started。
 
-下一动作：按ADR实现SQL迁移和真实事务故障测试
+下一动作：先恢复允许的接入操作并审查lib/admin三个未接入草稿；执行真实数据库与浏览器验证后才提交部署。真实超管认领仍未开始。
 
 验收条件：
 - 唯一身份、角色约束、单例installation和授权审计可事务提交
 - schema和安装ID对账；缺卷、错库、损坏不被视为新安装
 - 故障注入无半状态，并发锁顺序固定
 
-计划文件（可能尚未创建）：`lib/admin/store.ts`、`migrations/admin/001_authorization.sql`
+计划文件（可能尚未创建）：`lib/admin/schema.mjs`、`lib/admin/config.mjs`、`lib/admin/backend.mjs`
 
-证据：尚无该任务完成证据。
+阻塞：
+- 认证/授权和后台接入写入被工具安全检查拦截，未执行；恢复允许的操作通道后才继续，不改用其他工具绕过。
+- 生产专用权限数据库及该商城Coolify可操作页面当前未配置/不可访问；部署负责人需提供已授权入口，秘密仅在部署平台填写。
+
+证据：
+- observation / partial：`docs/00-handoff/evidence/2026-09-17-admin-setup-attempt.json`
 
 ### ADM-03 · 服务端身份登记与近期认证证据
 
@@ -357,3 +363,26 @@
 计划文件（可能尚未创建）：`lib/store/storage.ts`、`app/api/admin/releases/upload/route.ts`、`components/admin/artifact-upload.tsx`
 
 证据：尚无该任务完成证据。
+
+### STORE-01 · 商品内图文、版本、预览和统一发布工作台
+
+状态：完成；负责人：ChatGPT / tsk_5a4be4c4b63f215d；实施：complete_local_browser_verified；部署：candidate_not_yet_observed_online。
+
+下一动作：核验0.1.28远程提交、CI与真实后台只读页面；随后按用户最新要求独立推进本地超管，不混入本商品任务。
+
+验收条件：
+- 版本管理归属于商品，图文和软件版本在同一编辑工作台操作
+- 支持安全图片上传、截图排序/移除与真实店面预览
+- 保存草稿不改已发布商品，统一发布显式选择待发布版本且校验失败不半发布
+- 单元/浏览器验证通过，旧下载地址兼容，管理员草稿不受影响
+
+计划文件（可能尚未创建）：`components/admin/product-workspace.tsx`、`app/admin/products/[slug]/page.tsx`、`lib/store/product-workspace.ts`、`lib/store/product-media.ts`
+
+证据：
+- verification / partial：`docs/00-handoff/evidence/2026-09-17-product-workspace-partial.json`
+- verification / partial：`docs/00-handoff/evidence/2026-09-17-product-workspace-api-progress.json`
+- observation / failed：`docs/00-handoff/evidence/2026-09-17-product-workspace-route-block.json`
+- verification / partial：`docs/00-handoff/evidence/2026-09-17-product-workspace-mounted.json`
+- verification / passed：`docs/00-handoff/evidence/2026-09-17-product-workspace-complete.json`
+- implementation / passed：`app/admin/products/[slug]/page.tsx`
+- implementation / passed：`app/admin/products/page.tsx`

@@ -2,8 +2,8 @@ import Link from "next/link";
 import { getStoreAdmin, listAdminProducts } from "@/lib/store/admin";
 import { getStoreProductTemplate } from "@/lib/store/file-catalog";
 import { AdminAccessNotice } from "@/components/admin/access-notice";
-import { ProductForm } from "@/components/admin/product-form";
-import { Button } from "@/components/ui/button";
+import { ProductWorkspace } from "@/components/admin/product-workspace";
+import type { AdminStoreProductRow } from "@/lib/store/types";
 
 export const dynamic = "force-dynamic";
 
@@ -11,20 +11,18 @@ export default async function NewProductPage({ searchParams }: { searchParams: P
   if (!(await getStoreAdmin())) return <AdminAccessNotice />;
   const [query, products] = await Promise.all([searchParams, listAdminProducts()]);
   const template = query.template ? getStoreProductTemplate(query.template) : undefined;
-  const existing = template && products.find((product) => product.slug === template.slug);
-  return (
-    <section className="container max-w-6xl px-4 py-10">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div><p className="text-sm text-primary">商品后台</p><h1 className="mt-2 text-3xl font-bold">新增商品</h1></div>
-        <Button asChild variant="outline"><Link href="/admin/products">返回商品管理</Link></Button>
-      </div>
-      <p className="mt-4 text-muted-foreground">先添加商品资料，再单独上传和发布软件版本。新商品默认保存为草稿；公开展示与软件包发布是两项独立操作。</p>
-      <nav className="my-6 flex flex-wrap gap-3 text-sm" aria-label="商品资料模板">
-        <Link className="rounded-lg border px-4 py-3 hover:bg-muted" href="/admin/products/new">空白商品</Link>
-        <Link className="rounded-lg border px-4 py-3 hover:bg-muted" href="/admin/products/new?template=open-play">open play · Auth 认证管理工具</Link>
-        <Link className="rounded-lg border px-4 py-3 hover:bg-muted" href="/admin/products/new?template=chanxu-tradingview">缠序 · TradingView 缠论工具</Link>
-      </nav>
-      {existing ? <div className="rounded-lg border p-6"><p>该商品已存在，请编辑已有商品，避免重复创建。</p><Link className="mt-3 inline-block text-primary underline" href={`/admin/products#product-${existing.slug}`}>编辑 {existing.name_zh}</Link></div> : <ProductForm key={template?.slug ?? "blank"} product={template} />}
-    </section>
-  );
+  // Pass a stable server-created value. The client editor must not recreate its
+  // initial object on every keystroke when this is a new, blank product.
+  const initialProduct: AdminStoreProductRow = template ?? {
+    id: "", slug: "", category_slug: "desktop-apps", status: "beta", visibility: "draft",
+    name_zh: "", name_en: "", tagline_zh: "", tagline_en: "",
+    description_zh: "", description_en: "", icon_url: "", hero_image_url: "",
+    gallery_urls: [], supported_platforms: [], featured: false,
+  };
+  const existing = template && products.find(product => product.slug === template.slug);
+  if (existing) return <section className="container max-w-5xl px-4 py-12"><h1 className="text-3xl font-semibold">该商品已存在</h1><p className="mt-4 text-muted-foreground">请进入对应商品工作台，不重复新建。</p><Link className="mt-5 inline-block text-primary underline" href={`/admin/products/${existing.slug}`}>编辑 {existing.name_zh}</Link></section>;
+  return <>
+    <nav className="container max-w-7xl px-4 pt-7" aria-label="商品资料模板"><div className="flex flex-wrap gap-3 text-sm"><Link className="rounded-lg border px-3 py-2" href="/admin/products/new">空白商品</Link><Link className="rounded-lg border px-3 py-2" href="/admin/products/new?template=open-play">Auth 工具模板</Link><Link className="rounded-lg border px-3 py-2" href="/admin/products/new?template=chanxu-tradingview">缠序工具模板</Link></div><p className="mt-3 text-sm text-muted-foreground">先填写名称和商品标识，保存草稿后即可在同一工作台上传图文和管理软件版本。</p></nav>
+    <ProductWorkspace key={template?.slug ?? "new"} product={initialProduct} />
+  </>;
 }

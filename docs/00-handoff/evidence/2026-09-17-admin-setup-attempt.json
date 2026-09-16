@@ -1,0 +1,21 @@
+{
+  "checkedAt": "2026-09-17T03:57:35+08:00",
+  "task": "ADM-02",
+  "scope": "First-superadmin setup attempt",
+  "productionSuperAdminCreated": false,
+  "existingNormalLoginVerified": true,
+  "productionAdminPage": "signed-in user receives permission-denied notice",
+  "productionConfigurationWritten": false,
+  "draftFiles": [
+    "lib/admin/config.mjs",
+    "lib/admin/schema.mjs",
+    "lib/admin/backend.mjs"
+  ],
+  "syntaxChecks": "node --check config.mjs and backend.mjs passed",
+  "databaseAndBrowserVerification": "not_run_for_this_draft",
+  "integration": "not_executed_tool_safety_check_blocked_write",
+  "deployment": "not_attempted",
+  "containsRawIdentityOrSecrets": false,
+  "sourceCommit": "8462a3e821c5c35725dd4930dbc3e2246dafde5c",
+  "nextAction": "Restore an allowed authenticated integration/configuration path; review and test unconnected draft before any commit/deploy; complete real-user claim only after production prerequisites."
+}

@@ -29,6 +29,7 @@ type ProductRow = {
   hero_image_url: string;
   supported_platforms: string[];
   featured: boolean;
+  gallery_urls?: string[];
 };
 
 type ReleaseRow = {
@@ -74,6 +75,7 @@ function mapProduct(row: ProductRow, locale: Locale): StoreProduct {
     description: localText(row, "description", locale),
     iconUrl: resolveProductIcon(row.slug, row.icon_url),
     heroImageUrl: row.hero_image_url,
+    galleryUrls: row.gallery_urls ?? [],
     supportedPlatforms: row.supported_platforms ?? [],
     featured: row.featured,
   };
@@ -139,7 +141,7 @@ export function storeProductToSoftwareProduct(product: StoreProduct): SoftwarePr
     license: "See product details",
     icon: product.iconUrl,
     heroImage: product.heroImageUrl,
-    screenshots: [product.heroImageUrl],
+    screenshots: product.galleryUrls?.length ? product.galleryUrls : [product.heroImageUrl],
     features: [],
     platforms: product.supportedPlatforms,
     browsers: [],

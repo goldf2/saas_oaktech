@@ -1,0 +1,76 @@
+{
+  "checkedAt": "2026-09-17T05:47:39+08:00",
+  "task": "STORE-01",
+  "candidateVersion": "0.1.28",
+  "baselineCommit": "8462a3e821c5c35725dd4930dbc3e2246dafde5c",
+  "mountedCheckpoint": "75a1d4c",
+  "scope": "Product list, creation, image editing, product-scoped releases, preview and explicit publication",
+  "checks": {
+    "unit": {
+      "passed": 91,
+      "failed": 0,
+      "exitCode": 0
+    },
+    "productionWebpackBuild": {
+      "exitCode": 0,
+      "typeScript": "passed"
+    },
+    "realBrowser": {
+      "passed": 12,
+      "exitCode": 0,
+      "cases": [
+        "anonymous and ordinary users cannot edit, upload, publish or import",
+        "administration has one product list; Add product enters the same four-section editor",
+        "minimal new product saves a private draft and stays in its workspace without another product image",
+        "duplicate creation is rejected with retained inputs; list search returns the correct workspace",
+        "switching sections retains edits; saving new content neither publishes it nor alters another product",
+        "real file selection uploads icon, cover and screenshots; ordering persists while all new images stay private",
+        "version save returns automatically to this product; embedded 8+1 MiB upload remains a private version draft",
+        "preview uses the shared product page and a genuinely responsive phone-width canvas without draft downloads",
+        "one explicit publish promotes this product and its selected version; public media and GET/HEAD/Range downloads work",
+        "editing an already-live product stays private until metadata-only confirmation, without changing its published versions",
+        "old global release links forward safely to product context, and published products appear in the personal catalog",
+        "a real service restart preserves content, media and downloads; 390px editor/storefront have no overflow or runtime errors"
+      ],
+      "actualVersionSaveLanding": "/admin/products/new-workspace-tool",
+      "confirmedUnsavedNavigationDialogs": 1
+    }
+  },
+  "productionMutations": {
+    "roles": false,
+    "catalog": false,
+    "softwareReleases": false
+  },
+  "authenticationImplementationChanged": false,
+  "media": {
+    "inputTypes": [
+      "PNG",
+      "JPEG",
+      "WebP"
+    ],
+    "maxInputMiB": 8,
+    "maxGalleryImages": 8,
+    "draftsAnonymous": 404,
+    "publishedAnonymous": 200,
+    "serverRestartVerified": true
+  },
+  "publication": {
+    "newProductIsDraft": true,
+    "publishedContentUnchangedOnSave": true,
+    "explicitSelectedReleaseOnly": true,
+    "badPackageNoPartialPublish": "covered by unit tests",
+    "unchangedHistoricalDownloadRoutes": true
+  },
+  "localEvidenceDirectory": ".local-verification/0.1.28/",
+  "deployVerification": "Recorded separately after source push; not implied by local tests",
+  "limitations": [
+    "Existing release form still requires Chinese and English version title/notes.",
+    "Withdraw/delete actions without a product parameter can return to the product list.",
+    "Single-writer JSON catalog remains; PostgreSQL/admin drafts are not part of this delivery.",
+    "Public remote-URL image hosts are not an independently verified test matrix; normal uploaded product images were tested."
+  ],
+  "diagnostics": [
+    "An initial browser test waited on the intentional unsaved-navigation prompt; the harness now explicitly confirms its navigation and verifies input retention.",
+    "Initial compound action edits did not execute; existing release actions remain unchanged and the compatible release entry resolves real product ownership."
+  ]
+}

@@ -1,5 +1,7 @@
 export type AdminActionResult = { error?: string; code?: string };
 
+export type ProductEditorResult = { ok?: boolean; error?: string; code?: string; slug?: string; editToken?: string; publishToken?: string; warning?: string };
+
 export type Locale = "en" | "zh";
 export type ProductStatus = "beta" | "released" | "coming-soon";
 export type PublicationStatus = "draft" | "published";
@@ -15,6 +17,7 @@ export type StoreProduct = {
   description: string;
   iconUrl: string;
   heroImageUrl: string;
+  galleryUrls?: string[];
   supportedPlatforms: string[];
   featured: boolean;
 };
@@ -62,6 +65,7 @@ export type AdminStoreProductRow = {
   description_zh: string;
   icon_url: string;
   hero_image_url: string;
+  gallery_urls?: string[];
   supported_platforms: string[];
   featured: boolean;
 };
@@ -93,3 +97,6 @@ export type AdminProductReleaseRow = {
     content_type: string;
   }>;
 };
+
+export type ProductDraft = { product: AdminStoreProductRow; revision: number; updatedAt: string };
+export type ProductMedia = { id: string; productSlug: string; url: string; sizeBytes: number; width: number; height: number; createdAt: string };

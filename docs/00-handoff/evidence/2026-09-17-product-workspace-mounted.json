@@ -1,0 +1,48 @@
+{
+  "checkedAt": "2026-09-17T05:03:17+08:00",
+  "task": "STORE-01",
+  "sourceBase": "8462a3e821c5c35725dd4930dbc3e2246dafde5c",
+  "branch": "feat/product-workspace-20260917",
+  "scope": "Existing-product workspace mounted and actually exercised in an isolated browser",
+  "state": "partial_not_released",
+  "newFiles": [
+    "app/admin/products/[slug]/page.tsx",
+    "components/admin/product-releases.tsx",
+    "scripts/verify-product-workspace.mjs"
+  ],
+  "checks": {
+    "unitTests": {
+      "passed": 88,
+      "failed": 0
+    },
+    "typecheck": "passed",
+    "productionWebpackBuild": "passed",
+    "newWorkspaceBrowserGroups": {
+      "passed": 7,
+      "failed": 0
+    },
+    "browserUsesOnlyTemporaryCatalogAndSyntheticLocalSession": true
+  },
+  "browserChecks": [
+    "new editor and media upload deny anonymous and regular accounts",
+    "actual product route mounts the four-section editor and its product-scoped versions",
+    "editing, switching sections and saving preserve inputs while the anonymous page stays unchanged",
+    "real local image selection uploads icon/cover/screenshots; ordering persists and draft URLs remain private",
+    "product-scoped version form and embedded 9 MiB upload work; legacy post-save navigation remains separately recorded",
+    "actual preview-confirm-publish promotes product plus selected version; public images and verified download become available together",
+    "mobile editor and public gallery render without overflow, script execution or runtime errors"
+  ],
+  "releaseSaveLanding": "/admin/releases",
+  "pending": [
+    "Old product list/new-product entry points still use the old forms.",
+    "Version save still redirects to the old global release page; the test explicitly navigates back and does not claim navigation is complete.",
+    "Current version actions still require bilingual release notes.",
+    "The mobile-width preview is a narrow container, not a real nested responsive viewport."
+  ],
+  "rejectedIntegrationBatchApplied": false,
+  "optionalIframePreview": "ES5 NodeList iteration failed typechecking; attempted correction was rejected by the tool and the optional feature was rolled back; final typecheck/build/browser verification passed",
+  "productionDataModified": false,
+  "productionAuthModified": false,
+  "productionDeployment": "not_attempted",
+  "browserScreenshots": "See .local-verification/product-workspace-mounted/"
+}

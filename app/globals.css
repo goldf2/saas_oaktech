@@ -307,3 +307,14 @@
     border-color: hsl(var(--store-ink));
   }
 }
+
+/* Scoped container sizing keeps a phone preview independent of the outer desktop viewport. */
+.product-preview-surface { container-type: inline-size; }
+@container (max-width: 600px) {
+  .product-preview-surface .store-shell { width: 100%; padding-left: 20px; padding-right: 20px; }
+  .product-preview-surface .product-detail-grid { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+  .product-preview-surface .product-gallery-grid { grid-template-columns: minmax(0, 1fr); }
+  .product-preview-surface .store-title { font-size: 32px; line-height: 1.2; overflow-wrap: anywhere; }
+  .product-preview-surface .store-section-title { font-size: 26px; overflow-wrap: anywhere; }
+  .product-preview-surface > section { padding-top: 32px; padding-bottom: 32px; }
+}

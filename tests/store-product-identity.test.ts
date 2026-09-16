@@ -31,7 +31,7 @@ test("product creation has a dedicated page and discoverable desktop and mobile 
     source("components/mobile-nav.tsx"), source("app/dashboard/page.tsx"),
   ]);
   assert.match(page, /getStoreAdmin/);
-  assert.match(page, /ProductForm/);
+  assert.match(page, /ProductWorkspace/);
   assert.match(listing, /\/admin\/products\/new/);
   assert.match(mobile, /href="\/admin"/);
   assert.match(dashboard, /getStoreAdmin/);

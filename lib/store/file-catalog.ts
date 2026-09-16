@@ -4,10 +4,12 @@ import { randomUUID } from "node:crypto";
 import { appendFile, mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { getReleaseStorageRoot } from "./storage";
-import type { AdminProductReleaseRow, AdminStoreProductRow } from "./types";
+import type { AdminProductReleaseRow, AdminStoreProductRow, ProductDraft, ProductMedia } from "./types";
 
 export type StoreCatalog = {
   schemaVersion: 1;
+  productDrafts?: Record<string, ProductDraft>;
+  productMedia?: ProductMedia[];
   products: AdminStoreProductRow[];
   releases: AdminProductReleaseRow[];
   updatedAt: string;

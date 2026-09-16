@@ -18,6 +18,7 @@ export default async function LocalizedProductPage({ params }: { params: Promise
   if (!isLocale(locale)) notFound();
   const [{ product, source }, releaseData] = await Promise.all([getPublicProduct(slug, locale), getPublishedProductReleases(slug, locale)]);
   if (!product) notFound();
-  if (slug === "gitfinder-2") return <GitFinderProductPage product={product} locale={locale} releases={releaseData.releases} source={releaseData.source === "migration-fallback" ? releaseData.source : source} />;
+  // Persisted products use the same renderer as the editor preview, including GitFinder.
+  if (slug === "gitfinder-2" && source === "migration-fallback") return <GitFinderProductPage product={product} locale={locale} releases={releaseData.releases} source={releaseData.source === "migration-fallback" ? releaseData.source : source} />;
   return <DatabaseProductPage product={product} releases={releaseData.releases} locale={locale} />;
 }

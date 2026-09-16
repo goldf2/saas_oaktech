@@ -1,6 +1,6 @@
 {
   "name": "saas_oaktech",
-  "version": "0.1.27",
+  "version": "0.1.28",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -45,6 +45,7 @@
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-hook-form": "^7.61.1",
+    "sharp": "0.34.5",
     "zod": "^3.25.76"
   },
   "devDependencies": {
