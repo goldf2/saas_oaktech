@@ -80,7 +80,7 @@ const initialCatalog: StoreCatalog = {
       tagline_zh: "缠论结构识别与独立信号筛选。",
       description_en: "A TradingView research tool for observing chart structure and screening independent signal rules.",
       description_zh: "面向 TradingView 的缠论研究工具，用于观察结构并筛选研究候选。",
-      icon_url: "/chanxu-tradingview/icon.png",
+      icon_url: "/chanxu-tradingview/icon-chanxu-v2.png",
       hero_image_url: "/chanxu-tradingview/overview.png",
       supported_platforms: ["TradingView", "Web"],
       featured: false,
@@ -197,4 +197,9 @@ export async function appendStoreAudit(input: {
 
 export function newCatalogId() {
   return randomUUID();
+}
+
+export function getStoreProductTemplate(slug: string): AdminStoreProductRow | undefined {
+  const product = initialCatalog.products.find((item) => item.slug === slug);
+  return product ? { ...structuredClone(product), id: "", visibility: "draft" } : undefined;
 }

@@ -76,7 +76,7 @@ export default function Header({ user, authProvider, isAdmin = false }: HeaderPr
                 <Link href="/dashboard">{copy.dashboard}</Link>
                 </Button>
               )}
-              {isAdmin && <Button asChild size="sm" variant="outline" className="rounded-full"><Link href="/admin/products">管理控制台</Link></Button>}
+              <Button asChild size="sm" variant="outline" className="rounded-full"><Link href="/admin">{isAdmin ? "商品后台" : "管理入口"}</Link></Button>
               <AuthSignOutButton provider={authProvider} label={copy.signOut} />
             </div>
           ) : (

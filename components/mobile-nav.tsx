@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
+  SheetClose,
   SheetContent,
   SheetHeader,
   SheetTitle,
@@ -26,7 +27,7 @@ export function MobileNav({ items, user, authProvider, isDashboard, labels }: Mo
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="rounded-full lg:hidden">
+        <Button variant="ghost" size="icon" className="rounded-full lg:hidden" data-testid="mobile-menu-trigger">
           <Menu className="h-5 w-5" />
           <span className="sr-only">{labels.toggleMenu}</span>
         </Button>
@@ -57,6 +58,7 @@ export function MobileNav({ items, user, authProvider, isDashboard, labels }: Mo
                   <Link href="/dashboard">{labels.dashboard}</Link>
                 </Button>
               )}
+              <SheetClose asChild><Button asChild variant="outline" className="w-full"><Link href="/admin">商品后台 / 管理入口</Link></Button></SheetClose>
               <AuthSignOutButton provider={authProvider} label={labels.signOut} className="w-full" />
             </div>
           ) : (

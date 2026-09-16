@@ -3,6 +3,7 @@ import "server-only";
 import { getProductBySlug, PRODUCTS, type SoftwareProduct } from "@/config/products";
 import { getLegacyGitFinderRelease } from "@/config/gitfinder-release";
 import { selectPublishedRows } from "./policy";
+import { resolveProductIcon } from "./product-assets";
 import { readStoreCatalog } from "./file-catalog";
 import type {
   Locale,
@@ -71,7 +72,7 @@ function mapProduct(row: ProductRow, locale: Locale): StoreProduct {
     name: localText(row, "name", locale),
     tagline: localText(row, "tagline", locale),
     description: localText(row, "description", locale),
-    iconUrl: row.icon_url,
+    iconUrl: resolveProductIcon(row.slug, row.icon_url),
     heroImageUrl: row.hero_image_url,
     supportedPlatforms: row.supported_platforms ?? [],
     featured: row.featured,

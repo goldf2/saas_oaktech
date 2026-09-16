@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { AdminAccessNotice } from "@/components/admin/access-notice";
 import Link from "next/link";
 import { getStoreAdmin, listAdminProducts, listAdminReleases } from "@/lib/store/admin";
 import { deleteReleaseAction, publishReleaseAction, saveReleaseDraftAction, unpublishReleaseAction } from "@/app/admin/actions";
@@ -57,7 +57,7 @@ function ReleaseForm({ release, products }: { release?: AdminProductReleaseRow; 
 type ReleaseQuery = { saved?: string; published?: string; unpublished?: string; deleted?: string; release?: string };
 
 export default async function AdminReleasesPage({ searchParams }: { searchParams: Promise<ReleaseQuery> }) {
-  if (!(await getStoreAdmin())) notFound();
+  if (!(await getStoreAdmin())) return <AdminAccessNotice />;
   const [products, releases, query] = await Promise.all([listAdminProducts(), listAdminReleases(), searchParams]);
   const notice = query.saved === "1" ? "版本草稿已保存，请继续上传软件包。" : query.published === "1" ? "版本已通过校验并公开发布。" : query.unpublished === "1" ? "版本已撤回为草稿，新下载请求不再提供此版本。" : query.deleted === "1" ? "草稿已删除。" : "";
   return (

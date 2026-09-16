@@ -233,3 +233,18 @@ test("audit write failure never deletes a file already referenced by the catalog
   assert.equal(artifacts.length, 1);
   assert.equal(await readFile(absoluteReleasePath(artifacts[0].storage_path), "utf8"), "upload fixture");
 });
+
+test("official product templates are distinct draft copies and never insert products", async () => {
+  const { getStoreProductTemplate } = await import("../lib/store/file-catalog.ts");
+  const initial = await readStoreCatalog();
+  const auth = getStoreProductTemplate("open-play")!;
+  const chanxu = getStoreProductTemplate("chanxu-tradingview")!;
+  assert.equal(auth.id, "");
+  assert.equal(auth.visibility, "draft");
+  assert.equal(chanxu.visibility, "draft");
+  assert.notEqual(auth.icon_url, chanxu.icon_url);
+  assert.equal(chanxu.category_slug, "trading-tools");
+  auth.name_zh = "not persisted";
+  assert.notEqual(getStoreProductTemplate("open-play")?.name_zh, auth.name_zh);
+  assert.deepEqual(await readStoreCatalog(), initial);
+});

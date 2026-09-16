@@ -68,10 +68,15 @@ try {
     await new Promise((resolve) => setTimeout(resolve, 250));
   }
   assert.ok(ready, "local server ready");
-  assert.equal((await fetch(`${base}/admin/products`)).status, 404);
-  assert.equal((await fetch(`${base}/admin/releases`)).status, 404);
+  for (const route of ["/admin", "/admin/products", "/admin/products/new", "/admin/releases"]) {
+    const response = await fetch(`${base}${route}`);
+    const html = await response.text();
+    assert.equal(response.status, 200);
+    assert.match(html, /admin-access-notice/);
+    assert.doesNotMatch(html, /name="(?:slug|release_id|product_slug)"/);
+  }
   assert.equal((await fetch(`${base}/api/admin/releases/import`, { method: "POST", body: "{}" })).status, 401);
-  check("anonymous users cannot access administration or import releases");
+  check("anonymous visitors get an access notice, never administrator forms or import access");
 
   const chrome = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
   browser = await puppeteer.launch({ headless: true, ...(existsSync(chrome) ? { executablePath: chrome } : {}), args: ["--disable-background-networking"] });
@@ -88,28 +93,86 @@ try {
     if (url.startsWith(base) || url.startsWith("data:") || url.startsWith("blob:")) request.continue();
     else request.abort();
   });
+  const normalSubject = "isolated-normal-store-user";
+  const normalToken = await encode({ secret, token: { sub: normalSubject, casdoorSubject: normalSubject, casdoorIssuer: issuer }, maxAge: 3600 });
+  await browser.setCookie({ name: "next-auth.session-token", value: normalToken, domain: "127.0.0.1", path: "/", httpOnly: true, sameSite: "Lax" });
+  await page.goto(`${base}/admin/products/new`, { waitUntil: "networkidle0" });
+  assert.match(await page.$eval("h1", (element) => element.textContent), /没有商品管理权限/);
+  assert.equal(await page.$('input[name="slug"]'), null);
+  const forbiddenUpload = await page.evaluate(async () => (await fetch("/api/admin/releases/upload", { method: "POST", headers: { "x-oaktech-admin-upload": "1" }, body: "not-authorized" })).status);
+  assert.equal(forbiddenUpload, 403);
+  check("signed-in nonadministrators receive a clear permission message and cannot upload");
   const token = await encode({ secret, token: { sub: subject, casdoorSubject: subject, casdoorIssuer: issuer }, maxAge: 3600 });
   await browser.setCookie({ name: "next-auth.session-token", value: token, domain: "127.0.0.1", path: "/", httpOnly: true, sameSite: "Lax" });
-  await page.goto(`${base}/admin/products`, { waitUntil: "networkidle0" });
+  await page.goto(`${base}/admin/products/new`, { waitUntil: "networkidle0" });
   assert.match(await page.$eval("h1", (element) => element.textContent), /商品/);
 
   const product = { slug: "store-regression-tool", category_slug: "browser-extensions", status: "beta", visibility: "published", icon_url: "/gitfinder-2/icon.png", hero_image_url: "/gitfinder-2/hero.svg", name_en: "Store regression fixture", name_zh: "商城发布测试", tagline_en: "Local test fixture only", tagline_zh: "仅用于本地发布验证", description_en: "Synthetic package used to verify the store workflow.", description_zh: "用于验证商品、发布与下载闭环的本地测试数据。", supported_platforms: "Chrome" };
-  await page.$eval("details", (element) => { element.open = true; });
-  await fillForm("details[open] form", product);
-  await page.$eval("details[open] form", (form) => form.requestSubmit());
+  await fillForm("main form", product);
+  await page.$eval("main form", (form) => form.requestSubmit());
   await page.waitForFunction(() => location.search.includes("saved=1"));
   const original = (await catalog()).products.find((item) => item.slug === product.slug);
   assert.ok(original?.id);
   check("product creation persists bilingual content and visibility");
 
-  await page.$eval("details", (element) => { element.open = true; });
-  await fillForm("details[open] form", { ...product, name_en: "Must not overwrite" });
-  await page.$eval("details[open] form", (form) => form.requestSubmit());
+  await page.goto(`${base}/admin/products/new`, { waitUntil: "networkidle0" });
+  await fillForm("main form", { ...product, name_en: "Must not overwrite" });
+  await page.$eval("main form", (form) => form.requestSubmit());
   await page.waitForFunction(() => [...document.querySelectorAll('[role="alert"]')].some((element) => element.textContent.includes("已存在")));
   assert.deepEqual((await catalog()).products.find((item) => item.slug === product.slug), original);
-  assert.equal(await page.$eval('details[open] input[name="slug"]', (element) => element.value), product.slug, "validation errors preserve entered values");
+  assert.equal(await page.$eval('main input[name="slug"]', (element) => element.value), product.slug, "validation errors preserve entered values");
   check("duplicate product shows inline feedback without overwriting or clearing inputs");
   await screenshot("products-desktop.png");
+
+  await page.goto(`${base}/dashboard`, { waitUntil: "networkidle0" });
+  await page.waitForSelector('[data-testid="store-admin-panel"] a[href="/admin/products/new"]');
+  const chanxuCard = '[data-product-slug="chanxu-tradingview"]';
+  const authCard = '[data-product-slug="open-play"]';
+  assert.match(await page.$eval(chanxuCard, (element) => element.textContent), /缠序.*交易研究工具|交易研究工具.*缠序/);
+  assert.match(await page.$eval(authCard, (element) => element.textContent), /已发布/);
+  const imagePath = async (selector) => {
+    const url = new URL(await page.$eval(`${selector} img`, (image) => image.src));
+    return url.searchParams.get("url") || url.pathname;
+  };
+  assert.equal(await imagePath(chanxuCard), "/chanxu-tradingview/icon-chanxu-v2.png");
+  assert.equal(await imagePath(authCard), "/open-play/icon.png");
+  await screenshot("dashboard-products-desktop.png");
+  check("Dashboard shows separate Chanxu and released Open Play cards with the correct images");
+
+  await page.setViewport({ width: 390, height: 844 });
+  await page.click('[data-testid="mobile-menu-trigger"]');
+  await page.waitForSelector('[role="dialog"] a[href="/admin"]');
+  await screenshot("mobile-admin-menu.png");
+  await page.click('[role="dialog"] a[href="/admin"]');
+  await page.waitForFunction(() => location.pathname === "/admin");
+  await page.waitForSelector('[role="dialog"]', { hidden: true });
+  await page.waitForSelector('main a[href="/admin/products/new"]');
+  assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
+  await screenshot("admin-overview-mobile.png");
+  check("mobile menu reaches the administration overview and its Add product action");
+
+  const liveCatalog = await catalog();
+  const reducedCatalog = structuredClone(liveCatalog);
+  reducedCatalog.products = reducedCatalog.products.filter((item) => !["open-play", "chanxu-tradingview"].includes(item.slug));
+  await writeFile(path.join(storage, "catalog.json"), JSON.stringify(reducedCatalog));
+  await page.goto(`${base}/dashboard`, { waitUntil: "networkidle0" });
+  assert.equal(await page.$(chanxuCard), null);
+  assert.equal(await page.$(authCard), null);
+  check("Dashboard never invents missing products from the static seed catalog");
+  for (const [slug, category, icon] of [["open-play", "desktop-apps", "/open-play/icon.png"], ["chanxu-tradingview", "trading-tools", "/chanxu-tradingview/icon-chanxu-v2.png"]]) {
+    await page.goto(`${base}/admin/products/new?template=${slug}`, { waitUntil: "networkidle0" });
+    assert.equal(await page.$eval('input[name="slug"]', (input) => input.value), slug);
+    assert.equal(await page.$eval('input[name="category_slug"]', (input) => input.value), category);
+    assert.equal(await page.$eval('input[name="icon_url"]', (input) => input.value), icon);
+    assert.equal(await page.$eval('select[name="visibility"]', (select) => select.value), "draft");
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
+  }
+  await screenshot("new-product-chanxu-mobile.png");
+  assert.equal((await catalog()).products.length, reducedCatalog.products.length, "opening templates must not insert or publish products");
+  await writeFile(path.join(storage, "catalog.json"), JSON.stringify(liveCatalog));
+  await page.setViewport({ width: 1440, height: 1000 });
+  check("Chanxu and Auth templates stay separate, default to draft and do not mutate the catalog");
+
 
   await page.goto(`${base}/admin/releases`, { waitUntil: "networkidle0" });
   await page.$eval("details", (element) => { element.open = true; });
@@ -141,6 +204,7 @@ try {
   check("9 MiB browser upload uses 8 MiB chunks, verifies SHA-512 and resets safely");
   check("uploaded draft packages remain private");
 
+  await page.waitForFunction((id) => [...(document.getElementById(`release-${id}`)?.querySelectorAll("button") ?? [])].some((button) => button.textContent === "校验并发布"), {}, releaseId);
   await page.$eval(detail, (element) => [...element.querySelectorAll("button")].find((button) => button.textContent === "校验并发布").click());
   await page.waitForFunction(() => location.search.includes("published=1"));
   assert.equal((await catalog()).releases.find((item) => item.id === releaseId).status, "published");
