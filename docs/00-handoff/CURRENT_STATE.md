@@ -1,29 +1,26 @@
 # 当前状态
 
-基线核验时间：2026-09-16T15:47:03+08:00；基线源码：0.1.25 / `54a42b33bc5fc3e9c42541fdd3bdd6fae4700bce`。本轮交付范围为PLAN-01项目开发方案与进度接续机制。
+更新时间：2026-09-16T21:14:40+08:00。本轮基线f8b0e8c / 0.1.26，交付候选0.1.27；任务ADM-01。
 
-## 一眼看清
+## 本轮已完成：权限存储与并发工程验证
 
-**超管初始化与后台角色管理尚未实现。** 当前授权仍来自 `OAKTECH_ADMIN_SUBJECTS` 等旧名单。新增bootstrap变量目前不会生效；没有为用户真实账号认领超管。本轮不新增业务权限功能、不配置生产秘密、不修改用户角色。
+ADM-01已完成可运行原型，不再只是方案文档。`scripts/admin-poc/`包含隔离PostgreSQL schema、事务原型、多进程测试进程与自动启动/清理脚本。实际PostgreSQL17.10上16个数据库用例通过，外加真实服务器关停/重启持久化检查；20个独立进程并发只有一次初始化成功。
 
-| 能力 | 核实状态 | 依据 |
-| --- | --- | --- |
-| 商品/版本后台与新增页 | 源码已有；不代表当前用户有权限 | app/admin、lib/store/admin.ts |
-| Auth与缠序商品展示 | 本轮两详情HTTP200；此前目录恢复已有记录 | 基线HTTP观察与product recovery记录 |
-| 已发布文件与原生更新兼容代码 | 0.1.25已有，不能推断真实软件包已公开 | lib/store/open-play-signatures.ts、docs/open-play-update-compatibility.md |
-| Open Play官网清单 | 本轮两feed均404；未断言底层失败原因 | 基线HTTP；历史收据称尚未上传/发布 |
-| `/setup/admin`与`/admin/users` | 当前源码无实现，本轮HTTP404 | 路由及授权代码核对 |
-| CT-ADMIN-001 | 已确认标准，项目已收录固定快照 | docs/standards |
-| 详细计划与状态机制 | 本轮交付，独立于业务功能 | TASKS/PROGRESS、计划与校验工具 |
+发现并记录两项关键结论：SQL锁无法保护断连后的JSON重命名（PG-14故障反例）；口令有效期须在取得行锁后另发查询重新计算（PG-17在修复前失败、修复后通过）。选择同事务管理命令/目录元数据/授权审计路线，公开下载使用后续待实现的只读投影，不增加匿名下载对角色查询的依赖。详情见[ADR-0001](../adr/ADR-0001-admin-storage.md)。
 
-已重新运行原有测试：63/63通过。该数字属于新增追踪工具前的源码基线，不代表待开发权限用例已执行。全部基线证据见[evidence/2026-09-16-baseline.json](evidence/2026-09-16-baseline.json)；本轮新增校验工具和最终构建结果见[交付验证](evidence/2026-09-16-plan-validation.json)。
+完整商城回归73/73、类型检查、生产构建通过。[验收证据](evidence/2026-09-16-admin-storage-poc.json)记录了实际环境、失败再修复与未验证范围。GitHub新增真实PostgreSQL service测试job；CI及实际线上版本分别在部署后收据核验。
 
-## 当前方向与阻塞
+## 没有完成的部分
 
-下一开发任务ADM-01：确认事务授权存储及JSON目录最终写授权的一致性方案，见[HANDOFF.md](HANDOFF.md)。生产授权数据库连接、实际部署触发通道、真实账号MFA/近期认证能力尚未完成核验；不猜测值、不读取用户秘密。
+**商城仍没有可供真实用户使用的首位超管初始化或后台角色管理。** 当前`lib/store/admin.ts`仍使用环境白名单。本轮原型不被任何生产路由导入，未修改app/lib/components/config/Dockerfile/.env.example，未配置生产数据库/口令、未给实际账号授权。`OAKTECH_BOOTSTRAP_ADMIN_TOKEN`仍不是当前业务可用功能。
 
-历史GitHub部署job出现凭据检查失败，而站点版本后来更新，二者分开记录。当前公开health基线为0.1.25；本轮文档提交后的版本、CI与公网收据放 `.local-verification/<version>/`，不能靠health变化把ADM任务标为完成。
+- ADM-02及后续：正式schema、安装标识与迁移、正常身份登记、口令寿命与限流、初始化/管理员页面、旧白名单退出及生产真实认领均待实施。
+- 生产PG实际地址/私有网络/卷和备份配置仍待ADM-11；本次只定义目标部署边界。
+- JSON目录投影的顺序/崩溃恢复/新旧权威源切换须在ADM-09/10完成，不能将PoC事务结果当作整个商城已经迁移。
+- 现有商品展示、已发布安装包、Open Play兼容更新保持不变；没有自动发布任何软件Release。
 
-## 接续规则
+## 接续
 
-唯一任务事实源是[TASKS.json](TASKS.json)，[PROGRESS.md](PROGRESS.md)自动生成。以任务验收和实际证据判定，不依赖本轮聊天。原来的多版本“当前状态”已原样存入 `archive/2026-09-16-before-development-plan-CURRENT_STATE.md`；历史细节看SESSION_LOG和RELEASE_LOG，不继续向本页叠加过期当前状态。
+唯一下一任务：**ADM-02（身份、角色、安装状态与审计schema）**。从[HANDOFF](HANDOFF.md)和[PROGRESS](PROGRESS.md)接续，任务状态只维护[TASKS.json](TASKS.json)。权限主线目前1/14项完成，这是阶段任务数量，不是页面完成率。
+
+源码提交、CI、实际部署、真实账号授权分别记录。本次部署后收据位于 `.local-verification/0.1.27/`，不能因health变为0.1.27就声称超管已经绑定。

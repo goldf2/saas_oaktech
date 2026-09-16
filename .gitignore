@@ -47,3 +47,6 @@ next-env.d.ts
 pnpm-lock.yaml
 
 .vscode
+
+# Private local verification evidence and isolated database tooling
+/.local-verification/

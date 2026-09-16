@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
   "plan_version": "1.0.0",
-  "revision": 2,
-  "updated_at": "2026-09-16T15:59:55+08:00",
+  "revision": 5,
+  "updated_at": "2026-09-16T21:14:40+08:00",
   "project": "saas_oaktech",
   "source_commit": "54a42b33bc5fc3e9c42541fdd3bdd6fae4700bce",
-  "current_next_task": "ADM-01",
+  "current_next_task": "ADM-02",
   "production_admin_bootstrap": "not_implemented",
   "standard": {
     "path": "docs/standards/CT-ADMIN-001-v1.0.0.md",
@@ -57,26 +57,42 @@
       "kind": "feature",
       "milestone": "M1",
       "priority": "P0",
-      "status": "todo",
-      "owner": null,
+      "status": "done",
+      "owner": "ChatGPT / tsk_7b03b14c3ddbfb43",
       "depends_on": [
         "PLAN-01"
       ],
       "planned_files": [
         "docs/adr/ADR-0001-admin-storage.md",
-        "tests/admin-storage-poc.test.ts"
+        "scripts/admin-poc/schema.sql",
+        "scripts/admin-poc/store.mjs",
+        "scripts/admin-poc/run.mjs",
+        "tests/admin-poc/storage.test.mjs",
+        "tests/admin-storage-boundary.test.ts"
       ],
       "acceptance": [
         "验证PostgreSQL事务锁路线并明确部署落点、网络和副本数",
         "说明JSON目录单写者与撤权提交竞态的可验证解决方案",
         "记录技术ADR，不使用JSON或内存角色库回退"
       ],
-      "next_action": "创建技术ADR和隔离数据库PoC，先验证两个独立进程的互斥与故障语义",
+      "next_action": "工程PoC与ADR已验收；继续ADM-02正式schema/安装状态/迁移。生产连接/卷/投影尚未配置，不代表超管功能已可用。",
       "blockers": [],
-      "evidence": [],
-      "implementation": "not_started",
-      "deployment": "not_started",
-      "updated_at": "2026-09-16T15:47:03+08:00"
+      "evidence": [
+        {
+          "path": "scripts/admin-poc/store.mjs",
+          "kind": "implementation",
+          "result": "passed"
+        },
+        {
+          "path": "docs/00-handoff/evidence/2026-09-16-admin-storage-poc.json",
+          "kind": "verification",
+          "result": "passed"
+        }
+      ],
+      "implementation": "isolated_postgresql_prototype_verified",
+      "deployment": "not_applicable",
+      "updated_at": "2026-09-16T21:14:40+08:00",
+      "completed_at": "2026-09-16T21:14:40+08:00"
     },
     {
       "id": "ADM-02",

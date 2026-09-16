@@ -38,6 +38,10 @@
 
 计划新增（以下路径尚不存在，不能当作可执行命令）：`lib/admin/{store,identity,bootstrap,authorization,roles,audit}.ts`、`app/setup/admin/page.tsx`、`app/setup/admin/actions.ts`、`app/admin/users/page.tsx`、`app/admin/users/actions.ts`、`app/admin/audit/page.tsx`、`scripts/admin/{preflight,migrate-legacy,recover}.mjs` 与专用SQL迁移。具体命名在 ADM-01 收敛，调整时同步任务和测试映射。
 
+## ADM-01已收敛的工程决定（2026-09-16）
+
+[ADR-0001](../adr/ADR-0001-admin-storage.md)已以真实PostgreSQL多进程验证：选用同事务管理命令/目录元数据/审计，否决SQL锁＋直接JSON重命名。后续公开下载只读投影由ADM-09/11实施；正常页面不会读取试验原型。以下数据模型仍需ADM-02形成正式迁移，生产资源仍未配置。
+
 ## 3. 设计决策与未决问题
 
 **已确认**：复用正常登录；应用级 super_admin/admin/user；随机一次性口令；永久初始化完成标记；角色持久化；后台撤权；旧白名单受控迁移；受控恢复。不是“给所有登录用户管理权限”。

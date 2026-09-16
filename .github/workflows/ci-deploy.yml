@@ -33,10 +33,41 @@ jobs:
           BASE_URL: ${{ vars.PUBLIC_BASE_URL || 'https://oaktechz.com' }}
         run: npm run build
 
+  admin-storage:
+    name: Admin storage (real PostgreSQL)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17.10-alpine
+        env:
+          POSTGRES_USER: oaktech_poc
+          POSTGRES_PASSWORD: ci-disposable-test-only
+          POSTGRES_DB: oaktech_admin_poc
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U oaktech_poc -d oaktech_admin_poc"
+          --health-interval 5s --health-timeout 5s --health-retries 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install test dependencies
+        env:
+          PUPPETEER_SKIP_DOWNLOAD: "true"
+        run: npm ci
+      - name: Real cross-process transaction and fault tests
+        env:
+          # Disposable CI service only; never use a production connection or repository secret.
+          OAKTECH_POC_DATABASE_URL: postgresql://oaktech_poc:ci-disposable-test-only@127.0.0.1:5432/oaktech_admin_poc
+        run: npm run test:admin-storage
+
   deploy:
     name: Deploy through Coolify
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
-    needs: verify
+    needs: [verify, admin-storage]
     runs-on: ubuntu-latest
     environment: production
     steps:

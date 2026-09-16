@@ -21,6 +21,8 @@ npm run handoff:check
 # 回归与生产构建
 npm test
 npm run typecheck
+# ADM-01真实隔离PostgreSQL测试（先按原型README准备本地测试二进制）
+npm run test:admin-storage
 PUPPETEER_SKIP_DOWNLOAD=true npm run build
 
 # 构建完成后：隔离浏览器商品发布回归
@@ -73,3 +75,7 @@ curl --silent --show-error --max-time 15 -o /dev/null -w '%{http_code}\n' https:
 小型脱敏且需多人接续的摘要放 `docs/00-handoff/evidence/` 并加入Git；任务引用真实相对路径。大日志、截图和部署后收据放 `.local-verification/<version>/`，不入Git、不混进镜像。原始秘密、身份凭证和公开链接中的临时签名参数不得写进可分发资料。
 
 每项证据注明观察时间、版本/commit、执行环境、命令/HTTP结果与限制。历史“63项测试通过”只属于当时对应源码；每次更改重新执行记录真实测试总数。
+
+## ADM-01数据库原型（0.1.27）
+
+`npm run test:admin-storage` 已实现，仅访问独立loopback测试库。准备方式、随机schema与清理边界见 [scripts/admin-poc/README.md](../../scripts/admin-poc/README.md)。该命令不会配置生产超管；生产命令仍须按后续任务实施。新增CI服务在自己的PostgreSQL数据库中运行，多进程互斥不是mock。

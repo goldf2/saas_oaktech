@@ -32,3 +32,9 @@
 - 实施仅针对open-play和chanxu-tradingview的一次性启动迁移，原始备份与完成标记，保留全部软件Release、其他商品和权限。详见 `../product-listings-recovery-2026-09-16.md`。
 - 独立工作区51/51测试、类型/构建和6组浏览器验证通过；主工作区并行Auth代码未覆盖。
 - 生产是否已恢复以 `.local-verification/0.1.24/product-recovery-deployment.json` 的公网首页/详情证据为准，代码推送本身不代表恢复成功。
+
+## 2026-09-16T21:12:26+08:00 · ADM-STORAGE-001 · SQL/JSON边界与锁等待到期
+
+真实PostgreSQL17.10 + 独立进程复现PG-14：持锁连接被终止、另进程撤权提交后，旧进程仍可rename临时JSON，而SQL事务报错。该方案被拒绝，选同事务管理命令/元数据路线，投影后续单独实现。
+
+新增PG-17等待到期用例在初版原型上失败（到期后仍成功认领）；有效期表达式可能在FOR UPDATE等待前求值。改为锁后另发clock_timestamp查询，最终16个数据库用例和真实PG重启持久化检查全部通过。此为本轮原型内部TDD修复，不是声称此前生产存在同一漏洞。证据见evidence/2026-09-16-admin-storage-poc.json。

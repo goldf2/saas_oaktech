@@ -2,16 +2,16 @@
 
 > 不要直接编辑本文件。修改TASKS.json后运行 `npm run handoff:render`。
 
-账本revision：2；更新时间：2026-09-16T15:59:55+08:00；计划版本：1.0.0。
+账本revision：5；更新时间：2026-09-16T21:14:40+08:00；计划版本：1.0.0。
 
-**权限主线任务完成：0/14。这是任务计数，不是代码完成百分比；PLAN-01文档不计入。**
+**权限主线任务完成：1/14。这是任务计数，不是代码完成百分比；PLAN-01文档不计入。**
 
-生产超管状态：`not_implemented`；唯一下一任务：**ADM-01**。
+生产超管状态：`not_implemented`；唯一下一任务：**ADM-02**。
 
 | 任务 | 阶段/类型 | 优先级 | 状态 | 负责人 | 依赖 |
 | --- | --- | --- | --- | --- | --- |
 | PLAN-01 · 详细开发方案与进度接续机制 | M0 / documentation | P0 | 完成 | ChatGPT / 本轮计划任务 | 无 |
-| ADM-01 · 授权存储与跨存储一致性PoC | M1 / feature | P0 | 待开发 | 未认领 | PLAN-01 |
+| ADM-01 · 授权存储与跨存储一致性PoC | M1 / feature | P0 | 完成 | ChatGPT / tsk_7b03b14c3ddbfb43 | PLAN-01 |
 | ADM-02 · 身份、角色、安装状态与审计schema | M1 / feature | P0 | 待开发 | 未认领 | ADM-01 |
 | ADM-03 · 服务端身份登记与近期认证证据 | M1 / feature | P0 | 待开发 | 未认领 | ADM-02 |
 | ADM-04 · 一次性初始化凭据与持久有效期 | M1 / feature | P0 | 待开发 | 未认领 | ADM-02 |
@@ -53,18 +53,20 @@
 
 ### ADM-01 · 授权存储与跨存储一致性PoC
 
-状态：待开发；负责人：未认领；实施：not_started；部署：not_started。
+状态：完成；负责人：ChatGPT / tsk_7b03b14c3ddbfb43；实施：isolated_postgresql_prototype_verified；部署：not_applicable。
 
-下一动作：创建技术ADR和隔离数据库PoC，先验证两个独立进程的互斥与故障语义
+下一动作：工程PoC与ADR已验收；继续ADM-02正式schema/安装状态/迁移。生产连接/卷/投影尚未配置，不代表超管功能已可用。
 
 验收条件：
 - 验证PostgreSQL事务锁路线并明确部署落点、网络和副本数
 - 说明JSON目录单写者与撤权提交竞态的可验证解决方案
 - 记录技术ADR，不使用JSON或内存角色库回退
 
-计划文件（可能尚未创建）：`docs/adr/ADR-0001-admin-storage.md`、`tests/admin-storage-poc.test.ts`
+计划文件（可能尚未创建）：`docs/adr/ADR-0001-admin-storage.md`、`scripts/admin-poc/schema.sql`、`scripts/admin-poc/store.mjs`、`scripts/admin-poc/run.mjs`、`tests/admin-poc/storage.test.mjs`、`tests/admin-storage-boundary.test.ts`
 
-证据：尚无该任务完成证据。
+证据：
+- implementation / passed：`scripts/admin-poc/store.mjs`
+- verification / passed：`docs/00-handoff/evidence/2026-09-16-admin-storage-poc.json`
 
 ### ADM-02 · 身份、角色、安装状态与审计schema
 

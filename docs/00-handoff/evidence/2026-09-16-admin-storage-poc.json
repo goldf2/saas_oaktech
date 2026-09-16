@@ -1,0 +1,66 @@
+{
+  "checkedAt": "2026-09-16T21:14:40+08:00",
+  "scope": "ADM-01 real storage proof of concept only",
+  "baseCommit": "f8b0e8c796aac44309728f70fac1cd853437fe24",
+  "status": "passed",
+  "runtime": {
+    "node": "v24.17.0",
+    "postgres": "17.10",
+    "host": "macOS Apple Silicon",
+    "postgresBinary": "Mach-O universal x86_64/arm64; PostgreSQL build banner reports x86_64; actual process architecture not independently verified",
+    "pgClient": "8.23.0",
+    "testBinaryPackage": "@embedded-postgres/darwin-arm64@17.10.0-beta.17",
+    "listen": "127.0.0.1 temporary port",
+    "authentication": "SCRAM with random temporary password",
+    "fsync": true
+  },
+  "command": "npm run test:admin-storage",
+  "databaseCasesPassed": 16,
+  "databaseCaseIds": [
+    "PG-01",
+    "PG-02",
+    "PG-03",
+    "PG-04",
+    "PG-05",
+    "PG-06",
+    "PG-07",
+    "PG-08",
+    "PG-09",
+    "PG-10",
+    "PG-11",
+    "PG-12",
+    "PG-13",
+    "PG-14",
+    "PG-15",
+    "PG-17"
+  ],
+  "serverRestartDurabilityPassed": true,
+  "independentContenders": 20,
+  "counterexample": {
+    "id": "PG-14",
+    "result": "unsafe SQL-gate/filesystem-rename design reproduced after acknowledged revocation; rejected for implementation"
+  },
+  "regressionFoundAndFixed": {
+    "id": "PG-17",
+    "before": "failed: SELECT computation before lock wait allowed expired token",
+    "after": "passed: new clock_timestamp query after acquiring the installation lock"
+  },
+  "productionModified": false,
+  "productionBootstrapImplemented": false,
+  "fullProjectTests": {
+    "tests": 73,
+    "passed": 73
+  },
+  "typecheck": "passed",
+  "build": "passed",
+  "linuxCi": "pending",
+  "limits": [
+    "PoC is not used by production routes; schema and identity in PoC are test-only.",
+    "No production PostgreSQL connection, volume, credential or superadmin was configured.",
+    "Public snapshot projector and canonical catalog migration remain ADM-09/10 work.",
+    "CSRF, rate limiting, token rotation, MFA and real-login UI remain separate implementation tasks."
+  ],
+  "evidenceLogSha256": "78aece06d550bef6594b91eefad02d3aca9b8620de8b0d19b2e1f94fb173072c",
+  "candidateVersion": "0.1.27",
+  "businessRuntimeFilesChanged": []
+}
