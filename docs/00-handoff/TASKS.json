@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "plan_version": "1.0.0",
-  "revision": 15,
-  "updated_at": "2026-09-17T16:20:34+08:00",
+  "revision": 16,
+  "updated_at": "2026-09-17T16:29:42+08:00",
   "project": "saas_oaktech",
   "source_commit": "54a42b33bc5fc3e9c42541fdd3bdd6fae4700bce",
   "current_next_task": "ADM-02",
@@ -733,7 +733,7 @@
         "保持原服务器权限/签名/草稿不可下载约束，真实隔离浏览器和回归通过"
       ],
       "implementation": "complete_local_browser_verified",
-      "deployment": "0.1.30_pending_remote_delivery",
+      "deployment": "public_health_0.1.30_verified; CI deployment credential check failed separately",
       "blockers": [],
       "evidence": [
         {
@@ -750,10 +750,15 @@
           "path": "docs/00-handoff/evidence/2026-09-17-release-workflow-ui.json",
           "kind": "verification",
           "result": "passed"
+        },
+        {
+          "path": "docs/00-handoff/evidence/2026-09-17-release-ui-deployment.json",
+          "kind": "verification",
+          "result": "passed"
         }
       ],
-      "next_action": "核对0.1.30独立分支的远程CI与官网代码版本；UI代码发布不自动上传或公开任何软件草稿。其他本地管理员工作继续独立接续。",
-      "updated_at": "2026-09-17T16:20:34+08:00",
+      "next_action": "官网运行版本已确认0.1.30。真实管理员可保存当前输入后重新进入商品版本页；本轮没有发布真实软件。另需修复CI中COOLIFY_WEBHOOK/COOLIFY_TOKEN可用性检查，不能宣称部署流水线全绿。",
+      "updated_at": "2026-09-17T16:29:42+08:00",
       "completed_at": "2026-09-17T16:20:34+08:00"
     }
   ]

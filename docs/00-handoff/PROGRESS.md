@@ -2,7 +2,7 @@
 
 > 不要直接编辑本文件。修改TASKS.json后运行 `npm run handoff:render`。
 
-账本revision：15；更新时间：2026-09-17T16:20:34+08:00；计划版本：1.0.0。
+账本revision：16；更新时间：2026-09-17T16:29:42+08:00；计划版本：1.0.0。
 
 **权限主线任务完成：1/14。这是任务计数，不是代码完成百分比；PLAN-01文档不计入。**
 
@@ -391,9 +391,9 @@
 
 ### STORE-02 · 发布流程可发现性、批量上传与校验预览
 
-状态：完成；负责人：ChatGPT / tsk_b02c9763689e79dc；实施：complete_local_browser_verified；部署：0.1.30_pending_remote_delivery。
+状态：完成；负责人：ChatGPT / tsk_b02c9763689e79dc；实施：complete_local_browser_verified；部署：public_health_0.1.30_verified; CI deployment credential check failed separately。
 
-下一动作：核对0.1.30独立分支的远程CI与官网代码版本；UI代码发布不自动上传或公开任何软件草稿。其他本地管理员工作继续独立接续。
+下一动作：官网运行版本已确认0.1.30。真实管理员可保存当前输入后重新进入商品版本页；本轮没有发布真实软件。另需修复CI中COOLIFY_WEBHOOK/COOLIFY_TOKEN可用性检查，不能宣称部署流水线全绿。
 
 验收条件：
 - 新建版本时上传区始终可见，未保存时明确禁用；中文默认复用到英文且不隐藏必填校验
@@ -407,3 +407,4 @@
 - implementation / passed：`components/admin/product-releases.tsx`
 - implementation / passed：`components/admin/publication-review.tsx`
 - verification / passed：`docs/00-handoff/evidence/2026-09-17-release-workflow-ui.json`
+- verification / passed：`docs/00-handoff/evidence/2026-09-17-release-ui-deployment.json`

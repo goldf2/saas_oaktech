@@ -32,3 +32,11 @@
 入口：`npm run test:release-ui`；完整产品回归：`node scripts/verify-product-workspace.mjs`。公开签名制品验收需通过`OPEN_PLAY_RELEASE_FIXTURE_DIR`显式提供已公开的四个原始文件；否则只执行可用的隔离范围，不声称签名发布已验收。原始运行记录位于`.local-verification/release-ui/`；可携带脱敏证据见docs/00-handoff/evidence/2026-09-17-release-workflow-ui.json。
 
 本轮在独立worktree完成，不覆盖主目录未提交的本地管理员功能。没有提升角色、读取真实凭证或上传真实生产软件包。源码上线不等于open-play某版本已在官网正式发布。
+
+## 0.1.30 公开版本回读 · 2026-09-17T16:27:10+08:00
+
+实现提交8616682已非强制快进推送main，官网/api/health实际返回0.1.30。此证据确认当前代码版本，不等于使用真实管理员再次执行了生产发布。真实产品和软件包没有在本轮被写入或公开。
+
+GitHub Actions35199255241的Test and build以及真实PostgreSQL任务通过；Deploy through Coolify在Require deployment credentials失败，因此不能称为CI部署全成功，也不能断言当前.30是通过该失败job部署。需配置两个所需变量的可用性；本轮没有读取/修改其值。
+
+上线补充记录在独立feature分支，main的应用实现提交保持8616682；不为纯文档更新重复触发生产部署。主目录仍保留并行本地管理员未提交修改，后续必须先协调新main再合入，不force/reset覆盖。

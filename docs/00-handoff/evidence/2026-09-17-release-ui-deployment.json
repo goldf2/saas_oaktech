@@ -1,0 +1,45 @@
+{
+  "checked_at": "2026-09-17T16:27:10+08:00",
+  "implementation_commit": "8616682bed82c8e46367ebfc8f949cb5b17573f7",
+  "target_version": "0.1.30",
+  "public_health": {
+    "status": "ok",
+    "service": "oaktech-software-store",
+    "version": "0.1.30"
+  },
+  "code_online": true,
+  "ci": {
+    "run_id": 35199255241,
+    "status": "completed",
+    "conclusion": "failure",
+    "jobs": [
+      {
+        "name": "Admin storage (real PostgreSQL)",
+        "result": "success",
+        "failed_steps": []
+      },
+      {
+        "name": "Test and build",
+        "result": "success",
+        "failed_steps": []
+      },
+      {
+        "name": "Deploy through Coolify",
+        "result": "failure",
+        "failed_steps": [
+          "Require deployment credentials"
+        ]
+      }
+    ]
+  },
+  "production_software_releases_modified": false,
+  "real_admin_login_tested": false,
+  "local_validation": {
+    "unit_tests": 109,
+    "release_browser_checks": 14,
+    "workspace_browser_checks": 12,
+    "typecheck": "passed",
+    "production_build": "passed"
+  },
+  "parallel_main_worktree_modified_by_this_session": false
+}
