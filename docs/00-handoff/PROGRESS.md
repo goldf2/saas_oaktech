@@ -2,7 +2,7 @@
 
 > 不要直接编辑本文件。修改TASKS.json后运行 `npm run handoff:render`。
 
-账本revision：13；更新时间：2026-09-17T05:56:43+08:00；计划版本：1.0.0。
+账本revision：15；更新时间：2026-09-17T16:20:34+08:00；计划版本：1.0.0。
 
 **权限主线任务完成：1/14。这是任务计数，不是代码完成百分比；PLAN-01文档不计入。**
 
@@ -32,6 +32,7 @@
 | HARD-01 · 商品JSON目录跨进程写一致性 | HARD / feature | P1 | 暂缓 | 未认领 | 无 |
 | HARD-02 · 分片会话绑定、恢复与过期清理 | HARD / feature | P1 | 暂缓 | 未认领 | 无 |
 | STORE-01 · 商品内图文、版本、预览和统一发布工作台 | STORE / feature | P0 | 完成 | ChatGPT / tsk_5a4be4c4b63f215d | 无 |
+| STORE-02 · 发布流程可发现性、批量上传与校验预览 | STORE / feature | P0 | 完成 | ChatGPT / tsk_b02c9763689e79dc | STORE-01 |
 
 ## 任务详情与接续动作
 
@@ -387,3 +388,22 @@
 - implementation / passed：`app/admin/products/[slug]/page.tsx`
 - implementation / passed：`app/admin/products/page.tsx`
 - verification / passed：`docs/00-handoff/evidence/2026-09-17-product-workspace-turbopack-fix.json`
+
+### STORE-02 · 发布流程可发现性、批量上传与校验预览
+
+状态：完成；负责人：ChatGPT / tsk_b02c9763689e79dc；实施：complete_local_browser_verified；部署：0.1.30_pending_remote_delivery。
+
+下一动作：核对0.1.30独立分支的远程CI与官网代码版本；UI代码发布不自动上传或公开任何软件草稿。其他本地管理员工作继续独立接续。
+
+验收条件：
+- 新建版本时上传区始终可见，未保存时明确禁用；中文默认复用到英文且不隐藏必填校验
+- 文件多选/拖放、可调整平台架构类型、服务端确认进度、失败/不确定提交不自动重复上传
+- 资料保存/文件齐备/真实签名校验/正式发布区别明确，同渠道不误选多个待发布版本
+- 保持原服务器权限/签名/草稿不可下载约束，真实隔离浏览器和回归通过
+
+计划文件（可能尚未创建）：`components/admin/product-releases.tsx`、`components/admin/artifact-upload.tsx`、`components/admin/product-workspace.tsx`、`lib/store/release-workflow.ts`、`components/admin/publication-review.tsx`、`scripts/verify-release-workflow.mjs`
+
+证据：
+- implementation / passed：`components/admin/product-releases.tsx`
+- implementation / passed：`components/admin/publication-review.tsx`
+- verification / passed：`docs/00-handoff/evidence/2026-09-17-release-workflow-ui.json`

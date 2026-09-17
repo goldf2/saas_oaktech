@@ -42,7 +42,7 @@ export function DatabaseProductPage({ product, releases, locale, preview = false
   const copy = labels[locale];
   const current = preview ? releases[0] : releases.find((release) => release.isCurrent) ?? releases[0];
   const downloads = preview ? [] : current?.artifacts.filter(isSoftwareDownload) ?? [];
-  const status = product.status === "released" ? copy.released : product.status === "beta" ? copy.beta : copy.comingSoon;
+  const status = preview ? (locale === "zh" ? "草稿预览" : "Draft preview") : product.status === "released" ? copy.released : product.status === "beta" ? copy.beta : copy.comingSoon;
   const releaseHref = localePath(locale, `/products/${product.slug}/releases`);
 
   return (

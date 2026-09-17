@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "plan_version": "1.0.0",
-  "revision": 13,
-  "updated_at": "2026-09-17T05:56:43+08:00",
+  "revision": 15,
+  "updated_at": "2026-09-17T16:20:34+08:00",
   "project": "saas_oaktech",
   "source_commit": "54a42b33bc5fc3e9c42541fdd3bdd6fae4700bce",
   "current_next_task": "ADM-02",
@@ -706,6 +706,55 @@
       "deployment": "0.1.29_correction_validated_pending_public_observation",
       "updated_at": "2026-09-17T05:56:43+08:00",
       "completed_at": "2026-09-17T05:47:39+08:00"
+    },
+    {
+      "id": "STORE-02",
+      "title": "发布流程可发现性、批量上传与校验预览",
+      "kind": "feature",
+      "milestone": "STORE",
+      "priority": "P0",
+      "status": "done",
+      "owner": "ChatGPT / tsk_b02c9763689e79dc",
+      "depends_on": [
+        "STORE-01"
+      ],
+      "planned_files": [
+        "components/admin/product-releases.tsx",
+        "components/admin/artifact-upload.tsx",
+        "components/admin/product-workspace.tsx",
+        "lib/store/release-workflow.ts",
+        "components/admin/publication-review.tsx",
+        "scripts/verify-release-workflow.mjs"
+      ],
+      "acceptance": [
+        "新建版本时上传区始终可见，未保存时明确禁用；中文默认复用到英文且不隐藏必填校验",
+        "文件多选/拖放、可调整平台架构类型、服务端确认进度、失败/不确定提交不自动重复上传",
+        "资料保存/文件齐备/真实签名校验/正式发布区别明确，同渠道不误选多个待发布版本",
+        "保持原服务器权限/签名/草稿不可下载约束，真实隔离浏览器和回归通过"
+      ],
+      "implementation": "complete_local_browser_verified",
+      "deployment": "0.1.30_pending_remote_delivery",
+      "blockers": [],
+      "evidence": [
+        {
+          "path": "components/admin/product-releases.tsx",
+          "kind": "implementation",
+          "result": "passed"
+        },
+        {
+          "path": "components/admin/publication-review.tsx",
+          "kind": "implementation",
+          "result": "passed"
+        },
+        {
+          "path": "docs/00-handoff/evidence/2026-09-17-release-workflow-ui.json",
+          "kind": "verification",
+          "result": "passed"
+        }
+      ],
+      "next_action": "核对0.1.30独立分支的远程CI与官网代码版本；UI代码发布不自动上传或公开任何软件草稿。其他本地管理员工作继续独立接续。",
+      "updated_at": "2026-09-17T16:20:34+08:00",
+      "completed_at": "2026-09-17T16:20:34+08:00"
     }
   ]
 }

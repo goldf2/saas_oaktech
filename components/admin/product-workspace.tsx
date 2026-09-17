@@ -2,8 +2,11 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { saveWorkspaceAction, publishWorkspaceAction } from "@/app/admin/products/editor-actions";
+import { ReleaseFlowContext, type ReleaseActivity } from "./release-flow-context";
+import { PublicationReview } from "./publication-review";
+import { productPublicationIssues, releaseReadiness, selectReleaseForPublication } from "@/lib/store/release-workflow";
 import { DatabaseProductPage } from "@/components/database-product-page";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,7 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import type { AdminStoreProductRow, AdminProductReleaseRow, Locale, ProductRelease, StoreProduct } from "@/lib/store/types";
 
 const categories = [["desktop-apps", "桌面应用"], ["browser-extensions", "浏览器扩展"], ["trading-tools", "交易研究工具"], ["developer-tools", "开发工具"], ["ai-tools", "AI工具"], ["productivity-tools", "效率工具"]];
-const tabs = [["details", "基本资料"], ["media", "图文素材"], ["versions", "软件版本"], ["preview", "预览与发布"]] as const;
+const tabs = [["details", "基本资料"], ["media", "图文素材"], ["versions", "软件版本"], ["preview", "校验预览与发布"]] as const;
 type Tab = typeof tabs[number][0];
 const imageErrors: Record<string, string> = {
   PRODUCT_IMAGE_TYPE: "请选择PNG、JPEG或WebP图片，不支持SVG或动图。",
@@ -48,11 +51,29 @@ export function ProductWorkspace({ product = blankProduct(), editToken = "", pub
   const [mobile, setMobile] = useState(false);
   const [selected, setSelected] = useState<string[]>([]);
   const [confirmed, setConfirmed] = useState(false);
+  const [activities, setActivities] = useState<Record<string, ReleaseActivity>>({});
+  const setActivity = useCallback((id: string, state: ReleaseActivity | null) => setActivities(previous => {
+    if (state && previous[id]?.dirty === state.dirty && previous[id]?.busy === state.busy || !state && !previous[id]) return previous;
+    const next = { ...previous }; if (state) next[id] = state; else delete next[id]; return next;
+  }), []);
+  const releaseDirty = Object.values(activities).some(state => state.dirty);
+  const releaseBusy = Object.values(activities).some(state => state.busy);
   const dirty = saved !== JSON.stringify(value);
+  const unsaved = dirty || releaseDirty;
+  const operationInFlight = useRef(false);
+  const feedbackRef = useRef<HTMLParagraphElement>(null);
   const dirtyRef = useRef(dirty); dirtyRef.current = dirty;
-  const disabled = busy || uploading;
+  const disabled = busy || uploading || releaseBusy;
   const existing = Boolean(value.id);
-  const drafts = releases.filter(r => r.status === "draft");
+  const publishedVersionCount = releases.filter(r => r.status === "published").length;
+  function goPreview(id?: string) {
+    if (disabled) return;
+    if (id) setSelected(previous => selectReleaseForPublication(previous, id, true, releases));
+    setTab("preview");
+    requestAnimationFrame(() => document.querySelector<HTMLButtonElement>('[data-tab="preview"]')?.focus());
+  }
+  function goVersions() { if (!disabled) setTab("versions"); }
+  useEffect(() => { if (error) feedbackRef.current?.focus(); }, [error]);
 
   useEffect(() => {
     if (!dirtyRef.current) {
@@ -61,16 +82,17 @@ export function ProductWorkspace({ product = blankProduct(), editToken = "", pub
     }
   }, [editToken, publishToken, product]);
   useEffect(() => {
-    if (!dirty) return;
+    if (!unsaved && !disabled) return;
     const warn = (event: BeforeUnloadEvent) => { event.preventDefault(); event.returnValue = ""; };
     window.addEventListener("beforeunload", warn);
     return () => window.removeEventListener("beforeunload", warn);
-  }, [dirty]);
-  useEffect(() => { setConfirmed(false); }, [value, selected, publishToken]);
+  }, [unsaved, disabled]);
+  useEffect(() => { setConfirmed(false); }, [value, selected, publishToken, releaseDirty, releaseBusy]);
   function update<K extends keyof AdminStoreProductRow>(field: K, next: AdminStoreProductRow[K]) { setValue(prev => ({ ...prev, [field]: next })); setMessage(""); }
 
   async function save() {
-    if (disabled) return;
+    if (disabled || operationInFlight.current) return;
+    operationInFlight.current = true;
     setBusy(true); setError(""); setMessage("");
     try {
       const form = new FormData();
@@ -87,21 +109,27 @@ export function ProductWorkspace({ product = blankProduct(), editToken = "", pub
       if (!existing) router.push(`/admin/products/${result.slug}?tab=media&saved=1`);
       else router.refresh();
     } catch { setError("保存请求未完成，请检查网络，刷新核对后再重试。"); }
-    finally { setBusy(false); }
+    finally { operationInFlight.current = false; setBusy(false); }
   }
   async function publish() {
-    if (disabled || dirty || !existing || !confirmed) return;
+    if (disabled || dirty || releaseDirty || !existing || !confirmed || operationInFlight.current) return;
+    if (productPublicationIssues(value).length) { setConfirmed(false); setError("请先补齐发布检查中列出的商品资料。"); return; }
+    const chosen = releases.filter(r => r.status === "draft" && selected.includes(r.id));
+    if (chosen.length !== selected.length || new Set(chosen.map(r => r.channel)).size !== chosen.length || chosen.some(r => !releaseReadiness(r).ready)) {
+      setError("所选版本尚未准备好或状态已变化，请核对文件并重新选择。"); setConfirmed(false); return;
+    }
+    operationInFlight.current = true;
     setBusy(true); setError(""); setMessage("");
     try {
       const form = new FormData(); form.set("slug", value.slug); form.set("publish_token", tokens.publish); form.set("confirm", "on");
       for (const id of selected) form.append("release_id", id);
       const result = await publishWorkspaceAction(form);
-      if (!result.ok) { setError(result.error ?? "发布未完成"); return; }
+      if (!result.ok) { setConfirmed(false); setError((result.error ?? "发布未完成") + " 请核对文件与版本后重新确认，已上传文件不会自动重传。"); return; }
       setTokens({ edit: result.editToken!, publish: result.publishToken! }); setSelected([]); setConfirmed(false);
       setMessage(result.warning ?? "已发布。公开商品页现在使用本次确认的资料和选中版本。");
       router.refresh();
-    } catch { setError("发布响应未完成，请刷新检查结果，避免重复操作。"); }
-    finally { setBusy(false); }
+    } catch { setConfirmed(false); setError("发布响应未完成，请刷新检查结果，避免重复操作。"); }
+    finally { operationInFlight.current = false; setBusy(false); }
   }
   async function upload(file: File | undefined, field: "icon_url" | "hero_image_url" | "gallery_urls") {
     if (!file || disabled || !existing) return;
@@ -133,15 +161,19 @@ export function ProductWorkspace({ product = blankProduct(), editToken = "", pub
   }
   const displayedReleases = releases.filter(r => selected.includes(r.id) || r.status === "published").sort((a, b) => Number(selected.includes(b.id)) - Number(selected.includes(a.id)));
 
-  return <div className="container max-w-7xl px-4 py-8" data-testid="product-workspace">
+  return <ReleaseFlowContext.Provider value={{ setActivity, goPreview, goVersions, operationBusy: disabled }}><div className="container max-w-7xl px-4 py-8" data-testid="product-workspace">
     <div className="flex flex-wrap items-start justify-between gap-4">
-      <div className="min-w-0"><Link href="/admin/products" className="text-sm text-primary" onClick={event => { if (dirty && !window.confirm("尚有未保存修改，确定离开吗？")) event.preventDefault(); }}>← 商品管理</Link><h1 className="mt-3 break-words text-3xl font-semibold">{existing ? value.name_zh || value.slug : "新增商品"}</h1><p className="mt-2 text-sm text-muted-foreground">{product.visibility === "published" ? "已上架" : "未上架"} · {dirty ? "有未保存修改" : hasDraft ? "有待发布草稿" : "资料已保存"} · 图文、软件版本与发布在这里统一管理</p></div>
-      <Button data-testid="save-product-draft" disabled={disabled} onClick={save}>{busy ? "处理中…" : "保存草稿"}</Button>
+      <div className="min-w-0"><Link href="/admin/products" className="text-sm text-primary" onClick={event => { if ((unsaved || disabled) && !window.confirm("有未保存修改或上传正在进行，确定离开吗？")) event.preventDefault(); }}>← 商品管理</Link><h1 className="mt-3 break-words text-3xl font-semibold">{existing ? value.name_zh || value.slug : "新增商品"}</h1><p className="mt-2 text-sm text-muted-foreground">商品：{product.visibility === "published" ? "已上架" : "未上架"} · 软件：{publishedVersionCount ? `${publishedVersionCount} 个已发布版本` : "尚无已发布版本"} · {dirty ? "商品资料未保存" : hasDraft ? "商品资料有待发布修改" : "商品资料已保存"}</p></div>
+      <Button data-testid="save-product-draft" disabled={disabled} onClick={save}>{busy ? "处理中…" : "保存商品资料"}</Button>
     </div>
-    <nav className="mt-7 flex flex-wrap gap-2 border-b pb-3" aria-label="商品编辑分区">{tabs.map(([id, title]) => <Button key={id} data-tab={id} variant={tab === id ? "default" : "outline"} disabled={disabled} onClick={() => setTab(id)}>{title}</Button>)}</nav>
+    <nav role="tablist" className="mt-7 flex flex-wrap gap-2 border-b pb-3" aria-label="商品编辑分区">{tabs.map(([id, title], index) => <Button key={id} id={`tab-${id}`} role="tab" aria-selected={tab === id} aria-controls={`panel-${id}`} tabIndex={tab === id ? 0 : -1} data-tab={id} variant={tab === id ? "default" : "outline"} disabled={disabled} onClick={() => setTab(id)} onKeyDown={event => {
+      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+      event.preventDefault(); const next = event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1 : (index + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
+      setTab(tabs[next][0]); document.querySelector<HTMLButtonElement>(`[data-tab="${tabs[next][0]}"]`)?.focus();
+    }}>{title}</Button>)}</nav>
     {message && <p role="status" className="mt-4 rounded-lg border bg-muted/20 p-3 text-sm">{message}</p>}
-    {error && <p role="alert" className="mt-4 rounded-lg border border-destructive p-3 text-sm text-destructive">{error}</p>}
-    <div className="mt-6" hidden={tab !== "details"}>
+    {error && <p ref={feedbackRef} tabIndex={-1} role="alert" className="mt-4 rounded-lg border border-destructive p-3 text-sm text-destructive">{error}</p>}
+    <div id="panel-details" role="tabpanel" aria-labelledby="tab-details" className="mt-6" hidden={tab !== "details"}>
       <fieldset disabled={disabled} className="grid min-w-0 gap-5 rounded-xl border p-5 md:grid-cols-2">
         <label className="text-sm font-medium">商品名称<Input name="name_zh" className="mt-2" required value={value.name_zh} onChange={e => update("name_zh", e.target.value)} placeholder="例如：我的软件" /></label>
         <label className="text-sm font-medium">商品地址标识<Input name="slug" className="mt-2" required readOnly={existing} value={value.slug} onChange={e => update("slug", e.target.value)} placeholder="my-software" /><span className="mt-1 block text-xs text-muted-foreground">小写字母、数字、连字符；创建后固定。</span></label>
@@ -154,7 +186,7 @@ export function ProductWorkspace({ product = blankProduct(), editToken = "", pub
         <details className="md:col-span-2"><summary className="cursor-pointer font-medium">英文资料（可选，未填写时使用中文）</summary><div className="mt-4 grid gap-4"><label className="text-sm">English name<Input name="name_en" value={value.name_en} onChange={e => update("name_en", e.target.value)} /></label><label className="text-sm">English tagline<Input name="tagline_en" value={value.tagline_en} onChange={e => update("tagline_en", e.target.value)} /></label><label className="text-sm">English description<Textarea name="description_en" rows={5} value={value.description_en} onChange={e => update("description_en", e.target.value)} /></label></div></details>
       </fieldset>
     </div>
-    <div hidden={tab !== "media"}>
+    <div id="panel-media" role="tabpanel" aria-labelledby="tab-media" hidden={tab !== "media"}>
       {!existing && <p className="mb-5 rounded-lg border p-4">先填写商品名称和地址标识，保存草稿后即可上传图片。</p>}
       <p className="mb-4 text-sm text-muted-foreground">PNG / JPEG / WebP · 每张最多8 MiB · 上传后重新编码并移除原始元数据 · 新图在发布前仅管理员可见</p>
       <div className="grid gap-5 md:grid-cols-2">{artwork("icon_url", "图标")}{artwork("hero_image_url", "封面")}</div>
@@ -162,19 +194,13 @@ export function ProductWorkspace({ product = blankProduct(), editToken = "", pub
         <label className="mt-5 block text-sm">添加产品截图<Input data-upload="gallery_urls" className="mt-2 max-w-md" type="file" accept="image/png,image/jpeg,image/webp" disabled={disabled || !existing || (value.gallery_urls?.length ?? 0) >= 8} onChange={event => { const file = event.target.files?.[0]; event.target.value = ""; void upload(file, "gallery_urls"); }} /></label>
       </section>
     </div>
-    <div hidden={tab !== "versions"}>
-      {!existing ? <p className="rounded-lg border p-5">请先保存商品草稿，再添加属于该商品的软件版本。</p> : dirty ? <p className="rounded-lg border p-5">图文有未保存修改，请先点击“保存草稿”，再管理软件版本。你的输入仍保留在其他页签中。</p> : releasePanel}
+    <div id="panel-versions" role="tabpanel" aria-labelledby="tab-versions" hidden={tab !== "versions"}>
+      {!existing ? <p className="rounded-lg border p-5">请先保存商品草稿，再添加属于该商品的软件版本。</p> : <>{dirty && <p className="mb-4 rounded-lg border p-4 text-sm">图文有未保存修改，请先点击“保存商品资料”，再管理软件版本。已填写的版本资料和上传队列仍保留。</p>}<fieldset disabled={dirty} className="min-w-0">{releasePanel}</fieldset></>}
     </div>
-    <div hidden={tab !== "preview"}>
-      <section className="rounded-xl border p-5">
-        <h2 className="text-xl font-semibold">发布检查</h2><p className="mt-2 text-sm text-muted-foreground">保存草稿不会改动线上内容。选择准备发布的版本；每个渠道只能选一个，未选草稿不会发布。</p>
-        {drafts.length ? <div className="mt-4 space-y-3">{drafts.map(release => <label key={release.id} className="flex items-start gap-3 rounded-lg border p-3 text-sm"><input className="mt-1" type="checkbox" data-release-select={release.id} checked={selected.includes(release.id)} disabled={disabled} onChange={e => setSelected(prev => e.target.checked ? [...prev, release.id] : prev.filter(id => id !== release.id))} /><span><strong>{release.version}</strong> · {release.channel} · {release.release_artifacts.length} 个文件<br /><span className="text-muted-foreground">{release.notes_zh || release.notes_en || "未填写说明"}</span></span></label>)}</div> : <p className="mt-4 text-sm text-muted-foreground">没有待发布版本。仍可发布或更新商品图文介绍。</p>}
-        {selected.length === 0 && <p className="mt-4 text-sm">本次仅发布商品介绍，已有公开软件版本保持不变；没有已发布安装包时，不会出现下载按钮。</p>}
-        {dirty && <p className="mt-4 text-sm text-destructive">预览包含尚未保存的修改。请先保存草稿，再确认发布。</p>}
-        <div className="mt-5 flex flex-wrap items-center gap-4"><label className="flex items-center gap-2 text-sm"><input data-testid="confirm-product-publication" type="checkbox" checked={confirmed} disabled={disabled || dirty || !existing} onChange={e => setConfirmed(e.target.checked)} />确认公开当前已保存的图文与选中的软件版本</label><Button data-testid="publish-product" disabled={disabled || dirty || !existing || !confirmed} onClick={publish}>{busy ? "校验与发布中…" : "确认发布"}</Button></div>
-      </section>
+    <div id="panel-preview" role="tabpanel" aria-labelledby="tab-preview" hidden={tab !== "preview"}>
+      <PublicationReview product={value} onFixProduct={target => { if (!disabled) setTab(target); }} releases={releases} selected={selected} setSelected={setSelected} dirty={dirty} releaseDirty={releaseDirty} existing={existing} disabled={disabled} confirmed={confirmed} setConfirmed={setConfirmed} onPublish={() => void publish()} onBack={goVersions} />
       <div className="mt-6 flex flex-wrap items-center justify-between gap-3"><h2 className="font-semibold">商品页预览 · 不提供草稿下载</h2><div className="flex gap-2"><Button size="sm" variant="outline" onClick={() => setLocale(locale === "zh" ? "en" : "zh")}>{locale === "zh" ? "切换英文" : "切换中文"}</Button><Button size="sm" variant="outline" onClick={() => setMobile(!mobile)}>{mobile ? "桌面宽度" : "手机宽度"}</Button></div></div>
       <div data-testid="product-preview" className={`mx-auto mt-4 overflow-hidden rounded-xl border ${mobile ? "max-w-[390px]" : "w-full"}`}><DatabaseProductPage product={previewProduct(value, locale)} releases={previewReleases(displayedReleases, locale)} locale={locale} preview /></div>
     </div>
-  </div>;
+  </div></ReleaseFlowContext.Provider>;
 }

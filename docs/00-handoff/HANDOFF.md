@@ -1,5 +1,13 @@
 # 人员与AI接续单
 
+## 最新：STORE-02 / 0.1.30
+
+发布工作流UI已在独立worktree完成并通过109单元、14新流程和12原流程浏览器验收。先核对本次远程CI/health，再进入其他任务；不自动发布已有草稿。源码目录`/Users/tefulong/.agentdock/tmp/oaktech-release-ui-20260917`，主目录保留另一会话的本地管理员修改。合并前比较远端main，不执行reset/force覆盖。
+
+详情：[UI方案](../release-workflow-ui.md)、[证据](evidence/2026-09-17-release-workflow-ui.json)。当前任务仍以TASKS.json为单一来源；STORE-02的done代表本地实现范围，不代表真实管理员生产发布验收。
+
+## 原接续记录
+
 先执行 `git status --short`、`git log -3 --oneline`、`npm run handoff:check`，再读CURRENT_STATE、PROGRESS及对应任务证据。
 
 ## 本轮商品工作台

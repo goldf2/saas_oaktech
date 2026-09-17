@@ -1,0 +1,71 @@
+{
+  "verified_at": "2026-09-17T16:20:34+08:00",
+  "version": "0.1.30",
+  "baseline_commit": "a5b731a65041f5d27eee42bdf587a27d26681879",
+  "task": "STORE-02",
+  "status": "passed_local",
+  "unit_tests": 109,
+  "typecheck": "passed",
+  "production_build": "passed_default_Turbopack",
+  "release_browser_checks": [
+    "upload step is visible before save, version input is not a false default, and product visibility is distinct from software publication",
+    "English defaults are explicit; independent English fields are visible when required",
+    "missing product artwork blocks confirmation early; real local media upload and draft save satisfy the unchanged server prerequisites",
+    "Chinese-only version saves with deliberate bilingual fallback, stays in product context, and missing artifacts prevent software publication",
+    "saving an existing version normalizes surrounding whitespace without leaving the upload step falsely locked",
+    "multi-file selection suggests all four exact native slots and rejects a duplicate file without uploading",
+    "one batch uploads four actual signed files exactly once, locks navigation while busy, and keeps all files private",
+    "continue selects the ready version, explains final validation, exposes no draft downloads, and requires explicit confirmation across desktop/mobile",
+    "actual backend hash/signature protection still rejects a changed file without public promotion",
+    "confirmed publication uses existing real validation and exposes exact files and old updater aliases only after success",
+    "interrupted upload becomes uncertain with no automatic retry and preserves the selected file for reconciliation",
+    "manual retry after reconciliation uploads 8+1 MiB with exact server-confirmed chunks",
+    "server validation errors preserve inputs; switching/editing product tabs does not unmount unsaved version data",
+    "keyboard tabs work and unresolved product/version edits cannot be published"
+  ],
+  "workspace_browser_checks": [
+    "anonymous and ordinary users cannot edit, upload, publish or import",
+    "administration has one product list; Add product enters the same four-section editor",
+    "minimal new product saves a private draft and stays in its workspace without another product image",
+    "duplicate creation is rejected with retained inputs; list search returns the correct workspace",
+    "switching sections retains edits; saving new content neither publishes it nor alters another product",
+    "real file selection uploads icon, cover and screenshots; ordering persists while all new images stay private",
+    "version save returns automatically to this product; embedded 8+1 MiB upload remains a private version draft",
+    "preview uses the shared product page and a genuinely responsive phone-width canvas without draft downloads",
+    "one explicit publish promotes this product and its selected version; public media and GET/HEAD/Range downloads work",
+    "editing an already-live product stays private until metadata-only confirmation, without changing its published versions",
+    "old global release links forward safely to product context, and published products appear in the personal catalog",
+    "a real service restart preserves content, media and downloads; 390px editor/storefront have no overflow or runtime errors"
+  ],
+  "browser_page_errors": [],
+  "browser_foreign_requests": [],
+  "actual_hash_rejection_message": "软件包SHA-512校验失败，商品和版本均未发布。 请核对文件与版本后重新确认，已上传文件不会自动重传。",
+  "protected_backend_and_build_config_unchanged": [
+    "app/admin/actions.ts",
+    "app/admin/products/editor-actions.ts",
+    "app/api/admin/releases/upload/route.ts",
+    "lib/store/admin.ts",
+    "lib/store/storage.ts",
+    "lib/store/file-catalog.ts",
+    "lib/store/open-play-signatures.ts",
+    "lib/store/product-workspace.ts",
+    ".github/workflows/ci-deploy.yml",
+    "next.config.ts"
+  ],
+  "real_accounts_accessed": false,
+  "production_data_modified": false,
+  "production_deployment_verified": false,
+  "test_identity": "synthetic loopback-only session with a fresh random test key; not a production identity",
+  "signed_files": "already public open-play0.6.6.13 files read-only inputs, uploaded only into a temporary test catalog",
+  "local_evidence_directory": ".local-verification/release-ui/",
+  "limitations": [
+    "Production administrator workflow not exercised with real accounts.",
+    "Public deployment still requires remote CI and health verification."
+  ],
+  "resolved_failures": [
+    "Initial Turbopack build rejected node_modules symlink outside root; local dependency copy fixed it without changing build config.",
+    "First release browser fixture lacked required product artwork; proper local media upload was added, and the UI now lists product prerequisites before publish.",
+    "Previous broad completion-text assertion matched in-progress explanatory copy. Live status copy now reports only current progress; the existing assertion was not weakened and full workspace regression passes.",
+    "Existing-version test awaited a DOM field during Server Action redirect; now waits for mounting and checks real selection without throwing null access."
+  ]
+}

@@ -26,7 +26,7 @@ const port = await new Promise((resolve, reject) => {
 const base = `http://127.0.0.1:${port}`;
 const secret = randomBytes(32).toString('hex'), issuer = 'http://127.0.0.1:9', subject = 'isolated-store-ui-test';
 const env = { ...process.env, NODE_ENV:'production', RELEASE_STORAGE_ROOT:storage, CASDOOR_AUTH_ENABLED:'true', CASDOOR_ISSUER:issuer, CASDOOR_CLIENT_ID:'isolated-test', NEXTAUTH_URL:base, NEXTAUTH_SECRET:secret, OAKTECH_ADMIN_SUBJECTS:subject, OAKTECH_ADMIN_USER_IDS:'', OAKTECH_ADMIN_EMAILS:'', OAKTECH_RELEASE_WRITE_TOKEN:randomBytes(32).toString('hex'), BASE_URL:base };
-const report = { version:require('../package.json').version, checks:[], screenshots:[], loginScope:'synthetic local session, temporary catalog; no real Casdoor or production writes', limitations:['Existing release service requires both Chinese and English version notes.'] };
+const report = { version:require('../package.json').version, checks:[], screenshots:[], loginScope:'synthetic local session, temporary catalog; no real Casdoor or production writes', limitations:['Test identity and data are local only. Native signed-feed acceptance is covered by the release-workflow test.'] };
 let server, browser, page, serverLog = '';
 async function start() {
   server = spawn(process.execPath, ['node_modules/next/dist/bin/next','start','-H','127.0.0.1','-p',String(port)], { cwd:project, env, stdio:['ignore','pipe','pipe'] });
@@ -60,7 +60,7 @@ async function fillForm(selector,values) {
   await page.$eval(selector,(form,values)=>{
     for(const [name,value] of Object.entries(values)) {
       const input=form.elements.namedItem(name);if(!input)throw new Error(`Missing form input: ${name}`);
-      input.value=value;input.dispatchEvent(new Event('input',{bubbles:true}));input.dispatchEvent(new Event('change',{bubbles:true}));
+      const proto=input.tagName==='TEXTAREA'?HTMLTextAreaElement.prototype:HTMLInputElement.prototype;Object.getOwnPropertyDescriptor(proto,'value').set.call(input,value);input.dispatchEvent(new Event('input',{bubbles:true}));input.dispatchEvent(new Event('change',{bubbles:true}));
     }
   },values);
 }
@@ -156,6 +156,7 @@ try {
 
   await page.click('[data-tab="versions"]');
   await page.$eval('[data-testid="new-product-release"]',x=>{x.open=true;});
+  await page.click('[data-testid="new-product-release"] [data-testid="release-reuse-chinese"]');
   await fillForm('[data-testid="new-product-release"] form',{version:'1.0.0',channel:'stable',title_zh:'工作台版本',notes_zh:'验证商品内的版本和文件',title_en:'Workspace version',notes_en:'Verify product-scoped files'});
   await page.$eval('[data-testid="new-product-release"] form',x=>x.requestSubmit());
   await page.waitForFunction(slug=>location.pathname===`/admin/products/${slug}` && location.search.includes('saved=1') && location.search.includes('tab=versions'),{},slug);
@@ -163,9 +164,11 @@ try {
   report.releaseSaveLanding=new URL(page.url()).pathname;
   await page.waitForSelector(`#release-${release.id}[open]`);
   const uploadForm=`#release-${release.id} form:has(input[type="file"])`;
-  await fillForm(uploadForm,{platform:'chrome',architecture:'universal',package_kind:'zip'});
   const bytes=Buffer.alloc(9*1024*1024,90),packagePath=path.join(temporary,'fixture.zip');await writeFile(packagePath,bytes);
-  await(await page.$(`${uploadForm} input[type="file"]`)).uploadFile(packagePath);await page.$eval(uploadForm,x=>x.requestSubmit());
+  await(await page.$(`${uploadForm} input[type="file"]`)).uploadFile(packagePath);
+  await page.waitForSelector(`${uploadForm} input[name="platform"]`);
+  await fillForm(uploadForm,{platform:'chrome',architecture:'universal',package_kind:'zip'});
+  await page.$eval(uploadForm,x=>x.requestSubmit());
   await status('上传完成');
   await page.waitForFunction(id=>document.getElementById(`release-${id}`)?.textContent.includes('fixture.zip'),{},release.id);
   const artifact=(await catalog()).releases.find(r=>r.id===release.id).release_artifacts[0];
@@ -173,6 +176,7 @@ try {
   assert.equal((await fetch(base+artifact.public_path)).status,404);await shot('workspace-versions-desktop.png');
   check('version save returns automatically to this product; embedded 8+1 MiB upload remains a private version draft');
 
+  await page.waitForFunction(()=>!document.querySelector('[data-tab="preview"]').disabled);
   await page.click('[data-tab="preview"]');await page.click(`[data-release-select="${release.id}"]`);
   assert.equal(await page.$('[data-testid="product-preview"] a[download]'),null);
   await page.evaluate(()=>Array.from(document.querySelectorAll('button')).find(x=>x.textContent==='手机宽度').click());
