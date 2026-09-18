@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
   "plan_version": "1.0.0",
-  "revision": 17,
-  "updated_at": "2026-09-18T09:06:20+08:00",
+  "revision": 18,
+  "updated_at": "2026-09-18T09:43:30+08:00",
   "project": "saas_oaktech",
   "source_commit": "54a42b33bc5fc3e9c42541fdd3bdd6fae4700bce",
-  "current_next_task": "ADM-02",
+  "current_next_task": "PUB-01",
   "production_admin_bootstrap": "not_implemented",
   "standard": {
     "path": "docs/standards/CT-ADMIN-001-v1.0.0.md",
@@ -802,6 +802,37 @@
       "deployment": "candidate_verified_pending_push",
       "updated_at": "2026-09-18T09:06:20+08:00",
       "completed_at": "2026-09-18T09:06:20+08:00"
+    },
+    {
+      "id": "PUB-01",
+      "title": "商品资料与软件版本独立发布",
+      "kind": "feature",
+      "milestone": "STORE",
+      "priority": "P0",
+      "status": "in_progress",
+      "owner": "ChatGPT / tsk_73ee7c135620db1b",
+      "depends_on": [
+        "STORE-02",
+        "VIDEO-01"
+      ],
+      "planned_files": [
+        "lib/store/product-workspace.ts",
+        "app/admin/products/editor-actions.ts",
+        "components/admin/publication-review.tsx",
+        "components/admin/product-workspace.tsx"
+      ],
+      "acceptance": [
+        "商品发布只处理资料/图片/视频，不处理版本或安装包",
+        "软件发布只处理选中版本，不消费或校验商品草稿",
+        "两类请求使用独立确认与冲突校验，保留未保存输入",
+        "真实浏览器、原流程回归、部署核验分别记录"
+      ],
+      "next_action": "先复现合并发布和跨对象指纹耦合，再实现独立服务及界面确认。",
+      "blockers": [],
+      "evidence": [],
+      "implementation": "in_progress",
+      "deployment": "not_started",
+      "updated_at": "2026-09-18T09:43:30+08:00"
     }
   ]
 }

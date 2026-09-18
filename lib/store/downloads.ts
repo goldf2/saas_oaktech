@@ -43,7 +43,7 @@ export async function resolvePublicDownload(parts: string[]): Promise<DownloadDe
 export async function resolveOpenPlayDownload(name: string, isFeed: boolean): Promise<DownloadDescriptor | null> {
   if (isFeed ? !["appcast.xml", "windows.json"].includes(name) : !/^open-play-\d+\.\d+\.\d+\.\d+-(macos|windows-x64)\.zip$/.test(name)) return null;
   const { catalog, persisted } = await readStoreCatalog();
-  if (!persisted || !catalog.products.some((p) => p.slug === "open-play" && p.visibility === "published")) return null;
+  if (!persisted || !catalog.products.some((p) => p.slug === "open-play")) return null;
   const candidates = catalog.releases.filter((r) => r.product_slug === "open-play" && r.channel === "stable" && r.status === "published" && (!isFeed || r.is_current));
   if (isFeed && candidates.length !== 1) return null;
   const matches = candidates.flatMap((r) => r.release_artifacts.filter((a) => a.file_name === name && a.release_id === r.id

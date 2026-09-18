@@ -2,11 +2,11 @@
 
 > 不要直接编辑本文件。修改TASKS.json后运行 `npm run handoff:render`。
 
-账本revision：17；更新时间：2026-09-18T09:06:20+08:00；计划版本：1.0.0。
+账本revision：18；更新时间：2026-09-18T09:43:30+08:00；计划版本：1.0.0。
 
 **权限主线任务完成：1/14。这是任务计数，不是代码完成百分比；PLAN-01文档不计入。**
 
-生产超管状态：`not_implemented`；唯一下一任务：**ADM-02**。
+生产超管状态：`not_implemented`；唯一下一任务：**PUB-01**。
 
 | 任务 | 阶段/类型 | 优先级 | 状态 | 负责人 | 依赖 |
 | --- | --- | --- | --- | --- | --- |
@@ -34,6 +34,7 @@
 | STORE-01 · 商品内图文、版本、预览和统一发布工作台 | STORE / feature | P0 | 完成 | ChatGPT / tsk_5a4be4c4b63f215d | 无 |
 | STORE-02 · 发布流程可发现性、批量上传与校验预览 | STORE / feature | P0 | 完成 | ChatGPT / tsk_b02c9763689e79dc | STORE-01 |
 | VIDEO-01 · 商品介绍视频源、按需嵌入与三组编辑页 | STORE / feature | P0 | 完成 | ChatGPT / tsk_6e89bb30274d3e30 | STORE-01 |
+| PUB-01 · 商品资料与软件版本独立发布 | STORE / feature | P0 | 进行中 | ChatGPT / tsk_73ee7c135620db1b | STORE-02, VIDEO-01 |
 
 ## 任务详情与接续动作
 
@@ -427,3 +428,19 @@
 - verification / passed：`docs/00-handoff/evidence/2026-09-18-product-videos.json`
 - implementation / passed：`components/product-videos.tsx`
 - documentation / passed：`docs/product-video-sources.md`
+
+### PUB-01 · 商品资料与软件版本独立发布
+
+状态：进行中；负责人：ChatGPT / tsk_73ee7c135620db1b；实施：in_progress；部署：not_started。
+
+下一动作：先复现合并发布和跨对象指纹耦合，再实现独立服务及界面确认。
+
+验收条件：
+- 商品发布只处理资料/图片/视频，不处理版本或安装包
+- 软件发布只处理选中版本，不消费或校验商品草稿
+- 两类请求使用独立确认与冲突校验，保留未保存输入
+- 真实浏览器、原流程回归、部署核验分别记录
+
+计划文件（可能尚未创建）：`lib/store/product-workspace.ts`、`app/admin/products/editor-actions.ts`、`components/admin/publication-review.tsx`、`components/admin/product-workspace.tsx`
+
+证据：尚无该任务完成证据。

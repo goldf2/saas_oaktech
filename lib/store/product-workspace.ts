@@ -16,8 +16,15 @@ export function editableProduct(catalog: StoreCatalog, slug: string) {
 export function productToken(catalog: StoreCatalog, slug: string) {
   return digest([catalog.products.find(p=>p.slug===slug) ?? null,catalog.productDrafts?.[slug] ?? null]);
 }
+// Separate namespaces invalidate old combined confirmations. Changes to the other
+// publication stream do not invalidate a reviewed snapshot.
 export function publicationToken(catalog: StoreCatalog, slug: string) {
-  return digest([productToken(catalog,slug),catalog.releases.filter(r=>r.product_slug===slug)]);
+  return digest(["product-publication-v2", productToken(catalog, slug)]);
+}
+export function releasePublicationToken(catalog: StoreCatalog, slug: string) {
+  const product = catalog.products.find(p => p.slug === slug);
+  return digest(["software-publication-v1", product ? [product.id, product.slug] : null,
+    catalog.releases.filter(r => r.product_slug === slug)]);
 }
 export function validateProductInput(product: AdminStoreProductRow, publishing=false) {
   normalizeProductVideos(product.videos, publishing);
@@ -48,34 +55,53 @@ export async function saveProductDraft(input: AdminStoreProductRow, expected: st
     return {id:value.id,slug:value.slug,revision};
   });
 }
-export async function publishProductDraft(slug: string, expected: string, releaseIds: string[]) {
-  const {catalog} = await readStoreCatalog();
-  if(publicationToken(catalog,slug)!==expected) throw new Error('PRODUCT_PUBLICATION_CONFLICT');
-  const input = editableProduct(catalog,slug);
-  if(!input) throw new Error('STORE_PRODUCT_NOT_FOUND');
-  validateProductInput(input,true);
-  if(!Array.isArray(releaseIds)||releaseIds.length>20||new Set(releaseIds).size!==releaseIds.length) throw new Error('PRODUCT_RELEASE_SCOPE');
-  const selected=releaseIds.map(id=>{
-    const r=catalog.releases.find(r=>r.id===id);
-    if(!r||r.product_slug!==slug||r.status!=='draft') throw new Error('PRODUCT_RELEASE_SCOPE');
+// The optional legacy argument is retained only to reject cached combined calls.
+// A product command must NEVER publish software, even if a caller supplies IDs.
+export async function publishProductDraft(slug: string, expected: string, legacyReleaseIds: string[] = []) {
+  if (!Array.isArray(legacyReleaseIds) || legacyReleaseIds.length) throw new Error('PUBLICATION_SCOPE_SEPARATE');
+  const { catalog } = await readStoreCatalog();
+  if (publicationToken(catalog, slug) !== expected) throw new Error('PRODUCT_PUBLICATION_CONFLICT');
+  const input = editableProduct(catalog, slug);
+  if (!input) throw new Error('STORE_PRODUCT_NOT_FOUND');
+  validateProductInput(input, true);
+  await verifyProductImages(catalog, input);
+  await mutateStoreCatalog(next => {
+    if (publicationToken(next, slug) !== expected) throw new Error('PRODUCT_PUBLICATION_CONFLICT');
+    const index = next.products.findIndex(p => p.slug === slug);
+    if (index < 0) throw new Error('STORE_PRODUCT_NOT_FOUND');
+    next.products[index] = { ...input, videos: normalizeProductVideos(input.videos, true), visibility: 'published',
+      name_en: input.name_en.trim() || input.name_zh, tagline_en: input.tagline_en.trim() || input.tagline_zh,
+      description_en: input.description_en.trim() || input.description_zh };
+    if (next.productDrafts) delete next.productDrafts[slug];
+    // Releases, current flags, artifacts and feeds are deliberately untouched.
+  });
+  return { slug };
+}
+
+export async function publishSoftwareReleases(slug: string, expected: string, releaseIds: string[]) {
+  const { catalog } = await readStoreCatalog();
+  if (releasePublicationToken(catalog, slug) !== expected) throw new Error('RELEASE_PUBLICATION_CONFLICT');
+  if (!catalog.products.some(p => p.slug === slug)) throw new Error('STORE_PRODUCT_NOT_FOUND');
+  if (!Array.isArray(releaseIds) || !releaseIds.length || releaseIds.length > 20
+    || releaseIds.some(id => typeof id !== 'string') || new Set(releaseIds).size !== releaseIds.length) throw new Error('PRODUCT_RELEASE_SCOPE');
+  const selected = releaseIds.map(id => {
+    const r = catalog.releases.find(r => r.id === id);
+    if (!r || r.product_slug !== slug || r.status !== 'draft') throw new Error('PRODUCT_RELEASE_SCOPE');
     return r;
   });
-  if(new Set(selected.map(r=>r.channel)).size!==selected.length) throw new Error('PRODUCT_CHANNEL_CONFLICT');
-  await verifyProductImages(catalog,input);
-  const publishedAt=new Date().toISOString();
-  // No public metadata is modified until all selected packages pass their existing validators.
-  for(const release of selected) await prepareUpdaterManifests({...release,published_at:publishedAt});
-  await mutateStoreCatalog(next=>{
-    if(publicationToken(next,slug)!==expected) throw new Error('PRODUCT_PUBLICATION_CONFLICT');
-    const index=next.products.findIndex(p=>p.slug===slug);
-    if(index<0)throw new Error('STORE_PRODUCT_NOT_FOUND');
-    next.products[index]={...input,videos:normalizeProductVideos(input.videos,true),visibility:'published',name_en:input.name_en.trim()||input.name_zh,tagline_en:input.tagline_en.trim()||input.tagline_zh,description_en:input.description_en.trim()||input.description_zh};
-    if(next.productDrafts)delete next.productDrafts[slug];
-    for(const selectedRelease of selected) {
-      for(const r of next.releases) if(r.product_slug===slug&&r.channel===selectedRelease.channel) r.is_current=false;
-      const r=next.releases.find(r=>r.id===selectedRelease.id)!;
-      r.status='published'; r.is_current=true; r.published_at=publishedAt;
+  if (new Set(selected.map(r => r.channel)).size !== selected.length) throw new Error('PRODUCT_CHANNEL_CONFLICT');
+  const publishedAt = new Date().toISOString();
+  // Existing package size/digest/native-signature validation stays intact. Product
+  // copy, videos and posters are NOT read, validated or promoted by this command.
+  for (const release of selected) await prepareUpdaterManifests({ ...release, published_at: publishedAt });
+  await mutateStoreCatalog(next => {
+    if (releasePublicationToken(next, slug) !== expected) throw new Error('RELEASE_PUBLICATION_CONFLICT');
+    for (const selectedRelease of selected) {
+      for (const r of next.releases) if (r.product_slug === slug && r.channel === selectedRelease.channel) r.is_current = false;
+      const r = next.releases.find(r => r.id === selectedRelease.id)!;
+      r.status = 'published'; r.is_current = true; r.published_at = publishedAt;
     }
+    // Includes preservation of incomplete, saved and concurrently edited product drafts.
   });
-  return {slug,releasesPublished:selected.length};
+  return { slug, releasesPublished: selected.length };
 }

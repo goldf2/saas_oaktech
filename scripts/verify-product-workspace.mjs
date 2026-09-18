@@ -66,9 +66,10 @@ async function fillForm(selector,values) {
 }
 const status = async text=>page.waitForFunction(text=>Array.from(document.querySelectorAll('[role="status"]')).some(x=>x.textContent.includes(text)),{},text);
 async function save() { await page.click('[data-testid="save-product-draft"]');await status('草稿已保存'); }
-async function publish() {
-  await page.click('[data-testid="confirm-product-publication"]');
-  await page.click('[data-testid="publish-product"]');await status('已发布');
+async function publish(mode = "product") {
+  await page.click(`[data-publication-mode="${mode}"]`);
+  await page.click(`[data-testid="confirm-${mode === "software" ? "software" : "product"}-publication"]`);
+  await page.click(`[data-testid="publish-${mode === "software" ? "software" : "product"}"]`);await status('已发布');
 }
 
 try {
@@ -154,6 +155,16 @@ try {
   await shot('workspace-media-desktop.png');
   check('real file selection uploads icon, cover and screenshots; ordering persists while all new images stay private');
 
+  // First publish the listing without any version, then create and publish software later.
+  await page.click('[data-preview-product]'); await publish();
+  const firstPublicProduct = (await catalog()).products.find(p => p.slug === slug);
+  assert.equal(firstPublicProduct.visibility, 'published');
+  assert.equal((await catalog()).releases.filter(r => r.product_slug === slug).length, 0);
+  const introOnly = await (await fetch(`${base}/zh/products/${slug}`)).text();
+  assert.match(introOnly, /新建工作台商品/); assert.doesNotMatch(introOnly, /<a[^>]+download=/);
+  check('product introduction publishes before any software version exists, with no fabricated downloads');
+
+
   await page.click('[data-tab="versions"]');
   await page.$eval('[data-testid="new-product-release"]',x=>{x.open=true;});
   await page.click('[data-testid="new-product-release"] [data-testid="release-reuse-chinese"]');
@@ -177,7 +188,7 @@ try {
   check('version save returns automatically to this product; embedded 8+1 MiB upload remains a private version draft');
 
   await page.waitForFunction(()=>!document.querySelector('[data-tab="preview"]').disabled);
-  await page.click('[data-tab="preview"]');await page.click(`[data-release-select="${release.id}"]`);
+  await page.click('[data-tab="preview"]');await page.click('[data-publication-mode="software"]');await page.click(`[data-release-select="${release.id}"]`);
   assert.equal(await page.$('[data-testid="product-preview"] a[download]'),null);
   await page.evaluate(()=>Array.from(document.querySelectorAll('button')).find(x=>x.textContent==='手机宽度').click());
   await page.waitForFunction(()=>{
@@ -192,7 +203,8 @@ try {
   assert.equal(await page.evaluate(()=>window.workspaceXss),undefined);
   check('preview uses the shared product page and a genuinely responsive phone-width canvas without draft downloads');
 
-  await publish();data=await catalog();
+  await publish("software");data=await catalog();
+  assert.deepEqual(data.products.find(p=>p.slug===slug), firstPublicProduct);
   assert.equal(data.products.find(p=>p.slug===slug).visibility,'published');assert.equal(data.releases.find(r=>r.id===release.id).status,'published');
   assert.equal(data.productDrafts[slug],undefined);assert.deepEqual(data.products.find(p=>p.slug==='existing-tool'),original);
   for(const url of urls)assert.equal((await fetch(base+url)).status,200);
@@ -200,7 +212,7 @@ try {
   assert.equal(createHash('sha512').update(Buffer.from(await download.arrayBuffer())).digest('hex'),artifact.sha512);
   const range=await fetch(base+artifact.public_path,{headers:{Range:'bytes=0-63'}});assert.equal(range.status,206);assert.equal((await range.arrayBuffer()).byteLength,64);
   const head=await fetch(base+artifact.public_path,{method:'HEAD'});assert.equal(head.status,200);assert.equal(head.headers.get('content-length'),String(bytes.length));
-  check('one explicit publish promotes this product and its selected version; public media and GET/HEAD/Range downloads work');
+  check('a later independent software publish preserves product metadata and enables exact GET/HEAD/Range downloads');
 
   await page.click('[data-tab="details"]');await controlled('input[name="name_zh"]','尚未发布的新名称');await save();
   const live=await(await fetch(`${base}/zh/products/${slug}`)).text();assert.match(live,/新建工作台商品/);assert.doesNotMatch(live,/尚未发布的新名称/);

@@ -1,8 +1,9 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useActionState, useContext, useEffect, useRef, useState } from "react";
 import { Check, FileArchive, Info, LockKeyhole, Plus, UploadCloud, ArrowRight, Download } from "lucide-react";
-import { saveReleaseDraftAction, unpublishReleaseAction, deleteReleaseAction } from "@/app/admin/actions";
+import { saveReleaseDraftInWorkspaceAction, unpublishReleaseAction, deleteReleaseAction } from "@/app/admin/actions";
 import { AdminActionForm } from "./action-form";
 import { ArtifactUpload } from "./artifact-upload";
 import { ReleaseFlowContext, useReleaseActivity } from "./release-flow-context";
@@ -13,6 +14,7 @@ import { formatBytes, releaseReadiness, requiredReleaseFiles } from "@/lib/store
 import type { AdminActionResult, AdminProductReleaseRow, AdminStoreProductRow } from "@/lib/store/types";
 
 function ReleaseEditor({ product, release }: { product: AdminStoreProductRow; release?: AdminProductReleaseRow }) {
+  const router = useRouter();
   const published = release?.status === "published", { goPreview, operationBusy } = useContext(ReleaseFlowContext);
   const initial = { version: release?.version ?? "", channel: release?.channel ?? "stable", title_zh: release?.title_zh ?? "", notes_zh: release?.notes_zh ?? "", title_en: release?.title_en ?? "", notes_en: release?.notes_en ?? "" };
   const [value, setValue] = useState(initial);
@@ -22,7 +24,14 @@ function ReleaseEditor({ product, release }: { product: AdminStoreProductRow; re
   const dirty = !published && normalized(sent) !== normalized(initial);
   const submitting = useRef(false);
   const [state, action, pending] = useActionState<AdminActionResult, FormData>(async (_previous, form) => {
-    try { return await saveReleaseDraftAction(form); } finally { submitting.current = false; }
+    try {
+      const result = await saveReleaseDraftInWorkspaceAction(form);
+      if (!result.error && result.releaseId && result.productSlug === product.slug) {
+        if (release?.id === result.releaseId) router.refresh();
+        else router.replace(`/admin/products/${encodeURIComponent(product.slug)}?tab=versions&release=${encodeURIComponent(result.releaseId)}&saved=1`, { scroll: false });
+      }
+      return result;
+    } finally { submitting.current = false; }
   }, {});
   useReleaseActivity(`release-form-${release?.id ?? "new"}`, dirty, pending);
   const readiness = release ? releaseReadiness(release) : null;
@@ -65,7 +74,7 @@ function ReleaseEditor({ product, release }: { product: AdminStoreProductRow; re
           <details className="mt-2"><summary className="cursor-pointer text-xs text-muted-foreground">查看服务端 SHA-512 记录</summary><code className="mt-2 block break-all text-[11px]">{artifact.sha512}</code></details>
           {published && <a href={artifact.public_path} download={artifact.file_name} className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-primary underline"><Download className="h-3.5 w-3.5" aria-hidden="true" />下载已发布文件</a>}
         </div>)}</div>
-        {!published && <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t pt-4"><p className="text-sm text-muted-foreground">{dirty ? "版本资料尚未保存，先完成保存。" : readiness?.ready ? "下一步核对版本和文件；服务端会在发布时最终验签。" : "补齐需要的文件后，再进入校验预览。"}</p><Button type="button" data-preview-release={release.id} disabled={!readiness?.ready || dirty || pending || operationBusy} onClick={() => goPreview(release.id)}>继续：校验预览<ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" /></Button></div>}
+        {!published && <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t pt-4"><p className="text-sm text-muted-foreground">{dirty ? "版本资料尚未保存，先完成保存。" : readiness?.ready ? "下一步核对版本和文件；服务端会在发布时最终验签。" : "补齐需要的文件后，再进入校验预览。"}</p><Button type="button" data-preview-release={release.id} disabled={!readiness?.ready || dirty || pending || operationBusy} onClick={() => goPreview(release.id)}>预览并发布软件<ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" /></Button></div>}
       </section>
       <details className="rounded-xl border p-4"><summary className="cursor-pointer text-sm text-muted-foreground">高级操作：{published ? "撤回版本" : "删除草稿"}{release.source_commit ? " / 来源提交" : ""}</summary>
         {release.source_commit && <p className="mt-3 break-all text-xs">来源提交：<code>{release.source_commit}</code></p>}

@@ -97,8 +97,8 @@ try {
   const r = await createVersion('open-play', '0.6.6.13');
   assert.equal(r.title_en, r.title_zh); assert.equal(r.notes_en, r.notes_zh);
   assert.equal(await page.$eval(`[data-preview-release="${r.id}"]`, b => b.disabled), true);
-  await switchTab('preview'); assert.equal(await page.$eval(`[data-release-select="${r.id}"]`, b => b.disabled), true);
-  assert.ok(await page.$('[data-testid="metadata-only-notice"]')); await switchTab('versions');
+  await switchTab('preview'); await page.click('[data-publication-mode="software"]'); assert.equal(await page.$eval(`[data-release-select="${r.id}"]`, b => b.disabled), true);
+  assert.ok(await page.$('[data-testid="software-only-notice"]')); await switchTab('versions');
   pass('Chinese-only version saves with deliberate bilingual fallback, stays in product context, and missing artifacts prevent software publication');
   const savedForm = `#release-${r.id} [data-testid="release-details-form"]`;
   await fill(savedForm + ' input[name="title_zh"]', '  更新后的版本标题  ');
@@ -133,8 +133,8 @@ try {
     pass('one batch uploads four actual signed files exactly once, locks navigation while busy, and keeps all files private');
     await page.click(`[data-preview-release="${r.id}"]`);
     await page.waitForFunction(id => document.querySelector(`[data-release-select="${id}"]`).checked, {}, r.id);
-    assert.equal(await page.$eval('[data-testid="confirm-product-publication"]', x => x.checked), false);
-    assert.equal(await page.$eval('[data-testid="publish-product"]', x => x.disabled), true);
+    assert.equal(await page.$eval('[data-testid="confirm-software-publication"]', x => x.checked), false);
+    assert.equal(await page.$eval('[data-testid="publish-software"]', x => x.disabled), true);
     assert.equal(await page.$('[data-testid="product-preview"] a[download]'), null);
     await shot('release-review-desktop.png');
     await page.emulateMediaFeatures([{ name: 'prefers-color-scheme', value: 'dark' }]); await shot('release-review-dark.png');
@@ -142,17 +142,17 @@ try {
     await page.setViewport({ width: 390, height: 844 }); assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)); await shot('release-review-mobile.png'); await page.setViewport({ width: 1440, height: 1050 });
     pass('continue selects the ready version, explains final validation, exposes no draft downloads, and requires explicit confirmation across desktop/mobile');
     const feed = live.release_artifacts.find(a => a.file_name === 'windows.json'); const feedPath = path.join(storage, feed.storage_path), bytes = await readFile(feedPath); const corrupt = Buffer.from(bytes); corrupt[10] ^= 1; await writeFile(feedPath, corrupt);
-    await page.click('[data-testid="confirm-product-publication"]'); await page.click('[data-testid="publish-product"]');
+    await page.click('[data-testid="confirm-software-publication"]'); await page.click('[data-testid="publish-software"]');
     await page.waitForFunction(() => Array.from(document.querySelectorAll('[role="alert"]')).some(e => e.getBoundingClientRect().height > 0));
     assert.equal((await catalog()).releases.find(x => x.id === r.id).status, 'draft');
     const failure = await page.evaluate(() => Array.from(document.querySelectorAll('[role="alert"]')).filter(e => e.getBoundingClientRect().height > 0).map(e => e.textContent).join(' '));
     assert.doesNotMatch(failure, /补齐中文|补齐发布检查|尚未保存/); report.hashRejectionMessage = failure;
     await writeFile(feedPath, bytes);
     pass('actual backend hash/signature protection still rejects a changed file without public promotion');
-    if (!await page.$eval('[data-testid="confirm-product-publication"]', x => x.checked)) await page.click('[data-testid="confirm-product-publication"]');
+    if (!await page.$eval('[data-testid="confirm-software-publication"]', x => x.checked)) await page.click('[data-testid="confirm-software-publication"]');
     console.log('CHECKPOINT: retry publication after restoring the original signed bytes');
-    await page.waitForFunction(()=>!document.querySelector('[data-testid="publish-product"]').disabled);
-    await page.click('[data-testid="publish-product"]'); await waitText('已发布');
+    await page.waitForFunction(()=>!document.querySelector('[data-testid="publish-software"]').disabled);
+    await page.click('[data-testid="publish-software"]'); await waitText('已发布');
     live = (await catalog()).releases.find(x => x.id === r.id); assert.equal(live.status, 'published');
     for (const a of live.release_artifacts) { const response = await fetch(base + a.public_path); assert.equal(response.status, 200); assert.equal(createHash('sha512').update(Buffer.from(await response.arrayBuffer())).digest('hex'), a.sha512); }
     assert.equal((await fetch(base + '/updates/open-play/appcast.xml')).status, 200);
@@ -181,8 +181,11 @@ try {
   assert.equal(await page.$eval(form + ' input[name="title_zh"]', x => x.value), '重复输入保留');
   pass('server validation errors preserve inputs; switching/editing product tabs does not unmount unsaved version data');
   await page.focus('[data-tab="versions"]'); await page.keyboard.press('ArrowRight'); assert.equal(await page.$eval('[data-tab="preview"]', x => x.getAttribute('aria-selected')), 'true');
+  await page.click('[data-publication-mode="product"]');
   assert.equal(await page.$eval('[data-testid="publish-product"]', x => x.disabled), true);
-  pass('keyboard tabs work and unresolved product/version edits cannot be published');
+  await page.click('[data-publication-mode="software"]');
+  assert.equal(await page.$eval('[data-testid="publish-software"]', x => x.disabled), true);
+  pass('keyboard tabs and independently scoped confirmation reject each stream own unsaved edits');
   assert.deepEqual(errors, []); assert.deepEqual(report.foreignRequests, []); report.status = 'passed';
 } catch (error) { report.status = 'failed'; report.error = error.stack; process.exitCode = 1; if (page) await shot('failure.png').catch(() => {}); }
 finally {

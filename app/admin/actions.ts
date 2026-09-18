@@ -116,52 +116,71 @@ export async function saveProductAction(formData: FormData): Promise<AdminAction
   });
 }
 
+// Shared persistence: both legacy navigation and in-workspace saves use the same
+// authorization, identity, immutable-release and metadata validation.
+async function persistReleaseDraft(formData: FormData) {
+  const admin = await requireStoreAdmin();
+  const existingId = text(formData, "id");
+  const id = existingId || newCatalogId();
+  const productSlug = text(formData, "product_slug");
+  const version = text(formData, "version");
+  const channel = text(formData, "channel");
+  if (!isStoreSlug(productSlug) || !isStoreSlug(channel)) throw new Error("INVALID_RELEASE_IDENTITY");
+  if (!isReleaseVersion(version)) throw new Error("INVALID_RELEASE_VERSION");
+  if (["title_en", "title_zh", "notes_en", "notes_zh"].some((field) => !text(formData, field))) throw new Error("BILINGUAL_RELEASE_CONTENT_REQUIRED");
+
+  await mutateStoreCatalog((catalog) => {
+    if (!catalog.products.some((product) => product.slug === productSlug)) throw new Error("STORE_PRODUCT_NOT_FOUND");
+    const index = catalog.releases.findIndex((item) => item.id === id);
+    const existing = index >= 0 ? catalog.releases[index] : null;
+    if (existingId && !existing) throw new Error("DRAFT_RELEASE_NOT_FOUND");
+    if (existing?.status === "published") throw new Error("PUBLISHED_RELEASE_IS_IMMUTABLE");
+    if (existing && (existing.product_slug !== productSlug || existing.version !== version || existing.channel !== channel)) {
+      throw new Error("RELEASE_IDENTITY_IMMUTABLE");
+    }
+    if (catalog.releases.some((item) => item.id !== id && item.product_slug === productSlug && item.version === version && item.channel === channel)) {
+      throw new Error("PRODUCT_RELEASE_ALREADY_EXISTS");
+    }
+    const release: AdminProductReleaseRow = {
+      id,
+      product_slug: productSlug,
+      version,
+      channel,
+      status: "draft",
+      is_current: false,
+      published_at: null,
+      source_commit: existing?.source_commit ?? null,
+      title_en: text(formData, "title_en"),
+      title_zh: text(formData, "title_zh"),
+      notes_en: text(formData, "notes_en"),
+      notes_zh: text(formData, "notes_zh"),
+      release_artifacts: existing?.release_artifacts ?? [],
+    };
+    if (index >= 0) catalog.releases[index] = release;
+    else catalog.releases.push(release);
+  });
+  await appendStoreAudit({ actorUserId: admin.id, actorEmail: admin.email, action: "store.release.draft_saved", targetType: "product_release", targetId: id, metadata: { productSlug, version, channel } });
+  refreshStore(productSlug);
+  revalidatePath(`/admin/products/${productSlug}`);
+  return { releaseId: id, productSlug };
+}
+
 export async function saveReleaseDraftAction(formData: FormData): Promise<AdminActionResult> {
   return runAdminAction(async () => {
-    const admin = await requireStoreAdmin();
-    const existingId = text(formData, "id");
-    const id = existingId || newCatalogId();
-    const productSlug = text(formData, "product_slug");
-    const version = text(formData, "version");
-    const channel = text(formData, "channel");
-    if (!isStoreSlug(productSlug) || !isStoreSlug(channel)) throw new Error("INVALID_RELEASE_IDENTITY");
-    if (!isReleaseVersion(version)) throw new Error("INVALID_RELEASE_VERSION");
-    if (["title_en", "title_zh", "notes_en", "notes_zh"].some((field) => !text(formData, field))) throw new Error("BILINGUAL_RELEASE_CONTENT_REQUIRED");
-
-    await mutateStoreCatalog((catalog) => {
-      if (!catalog.products.some((product) => product.slug === productSlug)) throw new Error("STORE_PRODUCT_NOT_FOUND");
-      const index = catalog.releases.findIndex((item) => item.id === id);
-      const existing = index >= 0 ? catalog.releases[index] : null;
-      if (existingId && !existing) throw new Error("DRAFT_RELEASE_NOT_FOUND");
-      if (existing?.status === "published") throw new Error("PUBLISHED_RELEASE_IS_IMMUTABLE");
-      if (existing && (existing.product_slug !== productSlug || existing.version !== version || existing.channel !== channel)) {
-        throw new Error("RELEASE_IDENTITY_IMMUTABLE");
-      }
-      if (catalog.releases.some((item) => item.id !== id && item.product_slug === productSlug && item.version === version && item.channel === channel)) {
-        throw new Error("PRODUCT_RELEASE_ALREADY_EXISTS");
-      }
-      const release: AdminProductReleaseRow = {
-        id,
-        product_slug: productSlug,
-        version,
-        channel,
-        status: "draft",
-        is_current: false,
-        published_at: null,
-        source_commit: existing?.source_commit ?? null,
-        title_en: text(formData, "title_en"),
-        title_zh: text(formData, "title_zh"),
-        notes_en: text(formData, "notes_en"),
-        notes_zh: text(formData, "notes_zh"),
-        release_artifacts: existing?.release_artifacts ?? [],
-      };
-      if (index >= 0) catalog.releases[index] = release;
-      else catalog.releases.push(release);
-    });
-    await appendStoreAudit({ actorUserId: admin.id, actorEmail: admin.email, action: "store.release.draft_saved", targetType: "product_release", targetId: id, metadata: { productSlug, version, channel } });
-    refreshStore(productSlug);
-    return `/admin/releases?saved=1&release=${encodeURIComponent(id)}`;
+    const result = await persistReleaseDraft(formData);
+    return `/admin/releases?saved=1&release=${encodeURIComponent(result.releaseId)}`;
   });
+}
+
+// No redirect through the legacy global route: that unmounted the product editor
+// and discarded unrelated, unsaved product copy. Return only a verified identity.
+export async function saveReleaseDraftInWorkspaceAction(formData: FormData): Promise<AdminActionResult> {
+  try { return await persistReleaseDraft(formData); }
+  catch (error) {
+    const code = error instanceof Error ? error.message.split(":")[0] : "";
+    if (actionMessages[code]) return { code, error: actionMessages[code] };
+    throw error;
+  }
 }
 
 export async function publishReleaseAction(formData: FormData): Promise<AdminActionResult> {

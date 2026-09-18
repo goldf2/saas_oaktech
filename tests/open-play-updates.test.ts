@@ -62,11 +62,13 @@ test("fixed package alias supports range, size and immutable metadata", async ()
   assert.equal(response.status, 206); assert.equal(response.headers.get("content-length"), "5"); assert.match(response.headers.get("cache-control")!, /immutable/);
   assert.deepEqual(Buffer.from(await response.arrayBuffer()), f.map.get(name)!.subarray(0, 5));
 });
-test("drafts, unpublished products and migration placeholders never become updater feeds", async () => {
+test("draft releases and missing products never become feeds; product listing state is independent", async () => {
   assert.equal(await download.resolveOpenPlayDownload("appcast.xml", true), null);
   await fixture(); await catalog.mutateStoreCatalog((c) => { c.releases[0].status = "draft"; });
   assert.equal(await download.resolveOpenPlayDownload("appcast.xml", true), null);
   await catalog.mutateStoreCatalog((c) => { c.releases[0].status = "published"; c.products.find((p) => p.slug === "open-play")!.visibility = "draft"; });
+  assert.ok(await download.resolveOpenPlayDownload("windows.json", true), "published software feeds do not depend on product listing status");
+  await catalog.mutateStoreCatalog((c) => { c.products = c.products.filter(p => p.slug !== "open-play"); });
   assert.equal(await download.resolveOpenPlayDownload("windows.json", true), null);
 });
 test("ambiguous current versions fail closed while historical package aliases stay readable", async () => {

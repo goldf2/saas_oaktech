@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { getStoreAdmin } from "@/lib/store/admin";
 import { readStoreCatalog } from "@/lib/store/file-catalog";
-import { editableProduct, productToken, publicationToken } from "@/lib/store/product-workspace";
+import { editableProduct, productToken, publicationToken, releasePublicationToken } from "@/lib/store/product-workspace";
 import { ProductWorkspace } from "@/components/admin/product-workspace";
 import { ProductReleases } from "@/components/admin/product-releases";
 import { AdminAccessNotice } from "@/components/admin/access-notice";
@@ -19,7 +19,9 @@ export default async function ProductWorkspacePage({ params, searchParams }: {
   const releases = catalog.releases.filter(row => row.product_slug === slug);
   return <ProductWorkspace key={product.id} product={product}
     editToken={productToken(catalog, slug)} publishToken={publicationToken(catalog, slug)}
+    releasePublishToken={releasePublicationToken(catalog, slug)}
+    publishedProduct={catalog.products.find(p => p.slug === slug && p.visibility === "published") ?? null}
     releases={releases} initialTab={query.tab} hasDraft={Boolean(catalog.productDrafts?.[slug])}
     releasePanel={<ProductReleases product={product} releases={releases} selectedRelease={query.release}
-      notice={query.saved === "1" ? "版本草稿已保存；上传文件后到「预览与发布」统一确认。" : query.unpublished === "1" ? "版本已撤回为草稿。" : query.deleted === "1" ? "版本草稿已删除。" : undefined} />} />;
+      notice={query.saved === "1" ? "版本草稿已保存；上传文件后可单独确认软件发布，不会公开商品资料草稿。" : query.unpublished === "1" ? "版本已撤回为草稿。" : query.deleted === "1" ? "版本草稿已删除。" : undefined} />} />;
 }

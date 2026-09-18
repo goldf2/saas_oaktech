@@ -3,9 +3,9 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import { saveWorkspaceAction, publishWorkspaceAction } from "@/app/admin/products/editor-actions";
+import { saveWorkspaceAction, publishWorkspaceAction, publishSoftwareAction } from "@/app/admin/products/editor-actions";
 import { ReleaseFlowContext, type ReleaseActivity } from "./release-flow-context";
-import { PublicationReview } from "./publication-review";
+import { PublicationReview, type PublicationMode } from "./publication-review";
 import { productPublicationIssues, releaseReadiness, selectReleaseForPublication } from "@/lib/store/release-workflow";
 import { ProductVideoEditor } from "./product-video-editor";
 import { DatabaseProductPage } from "@/components/database-product-page";
@@ -36,8 +36,8 @@ function previewReleases(rows: AdminProductReleaseRow[], locale: Locale): Produc
   return rows.map(row => ({ id: row.id, productSlug: row.product_slug, version: row.version, channel: row.channel, status: row.status, isCurrent: row.is_current, publishedAt: row.published_at ?? undefined, title: locale === "en" ? row.title_en || row.title_zh : row.title_zh, notes: locale === "en" ? row.notes_en || row.notes_zh : row.notes_zh, artifacts: [] }));
 }
 
-export function ProductWorkspace({ product = blankProduct(), editToken = "", publishToken = "", releases = [], releasePanel, initialTab = "details", hasDraft = false }: {
-  product?: AdminStoreProductRow; editToken?: string; publishToken?: string; releases?: AdminProductReleaseRow[]; releasePanel?: ReactNode; initialTab?: string; hasDraft?: boolean;
+export function ProductWorkspace({ product = blankProduct(), editToken = "", publishToken = "", releasePublishToken = "", publishedProduct = null, releases = [], releasePanel, initialTab = "details", hasDraft = false }: {
+  product?: AdminStoreProductRow; publishedProduct?: AdminStoreProductRow | null; editToken?: string; publishToken?: string; releasePublishToken?: string; releases?: AdminProductReleaseRow[]; releasePanel?: ReactNode; initialTab?: string; hasDraft?: boolean;
 }) {
   const router = useRouter();
   const [value, setValue] = useState<AdminStoreProductRow>({ ...product, gallery_urls: product.gallery_urls ?? [], videos: product.videos ?? [] });
@@ -52,6 +52,8 @@ export function ProductWorkspace({ product = blankProduct(), editToken = "", pub
   const [mobile, setMobile] = useState(false);
   const [selected, setSelected] = useState<string[]>([]);
   const [confirmed, setConfirmed] = useState(false);
+  const [publicationMode, setPublicationMode] = useState<PublicationMode>("product");
+  const [softwareToken, setSoftwareToken] = useState(releasePublishToken);
   const [activities, setActivities] = useState<Record<string, ReleaseActivity>>({});
   const setActivity = useCallback((id: string, state: ReleaseActivity | null) => setActivities(previous => {
     if (state && previous[id]?.dirty === state.dirty && previous[id]?.busy === state.busy || !state && !previous[id]) return previous;
@@ -69,6 +71,7 @@ export function ProductWorkspace({ product = blankProduct(), editToken = "", pub
   const publishedVersionCount = releases.filter(r => r.status === "published").length;
   function goPreview(id?: string) {
     if (disabled) return;
+    setPublicationMode("software"); setConfirmed(false);
     if (id) setSelected(previous => selectReleaseForPublication(previous, id, true, releases));
     setTab("preview");
     requestAnimationFrame(() => document.querySelector<HTMLButtonElement>('[data-tab="preview"]')?.focus());
@@ -89,7 +92,9 @@ export function ProductWorkspace({ product = blankProduct(), editToken = "", pub
     window.addEventListener("beforeunload", warn);
     return () => window.removeEventListener("beforeunload", warn);
   }, [unsaved, disabled]);
-  useEffect(() => { setConfirmed(false); }, [value, selected, publishToken, releaseDirty, releaseBusy]);
+  useEffect(() => { setSoftwareToken(releasePublishToken); }, [releasePublishToken]);
+  useEffect(() => { if (publicationMode === "product") setConfirmed(false); }, [value, publishToken, publicationMode]);
+  useEffect(() => { if (publicationMode === "software") setConfirmed(false); }, [selected, releasePublishToken, releaseDirty, releaseBusy, publicationMode]);
   function update<K extends keyof AdminStoreProductRow>(field: K, next: AdminStoreProductRow[K]) { setValue(prev => ({ ...prev, [field]: next })); setMessage(""); }
 
   async function save() {
@@ -115,21 +120,33 @@ export function ProductWorkspace({ product = blankProduct(), editToken = "", pub
     finally { operationInFlight.current = false; setBusy(false); }
   }
   async function publish() {
-    if (disabled || dirty || releaseDirty || !existing || !confirmed || operationInFlight.current) return;
-    if (productPublicationIssues(value).length) { setConfirmed(false); setError("请先补齐发布检查中列出的商品资料。"); return; }
-    const chosen = releases.filter(r => r.status === "draft" && selected.includes(r.id));
-    if (chosen.length !== selected.length || new Set(chosen.map(r => r.channel)).size !== chosen.length || chosen.some(r => !releaseReadiness(r).ready)) {
-      setError("所选版本尚未准备好或状态已变化，请核对文件并重新选择。"); setConfirmed(false); return;
+    if (disabled || !existing || !confirmed || operationInFlight.current) return;
+    const software = publicationMode === "software";
+    if (!software && (dirty || productPublicationIssues(value).length)) {
+      setConfirmed(false); setError("请先保存并完善商品资料；软件版本不受影响。"); return;
+    }
+    if (software) {
+      const chosen = releases.filter(r => r.status === "draft" && selected.includes(r.id));
+      if (releaseDirty || !chosen.length || chosen.length !== selected.length || new Set(chosen.map(r => r.channel)).size !== chosen.length || chosen.some(r => !releaseReadiness(r).ready)) {
+        setError("所选软件版本尚未准备好，请核对版本资料和文件；无需保存商品资料。"); setConfirmed(false); return;
+      }
     }
     operationInFlight.current = true;
     setBusy(true); setError(""); setMessage("");
     try {
-      const form = new FormData(); form.set("slug", value.slug); form.set("publish_token", tokens.publish); form.set("confirm", "on");
-      for (const id of selected) form.append("release_id", id);
-      const result = await publishWorkspaceAction(form);
-      if (!result.ok) { setConfirmed(false); setError((result.error ?? "发布未完成") + " 请核对文件与版本后重新确认，已上传文件不会自动重传。"); return; }
-      setTokens({ edit: result.editToken!, publish: result.publishToken! }); setSelected([]); setConfirmed(false);
-      setMessage(result.warning ?? "已发布。公开商品页现在使用本次确认的资料和选中版本。");
+      const form = new FormData(); form.set("slug", value.slug); form.set("confirm", "on");
+      if (software) {
+        form.set("release_token", softwareToken);
+        for (const id of selected) form.append("release_id", id);
+      } else form.set("publish_token", tokens.publish);
+      const result = await (software ? publishSoftwareAction(form) : publishWorkspaceAction(form));
+      if (!result.ok) { setConfirmed(false); setError((result.error ?? "发布未完成") + " 请核对本次发布对象后重新确认。"); return; }
+      // A software response must not advance the product edit token or overwrite
+      // local copy. Otherwise an unrelated stale edit could be accepted later.
+      if (software) { setSoftwareToken(result.releaseToken!); setSelected([]); }
+      else setTokens({ edit: result.editToken!, publish: result.publishToken! });
+      setConfirmed(false);
+      setMessage(result.warning ?? (software ? "软件版本已发布。商品资料及其草稿保持不变。" : "商品资料已发布。软件版本和下载保持不变。"));
       router.refresh();
     } catch { setConfirmed(false); setError("发布响应未完成，请刷新检查结果，避免重复操作。"); }
     finally { operationInFlight.current = false; setBusy(false); }
@@ -163,12 +180,15 @@ export function ProductWorkspace({ product = blankProduct(), editToken = "", pub
       <details className="mt-3"><summary className="cursor-pointer text-xs text-muted-foreground">高级：使用已有图片地址</summary><Input aria-label={`${title}地址`} className="mt-2" value={value[field]} disabled={disabled} onChange={event => update(field, event.target.value)} placeholder="本站路径或HTTPS地址" /></details>
     </section>;
   }
-  const displayedReleases = releases.filter(r => selected.includes(r.id) || r.status === "published").sort((a, b) => Number(selected.includes(b.id)) - Number(selected.includes(a.id)));
+  const displayedReleases = publicationMode === "software"
+    ? releases.filter(r => selected.includes(r.id))
+    : releases.filter(r => r.status === "published").sort((a, b) => Number(b.is_current) - Number(a.is_current));
+  const previewRecord = publicationMode === "product" ? value : publishedProduct;
 
   return <ReleaseFlowContext.Provider value={{ setActivity, goPreview, goVersions, operationBusy: disabled }}><div className="container max-w-7xl px-4 py-8" data-testid="product-workspace">
     <div className="flex flex-wrap items-start justify-between gap-4">
       <div className="min-w-0"><Link href="/admin/products" className="text-sm text-primary" onClick={event => { if ((unsaved || disabled) && !window.confirm("有未保存修改或上传正在进行，确定离开吗？")) event.preventDefault(); }}>← 商品管理</Link><h1 className="mt-3 break-words text-3xl font-semibold">{existing ? value.name_zh || value.slug : "新增商品"}</h1><p className="mt-2 text-sm text-muted-foreground">商品：{product.visibility === "published" ? "已上架" : "未上架"} · 软件：{publishedVersionCount ? `${publishedVersionCount} 个已发布版本` : "尚无已发布版本"} · {dirty ? "商品资料未保存" : hasDraft ? "商品资料有待发布修改" : "商品资料已保存"}</p></div>
-      <Button data-testid="save-product-draft" disabled={disabled} onClick={save}>{busy ? "处理中…" : "保存商品资料"}</Button>
+      <div className="flex flex-wrap gap-2"><Button data-testid="save-product-draft" disabled={disabled} onClick={save}>{busy ? "处理中…" : "保存商品资料"}</Button><Button data-preview-product variant="outline" disabled={disabled} onClick={() => { setPublicationMode("product"); setConfirmed(false); setTab("preview"); }}>预览商品资料</Button></div>
     </div>
     <nav role="tablist" className="mt-7 flex flex-wrap gap-2 border-b pb-3" aria-label="商品编辑分区">{tabs.map(([id, title], index) => <Button key={id} id={`tab-${id}`} role="tab" aria-selected={tab === id} aria-controls={`panel-${id}`} tabIndex={tab === id ? 0 : -1} data-tab={id} variant={tab === id ? "default" : "outline"} disabled={disabled} onClick={() => setTab(id)} onKeyDown={event => {
       if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
@@ -200,12 +220,12 @@ export function ProductWorkspace({ product = blankProduct(), editToken = "", pub
       <ProductVideoEditor videos={value.videos ?? []} disabled={disabled} canUpload={existing} onChange={videos => update("videos", videos)} onUploadPoster={(file, id) => { void upload(file, `video:${id}`); }} />
     </div>
     <div id="panel-versions" role="tabpanel" aria-labelledby="tab-versions" hidden={tab !== "versions"}>
-      {!existing ? <p className="rounded-lg border p-5">请先保存商品草稿，再添加属于该商品的软件版本。</p> : <>{dirty && <p className="mb-4 rounded-lg border p-4 text-sm">图文有未保存修改，请先点击“保存商品资料”，再管理软件版本。已填写的版本资料和上传队列仍保留。</p>}<fieldset disabled={dirty} className="min-w-0">{releasePanel}</fieldset></>}
+      {!existing ? <p className="rounded-lg border p-5">请先保存商品草稿，再添加属于该商品的软件版本。</p> : <>{dirty && <p data-testid="independent-version-editing" className="mb-4 rounded-lg border p-4 text-sm">商品资料有未保存修改，但不影响软件版本操作。版本发布不会保存或公开这些修改。</p>}<div className="min-w-0">{releasePanel}</div></>}
     </div>
     <div id="panel-preview" role="tabpanel" aria-labelledby="tab-preview" hidden={tab !== "preview"}>
-      <PublicationReview product={value} onFixProduct={target => { if (!disabled) { setTab("details"); if (target === "media") requestAnimationFrame(() => document.getElementById("product-artwork")?.scrollIntoView({ behavior: "smooth", block: "start" })); } }} releases={releases} selected={selected} setSelected={setSelected} dirty={dirty} releaseDirty={releaseDirty} existing={existing} disabled={disabled} confirmed={confirmed} setConfirmed={setConfirmed} onPublish={() => void publish()} onBack={goVersions} />
-      <div className="mt-6 flex flex-wrap items-center justify-between gap-3"><h2 className="font-semibold">商品页预览 · 不提供草稿下载</h2><div className="flex gap-2"><Button size="sm" variant="outline" onClick={() => setLocale(locale === "zh" ? "en" : "zh")}>{locale === "zh" ? "切换英文" : "切换中文"}</Button><Button size="sm" variant="outline" onClick={() => setMobile(!mobile)}>{mobile ? "桌面宽度" : "手机宽度"}</Button></div></div>
-      <div data-testid="product-preview" className={`mx-auto mt-4 overflow-hidden rounded-xl border ${mobile ? "max-w-[390px]" : "w-full"}`}>{tab === "preview" && <DatabaseProductPage product={previewProduct(value, locale)} releases={previewReleases(displayedReleases, locale)} locale={locale} preview />}</div>
+      <PublicationReview mode={publicationMode} onModeChange={mode => { setPublicationMode(mode); setConfirmed(false); }} productIsPublished={Boolean(publishedProduct)} product={value} onFixProduct={target => { if (!disabled) { setTab("details"); if (target === "media") requestAnimationFrame(() => document.getElementById("product-artwork")?.scrollIntoView({ behavior: "smooth", block: "start" })); } }} releases={releases} selected={selected} setSelected={setSelected} dirty={dirty} releaseDirty={releaseDirty} existing={existing} disabled={disabled} confirmed={confirmed} setConfirmed={setConfirmed} onPublish={() => void publish()} onBack={goVersions} />
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-3"><h2 data-testid="publication-preview-caption" className="font-semibold">{publicationMode === "product" ? "商品资料预览 · 软件版本保持不变" : "软件版本预览 · 使用线上商品资料，不包含商品草稿"}</h2><div className="flex gap-2"><Button size="sm" variant="outline" onClick={() => setLocale(locale === "zh" ? "en" : "zh")}>{locale === "zh" ? "切换英文" : "切换中文"}</Button><Button size="sm" variant="outline" onClick={() => setMobile(!mobile)}>{mobile ? "桌面宽度" : "手机宽度"}</Button></div></div>
+      <div data-testid="product-preview" className={`mx-auto mt-4 overflow-hidden rounded-xl border ${mobile ? "max-w-[390px]" : "w-full"}`}>{tab === "preview" && (previewRecord ? <DatabaseProductPage product={previewProduct(previewRecord, locale)} releases={previewReleases(displayedReleases, locale)} locale={locale} preview /> : <div className="p-6 text-sm"><h3 className="font-semibold">商品尚未上架，暂不预览商品介绍。</h3><p className="mt-3 text-muted-foreground">上方已列出本次软件版本、说明和文件。软件发布只开放这些下载，不发布商品草稿。</p></div>)}</div>
     </div>
   </div></ReleaseFlowContext.Provider>;
 }

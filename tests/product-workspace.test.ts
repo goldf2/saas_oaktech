@@ -28,6 +28,7 @@ afterEach(async () => {
 });
 async function product() { return (await catalogModule.readStoreCatalog()).catalog.products[0]; }
 async function token(slug: string) { return workspace.productToken((await catalogModule.readStoreCatalog()).catalog, slug); }
+async function releaseToken(slug: string) { return workspace.releasePublicationToken((await catalogModule.readStoreCatalog()).catalog, slug); }
 async function publishToken(slug: string) { return workspace.publicationToken((await catalogModule.readStoreCatalog()).catalog, slug); }
 
 test('saving a published product creates a private revision without changing live content', async () => {
@@ -81,13 +82,14 @@ async function createRelease(productSlug: string, version = '1.0.0', tampered = 
   return release;
 }
 
-test('final publish validates selected package and atomically promotes product plus version', async () => {
+test('software publish validates selected package without promoting the product draft', async () => {
   const original = await product();
   await workspace.saveProductDraft({ ...original, name_zh: '带版本商品' }, await token(original.slug));
   const release = await createRelease(original.slug);
-  await workspace.publishProductDraft(original.slug, await publishToken(original.slug), [release.id]);
+  await workspace.publishSoftwareReleases(original.slug, await releaseToken(original.slug), [release.id]);
   const catalog = (await catalogModule.readStoreCatalog()).catalog;
-  assert.equal(catalog.products[0].name_zh, '带版本商品');
+  assert.equal(catalog.products[0].name_zh, original.name_zh);
+  assert.equal(catalog.productDrafts?.[original.slug].product.name_zh, '带版本商品');
   assert.equal(catalog.releases.find(r => r.id === release.id)?.status, 'published');
   assert.equal(catalog.releases.find(r => r.id === release.id)?.is_current, true);
 });
@@ -97,20 +99,20 @@ test('checksum failure leaves the published product and release states unchanged
   await workspace.saveProductDraft({ ...original, name_zh: '不得半发布' }, await token(original.slug));
   const release = await createRelease(original.slug, '2.0.0', true);
   const before = (await catalogModule.readStoreCatalog()).catalog;
-  const expected = await publishToken(original.slug);
-  await assert.rejects(() => workspace.publishProductDraft(original.slug, expected, [release.id]), /ARTIFACT_SIZE_MISMATCH/);
+  const expected = await releaseToken(original.slug);
+  await assert.rejects(() => workspace.publishSoftwareReleases(original.slug, expected, [release.id]), /ARTIFACT_SIZE_MISMATCH/);
   assert.deepEqual((await catalogModule.readStoreCatalog()).catalog, before);
 });
 
 test('cross-product versions and multiple current versions in one channel are rejected', async () => {
   const original = await product();
   const foreign = await createRelease('gitfinder-2');
-  await assert.rejects(() => workspace.publishProductDraft(original.slug, '', [foreign.id]), /PRODUCT_PUBLICATION_CONFLICT/);
-  let expected = await publishToken(original.slug);
-  await assert.rejects(() => workspace.publishProductDraft(original.slug, expected, [foreign.id]), /PRODUCT_RELEASE_SCOPE/);
+  await assert.rejects(() => workspace.publishSoftwareReleases(original.slug, '', [foreign.id]), /RELEASE_PUBLICATION_CONFLICT/);
+  let expected = await releaseToken(original.slug);
+  await assert.rejects(() => workspace.publishSoftwareReleases(original.slug, expected, [foreign.id]), /PRODUCT_RELEASE_SCOPE/);
   const a = await createRelease(original.slug, '3.0.0'), b = await createRelease(original.slug, '4.0.0');
-  expected = await publishToken(original.slug);
-  await assert.rejects(() => workspace.publishProductDraft(original.slug, expected, [a.id,b.id]), /PRODUCT_CHANNEL_CONFLICT/);
+  expected = await releaseToken(original.slug);
+  await assert.rejects(() => workspace.publishSoftwareReleases(original.slug, expected, [a.id,b.id]), /PRODUCT_CHANNEL_CONFLICT/);
 });
 
 test('uploaded artwork is rewritten to WebP, stays private in drafts and publishes with its product', async () => {

@@ -14,7 +14,8 @@
     "handoff:status": "node scripts/check-handoff.mjs --status",
     "test:admin-storage": "node scripts/admin-poc/run.mjs",
     "test:release-ui": "node scripts/verify-release-workflow.mjs",
-    "test:video-ui": "node scripts/verify-product-videos.mjs"
+    "test:video-ui": "node scripts/verify-product-videos.mjs",
+    "test:publication-ui": "node scripts/verify-decoupled-publication.mjs"
   },
   "dependencies": {
     "@creem_io/nextjs": "^0.4.0",

@@ -1,8 +1,8 @@
 import type { ProductVideo } from "./product-videos";
 
-export type AdminActionResult = { error?: string; code?: string };
+export type AdminActionResult = { error?: string; code?: string; releaseId?: string; productSlug?: string };
 
-export type ProductEditorResult = { ok?: boolean; error?: string; code?: string; slug?: string; editToken?: string; publishToken?: string; warning?: string };
+export type ProductEditorResult = { ok?: boolean; error?: string; code?: string; slug?: string; editToken?: string; publishToken?: string; releaseToken?: string; warning?: string };
 
 export type Locale = "en" | "zh";
 export type ProductStatus = "beta" | "released" | "coming-soon";
