@@ -71,12 +71,9 @@ export default function Header({ user, authProvider, isAdmin = false }: HeaderPr
                   {user.email ?? user.name}
                 </span>
               )}
-              {!isDashboard && (
               <Button asChild size="sm" variant="outline" className="rounded-full">
-                <Link href="/dashboard">{copy.dashboard}</Link>
-                </Button>
-              )}
-              <Button asChild size="sm" variant="outline" className="rounded-full"><Link href="/admin">{isAdmin ? "商品后台" : "管理入口"}</Link></Button>
+                <Link data-testid="workspace-entry" href="/dashboard" aria-current={isDashboard ? "page" : undefined}>{locale === "zh" ? "工作台" : "Workspace"}</Link>
+              </Button>
               <AuthSignOutButton provider={authProvider} label={copy.signOut} />
             </div>
           ) : (
@@ -86,7 +83,7 @@ export default function Header({ user, authProvider, isAdmin = false }: HeaderPr
               </Button>
             </div>
           )}
-          <MobileNav items={navItems} user={user} authProvider={authProvider} isDashboard={isDashboard} labels={{ navigation: copy.navigation, toggleMenu: copy.toggleMenu, dashboard: copy.dashboard, account: copy.account, signOut: copy.signOut }} />
+          <MobileNav items={navItems} user={user} authProvider={authProvider} isDashboard={isDashboard} labels={{ navigation: copy.navigation, toggleMenu: copy.toggleMenu, dashboard: locale === "zh" ? "工作台" : "Workspace", account: copy.account, signOut: copy.signOut }} />
         </div>
       </div>
     </header>

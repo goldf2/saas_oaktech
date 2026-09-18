@@ -22,18 +22,19 @@ test("Dashboard uses the published catalog instead of a hardcoded beta-only list
   const dashboard = await source("app/dashboard/page.tsx");
   assert.match(dashboard, /listPublicProducts/);
   assert.doesNotMatch(dashboard, /PRODUCTS\.filter/);
-  assert.match(dashboard, /\/admin\/products\/new/);
+  assert.match(dashboard, /ProductManagement searchParams/);
 });
 
 test("product creation has a dedicated page and discoverable desktop and mobile administration", async () => {
   const [page, listing, mobile, dashboard] = await Promise.all([
-    source("app/admin/products/new/page.tsx"), source("app/admin/products/page.tsx"),
+    source("app/admin/products/new/page.tsx"), source("components/admin/product-management.tsx"),
     source("components/mobile-nav.tsx"), source("app/dashboard/page.tsx"),
   ]);
   assert.match(page, /getStoreAdmin/);
   assert.match(page, /ProductWorkspace/);
   assert.match(listing, /\/admin\/products\/new/);
-  assert.match(mobile, /href="\/admin"/);
+  assert.match(mobile, /href="\/dashboard"/);
+  assert.doesNotMatch(mobile, /href="\/admin"/);
   assert.match(dashboard, /getStoreAdmin/);
 });
 

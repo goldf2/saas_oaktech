@@ -189,6 +189,8 @@ try {
 
   await page.waitForFunction(()=>!document.querySelector('[data-tab="preview"]').disabled);
   await page.click('[data-tab="preview"]');await page.click('[data-publication-mode="software"]');await page.click(`[data-release-select="${release.id}"]`);
+  if (!(await page.$eval('[data-testid="preview-disclosure"]', el => el.open))) await page.click('[data-testid="preview-disclosure"] > summary');
+  await page.waitForSelector('[data-testid="product-preview"] .product-detail-grid', { visible: true });
   assert.equal(await page.$('[data-testid="product-preview"] a[download]'),null);
   await page.evaluate(()=>Array.from(document.querySelectorAll('button')).find(x=>x.textContent==='手机宽度').click());
   await page.waitForFunction(()=>{
@@ -224,7 +226,7 @@ try {
 
   await page.goto(`${base}/admin/releases?release=${release.id}`,{waitUntil:'networkidle0'});
   assert.equal(new URL(page.url()).pathname,`/admin/products/${slug}`);assert.ok(new URL(page.url()).searchParams.get('tab')==='versions');
-  await page.goto(base+'/admin/releases',{waitUntil:'networkidle0'});assert.equal(new URL(page.url()).pathname,'/admin/products');
+  await page.goto(base+'/admin/releases',{waitUntil:'networkidle0'});assert.equal(new URL(page.url()).pathname,'/dashboard');assert.equal(new URL(page.url()).searchParams.get('view'),'products');
   await page.goto(base+'/dashboard',{waitUntil:'networkidle0'});await page.waitForSelector(`a[href="/zh/products/${slug}"]`);
   check('old global release links forward safely to product context, and published products appear in the personal catalog');
 

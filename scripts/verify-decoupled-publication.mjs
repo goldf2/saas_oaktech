@@ -133,6 +133,8 @@ try {
   await page.click(`[data-preview-release="${r.id}"]`);
   await page.waitForSelector('[data-publication-scope="software"]');
   assert.equal(await page.$('[data-testid="product-publication-issues"]'),null);
+  if (!(await page.$eval('[data-testid="preview-disclosure"]', e=>e.open))) await page.click('[data-testid="preview-disclosure"] > summary');
+  await page.waitForSelector('[data-testid="product-preview"] .product-detail-grid', {visible:true});
   const preview=await page.$eval('[data-testid="product-preview"]',e=>e.textContent);
   assert.match(preview,/公开商品标题/);assert.doesNotMatch(preview,/尚未保存|未准备好/);
   assert.equal(await page.$eval('[data-testid="confirm-software-publication"]',e=>e.disabled),false);
@@ -173,7 +175,7 @@ try {
 
   await page.setViewport({width:390,height:844});await tab('preview');
   await page.click('[data-publication-mode="product"]');assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));await shot('independent-publication-mobile.png');
-  await page.click('[data-publication-mode="software"]');assert.equal(await page.$eval('[data-testid="publish-software"]',e=>e.disabled),true);
+  await page.click('[data-publication-mode="software"]'); if (!(await page.$eval('[data-testid="preview-disclosure"]', e => e.open))) await page.click('[data-testid="preview-disclosure"] > summary');assert.equal(await page.$eval('[data-testid="publish-software"]',e=>e.disabled),true);
   await stop();await start();
   await page.goto(base+'/zh/products/'+original.slug,{waitUntil:'networkidle0'});
   assert.match(await page.$eval('h1',e=>e.textContent),/新的商品介绍已准备/);

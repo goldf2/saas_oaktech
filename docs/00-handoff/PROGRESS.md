@@ -2,11 +2,11 @@
 
 > 不要直接编辑本文件。修改TASKS.json后运行 `npm run handoff:render`。
 
-账本revision：20；更新时间：2026-09-18T09:58:00+08:00；计划版本：1.0.0。
+账本revision：25；更新时间：2026-09-18T23:12:21+08:00；计划版本：1.0.0。
 
 **权限主线任务完成：1/14。这是任务计数，不是代码完成百分比；PLAN-01文档不计入。**
 
-生产超管状态：`not_implemented`；唯一下一任务：**PUB-01**。
+生产超管状态：`not_implemented`；唯一下一任务：**ADM-02**。
 
 | 任务 | 阶段/类型 | 优先级 | 状态 | 负责人 | 依赖 |
 | --- | --- | --- | --- | --- | --- |
@@ -34,7 +34,9 @@
 | STORE-01 · 商品内图文、版本、预览和统一发布工作台 | STORE / feature | P0 | 完成 | ChatGPT / tsk_5a4be4c4b63f215d | 无 |
 | STORE-02 · 发布流程可发现性、批量上传与校验预览 | STORE / feature | P0 | 完成 | ChatGPT / tsk_b02c9763689e79dc | STORE-01 |
 | VIDEO-01 · 商品介绍视频源、按需嵌入与三组编辑页 | STORE / feature | P0 | 完成 | ChatGPT / tsk_6e89bb30274d3e30 | STORE-01 |
-| PUB-01 · 商品资料与软件版本独立发布 | STORE / feature | P0 | 阻塞 | ChatGPT / tsk_73ee7c135620db1b | STORE-02, VIDEO-01 |
+| STORE-03 · 商品发布页面紧凑布局 | STORE / feature | P1 | 完成 | ChatGPT / tsk_df0424b2b9310843 | STORE-02, VIDEO-01 |
+| PUB-01 · 商品资料与软件版本独立发布 | STORE / feature | P0 | 完成 | ChatGPT / tsk_73ee7c135620db1b | STORE-02, VIDEO-01 |
+| DASH-01 · Dashboard与商品管理统一工作台 | STORE / feature | P0 | 完成 | ChatGPT / tsk_b677b669147495db | 无 |
 
 ## 任务详情与接续动作
 
@@ -429,11 +431,28 @@
 - implementation / passed：`components/product-videos.tsx`
 - documentation / passed：`docs/product-video-sources.md`
 
+### STORE-03 · 商品发布页面紧凑布局
+
+状态：完成；负责人：ChatGPT / tsk_df0424b2b9310843；实施：compact_layout_local_browser_verified；部署：pending_remote_delivery。
+
+下一动作：核对远程CI、官网health和代码版本；不自动发布真实软件草稿。
+
+验收条件：
+- 版本资料/上传/确认密度提升，必要入口和状态不隐藏，基本文字可读
+- 合并重复文件清单，商品整页预览按需展开，保留视频与现有发布逻辑
+- 记录同屏尺寸对比，390px/1024px/1440px无溢出，上传发布回归通过
+
+计划文件（可能尚未创建）：`components/admin/product-workspace.tsx`、`components/admin/product-releases.tsx`、`components/admin/artifact-upload.tsx`、`components/admin/publication-review.tsx`、`components/admin/release-file-list.tsx`、`scripts/verify-compact-release.mjs`
+
+证据：
+- implementation / passed：`components/admin/release-file-list.tsx`
+- verification / passed：`docs/00-handoff/evidence/2026-09-18-compact-release-layout.json`
+
 ### PUB-01 · 商品资料与软件版本独立发布
 
-状态：阻塞；负责人：ChatGPT / tsk_73ee7c135620db1b；实施：local_split_publication_and_state_retention_verified；部署：not_pushed_not_deployed。
+状态：完成；负责人：ChatGPT / tsk_73ee7c135620db1b；实施：complete_integrated_browser_verified；部署：pending_post_commit_public_verification。
 
-下一动作：先读取本地PUB-01接续断点和验证收据；恢复允许的并行差异审查后，合并远端0.1.32紧凑界面，再运行全部回归/构建，递增版本并推送。不能将旧构建测试等同最终集成验收。
+下一动作：本地完整集成已验证；提交推送后分别核对remote main、CI、health与工作台资源，不使用公开health冒充真实账号发布验收。
 
 验收条件：
 - 商品发布只处理资料/图片/视频，不处理版本或安装包
@@ -445,9 +464,26 @@
 
 计划文件（可能尚未创建）：`lib/store/product-workspace.ts`、`app/admin/products/editor-actions.ts`、`components/admin/publication-review.tsx`、`components/admin/product-workspace.tsx`
 
-阻塞：
-- 并行远端已更新为ec93734/0.1.32，必须保留其紧凑界面；读取并行差异的命令被工具安全检查拒绝。已安全中止rebase，回到本地85da32b，不覆盖远端，也不换工具绕过该审查拒绝。
-
 证据：
 - verification / passed：`docs/00-handoff/evidence/2026-09-18-publication-decoupling.json`
 - implementation / passed：`lib/store/product-workspace.ts`
+- verification / passed：`docs/00-handoff/evidence/2026-09-18-unified-workspace-publishing.json`
+
+### DASH-01 · Dashboard与商品管理统一工作台
+
+状态：完成；负责人：ChatGPT / tsk_b677b669147495db；实施：complete_integrated_browser_verified；部署：pending_post_commit_public_verification。
+
+下一动作：本地完整集成已验证；提交推送后分别核对remote main、CI、health与工作台资源，不使用公开health冒充真实账号发布验收。
+
+验收条件：
+- 管理员打开/dashboard直接管理商品，普通用户仅看到公开软件目录和账号
+- 桌面和移动导航只有一个工作台入口，旧后台书签保留筛选
+- 服务端独立授权，不能通过修改查询参数读取商品草稿或提权
+- 保留独立发布、视频与紧凑布局，完成角色浏览器回归后才交付
+
+计划文件（可能尚未创建）：`app/dashboard/page.tsx`、`components/admin/product-management.tsx`、`lib/store/workspace-navigation.ts`、`components/header.tsx`、`components/mobile-nav.tsx`
+
+证据：
+- verification / passed：`docs/00-handoff/evidence/2026-09-18-unified-workspace-publishing.json`
+- implementation / passed：`app/dashboard/page.tsx`
+- implementation / passed：`components/admin/product-management.tsx`

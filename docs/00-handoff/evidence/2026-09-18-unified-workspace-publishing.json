@@ -1,0 +1,133 @@
+{
+  "checkedAt": "2026-09-18T23:12:21+08:00",
+  "version": "0.1.33",
+  "tasks": [
+    "PUB-01",
+    "DASH-01"
+  ],
+  "integrationParents": [
+    "c2283ea",
+    "ec93734"
+  ],
+  "unitTests": {
+    "pass": 147,
+    "fail": 0
+  },
+  "typecheck": "passed",
+  "defaultTurbopackBuild": "passed",
+  "browserChecks": 43,
+  "browserRuns": {
+    "dashboard": {
+      "checks": 6,
+      "status": "passed",
+      "cases": [
+        "anonymous access still requires login and old administrative paths expose no private product",
+        "ordinary users see the public library only; forged view flags cannot read drafts or upload files",
+        "account and support remain accessible without exposing internal subjects or invented purchase totals",
+        "administrators land directly in the shared product manager; filters remain inside the one workspace",
+        "legacy product-list bookmarks preserve filters and editor links still lead back to the same workspace",
+        "public-library view stays public for admins; 390px and dark-mode workspace and single mobile entry work"
+      ],
+      "scope": "isolated temporary server/catalog and synthetic local sessions; no real accounts or production writes"
+    },
+    "publication": {
+      "checks": 6,
+      "status": "passed",
+      "cases": [
+        "incomplete product copy does not prevent creating a software version or uploading its private package",
+        "saving version changes preserves unsaved product fields across the in-place save",
+        "software-only preview and publication use public product content while saved and unsaved product drafts remain untouched",
+        "product publication is not blocked by unsaved software fields and does not publish, reset or discard them",
+        "software hash failure changes neither stream, clears confirmation, and a separately confirmed retry succeeds",
+        "both publication modes fit mobile and independently published metadata, current and historical packages survive restart"
+      ],
+      "scope": "synthetic local session, temporary catalog; no real Casdoor or production writes"
+    },
+    "compact": {
+      "checks": 3,
+      "status": "passed",
+      "cases": [
+        "1440, 1024 and 390px forms retain readable controls and visible upload guidance without horizontal overflow",
+        "full storefront preview is on demand; phone preview works and does not expose draft downloads",
+        "publication confirmation remains explicit, mobile layout and dark mode have no runtime errors"
+      ],
+      "scope": "Isolated display fixtures; no file hashing, signature verification, real credentials or production operations."
+    },
+    "store": {
+      "checks": 13,
+      "status": "passed",
+      "cases": [
+        "anonymous and ordinary users cannot edit, upload, publish or import",
+        "administration has one product list; Add product enters the same three-section editor",
+        "minimal new product saves a private draft and stays in its workspace without another product image",
+        "duplicate creation is rejected with retained inputs; list search returns the correct workspace",
+        "switching sections retains edits; saving new content neither publishes it nor alters another product",
+        "real file selection uploads icon, cover and screenshots; ordering persists while all new images stay private",
+        "product introduction publishes before any software version exists, with no fabricated downloads",
+        "version save returns automatically to this product; embedded 8+1 MiB upload remains a private version draft",
+        "preview uses the shared product page and a genuinely responsive phone-width canvas without draft downloads",
+        "a later independent software publish preserves product metadata and enables exact GET/HEAD/Range downloads",
+        "editing an already-live product stays private until metadata-only confirmation, without changing its published versions",
+        "old global release links forward safely to product context, and published products appear in the personal catalog",
+        "a real service restart preserves content, media and downloads; 390px editor/storefront have no overflow or runtime errors"
+      ],
+      "scope": "synthetic local session, temporary catalog; no real Casdoor or production writes"
+    },
+    "release": {
+      "checks": 9,
+      "status": "passed",
+      "cases": [
+        "upload step is visible before save, version input is not a false default, and product visibility is distinct from software publication",
+        "English defaults are explicit; independent English fields are visible when required",
+        "missing product artwork blocks confirmation early; real local media upload and draft save satisfy the unchanged server prerequisites",
+        "Chinese-only version saves with deliberate bilingual fallback, stays in product context, and missing artifacts prevent software publication",
+        "saving an existing version normalizes surrounding whitespace without leaving the upload step falsely locked",
+        "interrupted upload becomes uncertain with no automatic retry and preserves the selected file for reconciliation",
+        "manual retry after reconciliation uploads 8+1 MiB with exact server-confirmed chunks",
+        "server validation errors preserve inputs; switching/editing product tabs does not unmount unsaved version data",
+        "keyboard tabs and independently scoped confirmation reject each stream own unsaved edits"
+      ],
+      "scope": "isolated browser/server only; synthetic test session; no production writes or real accounts"
+    },
+    "video": {
+      "checks": 6,
+      "status": "passed",
+      "cases": [
+        "anonymous users have no editor; administrators get merged product information and three working tabs",
+        "real video links and local poster upload save to a private draft without changing live text or releases",
+        "in-page players load only on click, switch sources safely, stop on tab exit, and unknown platforms stay external",
+        "multi-video ordering survives reload; explicit publication makes the introduction and poster public without new releases",
+        "anonymous mobile storefront displays the published video only; later saved edits do not leak",
+        "removal remains draft-only until confirmed; service restart retains published video data and its image"
+      ],
+      "scope": "synthetic session accepted only by isolated local server"
+    }
+  },
+  "preservedPendingFiles": 20,
+  "productionDataWrites": false,
+  "productionAccountLoginVerified": false,
+  "deployment": "verify_after_commit",
+  "limitations": [
+    "Synthetic sessions only in disposable local servers; no actual user password or real account login used.",
+    "Native signed-package browser fixture not supplied; existing signature unit tests passed, no real package was released.",
+    "Third-party live YouTube/Bilibili playback was not re-run; deterministic video workflow regression passed."
+  ],
+  "harnessRepairs": [
+    "Move source assertions to the shared guarded product component; old list is now a guarded redirect.",
+    "Open on-demand preview before checking public content; do not revert compact layout.",
+    "Inspect visible account text rather than rejecting the authorized own identity in pre-existing Next server payload.",
+    "Use a stable locator for the animated mobile sheet; after awaited cleanup flush report and terminate test runner with the actual result."
+  ],
+  "sourceSha256": {
+    "app/admin/actions.ts": "dcc29bfc035e67b39429a04b93171404e8306b44dfa494a1b598296d7ada5d17",
+    "app/admin/products/page.tsx": "47f5be8a907634056bf827d6308ae6b5c24396fd8413209817d4519a98cee5aa",
+    "app/dashboard/page.tsx": "8b00ae17088655138b6adfe8aff37c9e33bee538ade0cf040874179f0dd000bc",
+    "components/admin/product-workspace.tsx": "7a50e7c2c5010aad12db70771422ab341fbbb3ab1c7235215a95629296c53d64",
+    "components/admin/publication-review.tsx": "a253a9d6af87df3b659a3786d9f33bdefe9e1a1fdf6bfe2f702766fa413bb3cb",
+    "components/admin/product-management.tsx": "723d2a8e128a328f3bd7102f6a5a23f123f92860e3a3f7dd6611268b4000de86",
+    "components/header.tsx": "8247e06287792789df296c52938c445577ef756b0f78e51744988b9777db22f7",
+    "components/mobile-nav.tsx": "dd6cb7908433b3981abc93c23fddf9594c3ef6f611cd29a0a81348b968216ebd",
+    "lib/store/product-workspace.ts": "5bb1114f9b30922fbd3b6dd0cb9bad7493e6c75e9c2b58cc7fee1d65d1397b0a",
+    "lib/store/workspace-navigation.ts": "7a17a5ee441e7b86295a8eaf5511657e7da8465acfd85c0c842c34cfdfbb4b36"
+  }
+}

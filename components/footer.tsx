@@ -20,7 +20,7 @@ export function Footer() {
       { label: copy.xTweetExtractor, href: localePath(locale, "/products/x-tweet-extractor") },
       { label: "GitFinder 2", href: localePath(locale, "/products/gitfinder-2") },
     ] },
-    { title: copy.company, links: [{ label: copy.about, href: "/about" }, { label: copy.support, href: "/support" }, { label: locale === "zh" ? "管理入口" : "Store administration", href: "/admin" }] },
+    { title: copy.company, links: [{ label: copy.about, href: "/about" }, { label: copy.support, href: "/support" }, { label: locale === "zh" ? "工作台" : "Workspace", href: "/dashboard" }] },
     { title: copy.legal, links: [{ label: copy.privacyPolicy, href: "/privacy" }, { label: copy.terms, href: "/terms" }] },
   ];
   return (

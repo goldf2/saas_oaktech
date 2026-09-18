@@ -135,6 +135,8 @@ try {
     await page.waitForFunction(id => document.querySelector(`[data-release-select="${id}"]`).checked, {}, r.id);
     assert.equal(await page.$eval('[data-testid="confirm-software-publication"]', x => x.checked), false);
     assert.equal(await page.$eval('[data-testid="publish-software"]', x => x.disabled), true);
+  if (!(await page.$eval('[data-testid="preview-disclosure"]', el => el.open))) await page.click('[data-testid="preview-disclosure"] > summary');
+  await page.waitForSelector('[data-testid="product-preview"] .product-detail-grid', { visible: true });
     assert.equal(await page.$('[data-testid="product-preview"] a[download]'), null);
     await shot('release-review-desktop.png');
     await page.emulateMediaFeatures([{ name: 'prefers-color-scheme', value: 'dark' }]); await shot('release-review-dark.png');

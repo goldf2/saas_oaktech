@@ -53,12 +53,7 @@ export function MobileNav({ items, user, authProvider, isDashboard, labels }: Mo
               {(user.email || user.name) && (
                 <p className="text-sm text-muted-foreground">{user.email ?? user.name}</p>
               )}
-              {!isDashboard && (
-                <Button asChild variant="outline" className="w-full">
-                  <Link href="/dashboard">{labels.dashboard}</Link>
-                </Button>
-              )}
-              <SheetClose asChild><Button asChild variant="outline" className="w-full"><Link href="/admin">商品后台 / 管理入口</Link></Button></SheetClose>
+              <SheetClose asChild><Button asChild variant="outline" className="w-full"><Link data-testid="mobile-workspace-entry" href="/dashboard">{labels.dashboard}</Link></Button></SheetClose>
               <AuthSignOutButton provider={authProvider} label={labels.signOut} className="w-full" />
             </div>
           ) : (

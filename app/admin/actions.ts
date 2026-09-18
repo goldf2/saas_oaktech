@@ -51,6 +51,7 @@ function text(formData: FormData, name: string) {
 }
 
 function refreshStore(productSlug?: string) {
+  revalidatePath("/dashboard");
   revalidatePath("/en");
   revalidatePath("/zh");
   revalidatePath("/products");
