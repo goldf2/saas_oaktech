@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
   "plan_version": "1.0.0",
-  "revision": 30,
-  "updated_at": "2026-09-19T06:04:00+08:00",
+  "revision": 32,
+  "updated_at": "2026-09-19T06:38:42+08:00",
   "project": "saas_oaktech",
   "source_commit": "54a42b33bc5fc3e9c42541fdd3bdd6fae4700bce",
-  "current_next_task": "ADM-02",
+  "current_next_task": "PUB-02",
   "production_admin_bootstrap": "not_implemented",
   "standard": {
     "path": "docs/standards/CT-ADMIN-001-v1.0.0.md",
@@ -1039,6 +1039,44 @@
       "deployment": "pending_post_commit_verification",
       "updated_at": "2026-09-19T06:04:00+08:00",
       "completed_at": "2026-09-19T06:04:00+08:00"
+    },
+    {
+      "id": "PUB-02",
+      "title": "商品图文视频发布可发现性与结果核验",
+      "kind": "feature",
+      "milestone": "STORE",
+      "priority": "P0",
+      "status": "blocked",
+      "owner": "ChatGPT / tsk_d66259b906c7a92b",
+      "depends_on": [
+        "PUB-01"
+      ],
+      "planned_files": [
+        "components/admin/product-workspace.tsx",
+        "components/admin/publication-review.tsx",
+        "lib/store/product-publication-summary.ts"
+      ],
+      "acceptance": [
+        "直接准备商品发布并明确保存不等于上线",
+        "图文视频改动范围、空标题与空来源定位明确",
+        "隔离环境从新增介绍与视频走通确认发布且软件不变",
+        "真实草稿不可读取时如实说明，不擅自公开生产内容"
+      ],
+      "next_action": "先获取当前OpenPlay预览发布页截图（顶部状态、视频资料和按钮旁提示），保留现有内容；继续定位回归失败，完成后才合入和部署。",
+      "blockers": [
+        "尚未获取用户OpenPlay真实草稿/发布记录，不能定位该条内容未公开的直接原因。",
+        "专项图文视频流程通过，但完整独立发布浏览器回归在后半段仍超时/节点重建异常；未完成集成验收。"
+      ],
+      "evidence": [
+        {
+          "path": "docs/00-handoff/evidence/2026-09-19-product-publication-partial.json",
+          "kind": "verification",
+          "result": "partial"
+        }
+      ],
+      "implementation": "partial_local_not_ready_for_integration",
+      "deployment": "not_deployed",
+      "updated_at": "2026-09-19T06:38:42+08:00"
     }
   ]
 }

@@ -91,7 +91,20 @@ export function productPublicationIssues(product: AdminStoreProductRow) {
     if ((field === "icon_url" || field === "hero_image_url") && !isManagedAssetUrl(value)) return [{ field, label: `${label}地址无效`, tab }];
     return [];
   });
+  const videoIssueStart = issues.length;
+  if (Array.isArray(product.videos)) product.videos.forEach((video, index) => {
+    const start = issues.length;
+    if (!video.title?.trim()) issues.push({ field: `video:${index}:title`, label: `视频${index + 1}：请填写标题`, tab: "details" });
+    if (!video.sources?.length) issues.push({ field: `video:${index}`, label: `视频${index + 1}：请添加播放来源`, tab: "details" });
+    video.sources?.forEach((source, sourceIndex) => {
+      if (!source.url?.trim()) issues.push({ field: `video:${index}:source:${sourceIndex}`, label: `视频${index + 1}来源${sourceIndex + 1}：填写链接或移除空来源`, tab: "details" });
+    });
+    if (issues.length === start) {
+      try { normalizeProductVideos([video], true); }
+      catch (error) { issues.push({ field: `video:${index}`, label: `视频${index + 1}：${videoMessages[(error as Error).message] ?? "请检查视频资料"}`, tab: "details" }); }
+    }
+  });
   try { normalizeProductVideos(product.videos, true); }
-  catch (error) { issues.push({ field: "videos", label: videoMessages[(error as Error).message] ?? "请完善视频介绍", tab: "details" }); }
+  catch (error) { if (issues.length === videoIssueStart) issues.push({ field: "videos", label: videoMessages[(error as Error).message] ?? "请完善视频介绍", tab: "details" }); }
   return issues;
 }

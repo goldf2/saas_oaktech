@@ -195,5 +195,6 @@ finally {
   if (server && server.exitCode === null) await new Promise(resolve => { const timer = setTimeout(() => server.kill('SIGKILL'), 8000); server.once('exit', () => { clearTimeout(timer); resolve(); }); server.kill('SIGTERM'); });
   await rm(temp, { recursive: true, force: true }); report.pageErrors = errors; report.uploadRequestCount = requests.length;
   await writeFile(path.join(output, 'result.json'), JSON.stringify(report, null, 2) + '\n'); if (report.status === 'failed') await writeFile(path.join(output, 'server.log'), logs);
-  console.log(JSON.stringify(report, null, 2));
+  // Assertions, artifact writes and browser/server cleanup have all completed.
+  process.stdout.write(JSON.stringify(report, null, 2) + '\n', () => process.exit(report.status === 'passed' ? 0 : 1));
 }

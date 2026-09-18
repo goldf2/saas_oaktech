@@ -2,13 +2,15 @@
 
 import { ArrowLeft, AlertCircle, Globe, PackageCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ProductPublicationSummary } from "./product-publication-summary";
 import { formatBytes, productPublicationIssues, releaseReadiness, selectReleaseForPublication } from "@/lib/store/release-workflow";
 import type { AdminProductReleaseRow, AdminStoreProductRow } from "@/lib/store/types";
 
 export type PublicationMode = "product" | "software";
-export function PublicationReview({ product, productIsPublished, onFixProduct, releases, selected, setSelected, dirty, releaseDirty, existing, disabled, confirmed, setConfirmed, onPublish, onBack, mode, onModeChange }: {
+export function PublicationReview({ product, liveProduct = null, onSave, productIsPublished, onFixProduct, releases, selected, setSelected, dirty, releaseDirty, existing, disabled, confirmed, setConfirmed, onPublish, onBack, mode, onModeChange }: {
   product: AdminStoreProductRow; productIsPublished: boolean;
-  onFixProduct: (tab: "details" | "media") => void;
+  liveProduct?: AdminStoreProductRow | null; onSave?: () => void;
+  onFixProduct: (tab: "details" | "media", field?: string) => void;
   releases: AdminProductReleaseRow[]; selected: string[]; setSelected: (ids: string[]) => void;
   dirty: boolean; releaseDirty: boolean; existing: boolean; disabled: boolean;
   confirmed: boolean; setConfirmed: (value: boolean) => void; onPublish: () => void; onBack: () => void;
@@ -38,10 +40,13 @@ export function PublicationReview({ product, productIsPublished, onFixProduct, r
     </div>
     {!software ? <>
       <p data-testid="metadata-only-notice" className="rounded-lg bg-primary/5 p-3 text-sm">本次仅发布商品资料。已有软件版本和下载保持不变，待上传、待校验或未保存的软件版本不会阻止资料发布。</p>
+      <ProductPublicationSummary product={product} live={liveProduct} dirty={dirty} />
       {productIssues.length > 0 && <div data-testid="product-publication-issues" className="rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm dark:border-amber-900 dark:bg-amber-950/20">
-        <h3 className="font-semibold">商品资料尚需完善</h3><div className="mt-2 flex flex-wrap gap-2">{productIssues.map(issue => <Button key={issue.field} variant="outline" type="button" size="sm" onClick={() => onFixProduct(issue.tab)} disabled={disabled}>{issue.label} →</Button>)}</div>
+        <h3 className="font-semibold">商品资料尚需完善</h3><div className="mt-2 flex flex-wrap gap-2">{productIssues.map(issue => <Button key={issue.field} variant="outline" type="button" size="sm" onClick={() => onFixProduct(issue.tab, issue.field)} disabled={disabled}>{issue.label} →</Button>)}</div>
       </div>}
-      {dirty && <p role="alert" className="rounded-lg bg-destructive/5 p-3 text-sm text-destructive">商品资料有未保存修改，请先保存商品资料，再发布这份资料。软件版本可独立处理。</p>}
+      {dirty && <div role="alert" className="rounded-lg bg-destructive/5 p-3 text-sm text-destructive">商品资料有未保存修改，保存后即可确认发布；软件版本不受影响。
+        {onSave && <Button type="button" variant="outline" className="ml-3" data-testid="save-for-product-publication" disabled={disabled} onClick={onSave}>保存草稿并继续</Button>}
+      </div>}
       {!existing && <p className="text-sm text-muted-foreground">请先保存并创建商品记录。</p>}
     </> : <>
       <p data-testid="software-only-notice" className="rounded-lg bg-primary/5 p-3 text-sm">本次只发布选中的软件版本。商品介绍、图片、视频及其草稿保持原样；无需先保存、完善或发布正在编辑的商品资料。</p>

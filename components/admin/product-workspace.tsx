@@ -47,6 +47,7 @@ export function ProductWorkspace({ product = blankProduct(), editToken = "", pub
   const [busy, setBusy] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState("");
+  const [publishedReceipt, setPublishedReceipt] = useState<{ slug: string; videos: number } | null>(null);
   const [error, setError] = useState("");
   const [locale, setLocale] = useState<Locale>("zh");
   const [mobile, setMobile] = useState(false);
@@ -98,10 +99,20 @@ export function ProductWorkspace({ product = blankProduct(), editToken = "", pub
   useEffect(() => { if (publicationMode === "software") setConfirmed(false); }, [selected, releasePublishToken, releaseDirty, releaseBusy, publicationMode]);
   function update<K extends keyof AdminStoreProductRow>(field: K, next: AdminStoreProductRow[K]) { setValue(prev => ({ ...prev, [field]: next })); setMessage(""); }
 
-  async function save() {
+  function showProductPublication() {
+    setPublicationMode("product"); setConfirmed(false); setPreviewOpen(true); setTab("preview");
+  }
+  async function prepareProductPublication() {
+    if (disabled || operationInFlight.current) return;
+    showProductPublication();
+    // Prepare only. Saving here never publishes; the reviewed snapshot requires
+    // a separate explicit confirmation through the existing product-only action.
+    if (dirty || !existing) await save(true);
+  }
+  async function save(preparePublication = false) {
     if (disabled || operationInFlight.current) return;
     operationInFlight.current = true;
-    setBusy(true); setError(""); setMessage("");
+    setBusy(true); setError(""); setMessage(""); setPublishedReceipt(null);
     try {
       const form = new FormData();
       for (const key of ["id", "slug", "category_slug", "status", "name_en", "name_zh", "tagline_en", "tagline_zh", "description_en", "description_zh", "icon_url", "hero_image_url"] as const) form.set(key, value[key]);
@@ -115,7 +126,7 @@ export function ProductWorkspace({ product = blankProduct(), editToken = "", pub
       setSaved(JSON.stringify(value));
       setTokens({ edit: result.editToken!, publish: result.publishToken! });
       setMessage(result.warning ?? "草稿已保存，线上内容没有改变。");
-      if (!existing) router.push(`/admin/products/${result.slug}?tab=media&saved=1`);
+      if (!existing) router.push(`/admin/products/${result.slug}?tab=${preparePublication ? "preview" : "media"}&saved=1`);
       else router.refresh();
     } catch { setError("保存请求未完成，请检查网络，刷新核对后再重试。"); }
     finally { operationInFlight.current = false; setBusy(false); }
@@ -133,7 +144,7 @@ export function ProductWorkspace({ product = blankProduct(), editToken = "", pub
       }
     }
     operationInFlight.current = true;
-    setBusy(true); setError(""); setMessage("");
+    setBusy(true); setError(""); setMessage(""); setPublishedReceipt(null);
     try {
       const form = new FormData(); form.set("slug", value.slug); form.set("confirm", "on");
       if (software) {
@@ -147,7 +158,8 @@ export function ProductWorkspace({ product = blankProduct(), editToken = "", pub
       if (software) { setSoftwareToken(result.releaseToken!); setSelected([]); }
       else setTokens({ edit: result.editToken!, publish: result.publishToken! });
       setConfirmed(false);
-      setMessage(result.warning ?? (software ? "软件版本已发布。商品资料及其草稿保持不变。" : "商品资料已发布。软件版本和下载保持不变。"));
+      if (!software) setPublishedReceipt({ slug: result.slug!, videos: value.videos?.length ?? 0 });
+      setMessage(result.warning ?? (software ? "软件版本已发布。商品资料及其草稿保持不变。" : `商品资料已发布，包含 ${value.videos?.length ?? 0} 段视频。软件版本和下载保持不变。`));
       router.refresh();
     } catch { setConfirmed(false); setError("发布响应未完成，请刷新检查结果，避免重复操作。"); }
     finally { operationInFlight.current = false; setBusy(false); }
@@ -187,15 +199,23 @@ export function ProductWorkspace({ product = blankProduct(), editToken = "", pub
   const previewRecord = publicationMode === "product" ? value : publishedProduct;
 
   return <ReleaseFlowContext.Provider value={{ setActivity, goPreview, goVersions, operationBusy: disabled }}><div className="container max-w-7xl px-3 py-4 sm:px-4" data-testid="product-workspace">
-    <div className="flex flex-wrap items-start justify-between gap-4">
+    <div data-testid="product-action-bar" className="sticky top-14 z-30 -mx-1 flex flex-wrap items-start justify-between gap-2 border-b bg-background/95 px-1 py-2 backdrop-blur">
       <div className="min-w-0"><Link href="/dashboard?view=products" className="text-sm text-primary" onClick={event => { if ((unsaved || disabled) && !window.confirm("有未保存修改或上传正在进行，确定离开吗？")) event.preventDefault(); }}>← 商品管理</Link><h1 className="mt-1.5 break-words text-xl sm:text-2xl font-semibold">{existing ? value.name_zh || value.slug : "新增商品"}</h1><p className="mt-1 text-xs sm:text-sm text-muted-foreground">商品：{product.visibility === "published" ? "已上架" : "未上架"} · 软件：{publishedVersionCount ? `${publishedVersionCount} 个已发布版本` : "尚无已发布版本"} · {dirty ? "商品资料未保存" : hasDraft ? "商品资料有待发布修改" : "商品资料已保存"}</p></div>
-      <div className="flex flex-wrap gap-2"><Button className="h-9" data-testid="save-product-draft" disabled={disabled} onClick={save}>{busy ? "处理中…" : "保存商品资料"}</Button><Button className="h-9" data-preview-product variant="outline" disabled={disabled} onClick={() => { setPublicationMode("product"); setConfirmed(false); setPreviewOpen(true); setTab("preview"); }}>预览商品资料</Button></div>
+      <div className="flex flex-wrap gap-2"><Button className="h-9" variant="outline" data-testid="save-product-draft" disabled={disabled} onClick={() => void save()}>{busy ? "处理中…" : "保存草稿"}</Button><Button className="h-9" data-testid="prepare-product-publication" disabled={disabled} onClick={() => void prepareProductPublication()}>发布商品资料</Button><Button className="h-9" data-preview-product variant="ghost" disabled={disabled} onClick={showProductPublication}>预览</Button></div>
     </div>
     <nav role="tablist" className="mb-3 mt-4 flex flex-wrap gap-1.5 border-b pb-2" aria-label="商品编辑分区">{tabs.map(([id, title], index) => <Button className="h-9 px-3" key={id} id={`tab-${id}`} role="tab" aria-selected={tab === id} aria-controls={`panel-${id}`} tabIndex={tab === id ? 0 : -1} data-tab={id} variant={tab === id ? "default" : "outline"} disabled={disabled} onClick={() => setTab(id)} onKeyDown={event => {
       if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
       event.preventDefault(); const next = event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1 : (index + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
       setTab(tabs[next][0]); document.querySelector<HTMLButtonElement>(`[data-tab="${tabs[next][0]}"]`)?.focus();
     }}>{title}</Button>)}</nav>
+    {(dirty || hasDraft) && <div data-testid="product-publish-pending" className="mb-3 rounded-lg border border-amber-300 bg-amber-50/60 px-3 py-2 text-sm dark:border-amber-800 dark:bg-amber-950/20">
+      <strong>{dirty ? "本次修改尚未保存" : "草稿已保存，尚未发布"}</strong> · {publishedProduct ? "商品已上架，但访客仍看到上一次发布的资料。" : "商品介绍尚未公开。"}
+      <span className="ml-1">使用“发布商品资料”检查并确认新介绍、图片和视频；不需要发布软件。</span>
+    </div>}
+    {publishedReceipt && !dirty && <div data-testid="product-publication-success" className="mb-3 rounded-lg border border-primary/40 bg-primary/5 p-3 text-sm">
+      <strong>商品资料发布成功 · {publishedReceipt.videos} 段视频</strong>
+      <span className="ml-3 inline-flex flex-wrap gap-3"><a className="underline" target="_blank" rel="noopener noreferrer" href={`/zh/products/${encodeURIComponent(publishedReceipt.slug)}`}>查看中文商品页 ↗</a><a className="underline" target="_blank" rel="noopener noreferrer" href={`/en/products/${encodeURIComponent(publishedReceipt.slug)}`}>查看英文商品页 ↗</a></span>
+    </div>}
     {message && <p role="status" className="mb-3 mt-3 rounded-lg border bg-muted/20 p-3 text-sm">{message}</p>}
     {error && <p ref={feedbackRef} tabIndex={-1} role="alert" className="mb-3 mt-3 rounded-lg border border-destructive p-3 text-sm text-destructive">{error}</p>}
     <div id="panel-details" role="tabpanel" aria-labelledby="tab-details" className="mt-3" hidden={tab !== "details"}>
@@ -203,7 +223,7 @@ export function ProductWorkspace({ product = blankProduct(), editToken = "", pub
         <label className="text-sm font-medium">商品名称<Input name="name_zh" className="mt-1 h-9" required value={value.name_zh} onChange={e => update("name_zh", e.target.value)} placeholder="例如：我的软件" /></label>
         <label className="text-sm font-medium">商品地址标识<Input name="slug" className="mt-2" required readOnly={existing} value={value.slug} onChange={e => update("slug", e.target.value)} placeholder="my-software" /><span className="mt-1 block text-xs text-muted-foreground">小写字母、数字、连字符；创建后固定。</span></label>
         <label className="text-sm font-medium">分类<select name="category_slug" className="mt-1 h-9 w-full rounded-md border bg-background px-3" value={value.category_slug} onChange={e => update("category_slug", e.target.value)}>{categories.map(([id, name]) => <option key={id} value={id}>{name}</option>)}</select></label>
-        <label className="text-sm font-medium">软件状态<select name="status" className="mt-1 h-9 w-full rounded-md border bg-background px-3" value={value.status} onChange={e => update("status", e.target.value as AdminStoreProductRow["status"])}><option value="beta">测试版</option><option value="released">正式版</option><option value="coming-soon">即将推出</option></select></label>
+        <label className="text-sm font-medium">商品展示标签<select name="status" className="mt-1 h-9 w-full rounded-md border bg-background px-3" value={value.status} onChange={e => update("status", e.target.value as AdminStoreProductRow["status"])}><option value="beta">测试版</option><option value="released">正式版</option><option value="coming-soon">即将推出</option></select><span className="mt-1 block text-xs text-muted-foreground">只设置商品页标签，不代表本次资料或软件包已经发布。</span></label>
         <label className="text-sm font-medium md:col-span-2">一句话简介<Input name="tagline_zh" className="mt-1 h-9" value={value.tagline_zh} onChange={e => update("tagline_zh", e.target.value)} /></label>
         <label className="text-sm font-medium md:col-span-2">详细说明<Textarea name="description_zh" rows={4} className="mt-1" value={value.description_zh} onChange={e => update("description_zh", e.target.value)} placeholder="说明软件用途、功能和使用方式。支持换行，不执行HTML。" /></label>
         <label className="text-sm font-medium">支持平台<Input name="supported_platforms" className="mt-1 h-9" value={value.supported_platforms.join(", ")} onChange={e => update("supported_platforms", e.target.value.split(",").map(v => v.trim()))} placeholder="macOS, Windows, Linux" /></label>
@@ -219,12 +239,26 @@ export function ProductWorkspace({ product = blankProduct(), editToken = "", pub
       </section>
       </div>
       <ProductVideoEditor videos={value.videos ?? []} disabled={disabled} canUpload={existing} onChange={videos => update("videos", videos)} onUploadPoster={(file, id) => { void upload(file, `video:${id}`); }} />
+      <div data-testid="product-details-footer" className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border bg-muted/20 p-3">
+        <p className="text-sm text-muted-foreground">保存仅留草稿；确认发布后，访客才能看到本次介绍和视频。</p>
+        <div className="flex flex-wrap gap-2"><Button type="button" variant="outline" data-save-product-footer disabled={disabled} onClick={() => void save()}>保存草稿</Button><Button type="button" data-prepare-product-footer disabled={disabled} onClick={() => void prepareProductPublication()}>发布商品资料</Button></div>
+      </div>
     </div>
     <div id="panel-versions" role="tabpanel" aria-labelledby="tab-versions" hidden={tab !== "versions"}>
       {!existing ? <p className="rounded-lg border p-5">请先保存商品草稿，再添加属于该商品的软件版本。</p> : <>{dirty && <p data-testid="independent-version-editing" className="mb-4 rounded-lg border p-4 text-sm">商品资料有未保存修改，但不影响软件版本操作。版本发布不会保存或公开这些修改。</p>}<div className="min-w-0">{releasePanel}</div></>}
     </div>
     <div id="panel-preview" role="tabpanel" aria-labelledby="tab-preview" hidden={tab !== "preview"}>
-      <PublicationReview mode={publicationMode} onModeChange={mode => { setPublicationMode(mode); setConfirmed(false); }} productIsPublished={Boolean(publishedProduct)} product={value} onFixProduct={target => { if (!disabled) { setTab("details"); if (target === "media") requestAnimationFrame(() => document.getElementById("product-artwork")?.scrollIntoView({ behavior: "smooth", block: "start" })); } }} releases={releases} selected={selected} setSelected={setSelected} dirty={dirty} releaseDirty={releaseDirty} existing={existing} disabled={disabled} confirmed={confirmed} setConfirmed={setConfirmed} onPublish={() => void publish()} onBack={goVersions} />
+      <PublicationReview mode={publicationMode} onModeChange={mode => { setPublicationMode(mode); setConfirmed(false); }} productIsPublished={Boolean(publishedProduct)} liveProduct={publishedProduct} product={value} onSave={() => void save()} onFixProduct={(target, field) => { if (!disabled) { setTab("details"); requestAnimationFrame(() => {
+        let element: HTMLElement | null = null;
+        if (field?.startsWith("video:")) {
+          const [, index, part, source] = field.split(":");
+          const video = document.querySelectorAll<HTMLElement>("[data-edit-video]")[Number(index)];
+          element = (part === "title" ? video?.querySelector<HTMLElement>("[data-video-title]") : part === "source" ? video?.querySelectorAll<HTMLElement>("[data-video-url]")[Number(source)] : video) ?? null;
+        } else if (field === "videos") element = document.querySelector<HTMLElement>('[data-testid="product-video-editor"]');
+        else if (target === "media") element = document.getElementById("product-artwork");
+        else if (field) element = document.querySelector<HTMLElement>(`[name="${field}"]`);
+        element?.scrollIntoView({ behavior: "smooth", block: "center" }); element?.focus({ preventScroll: true });
+      }); } }} releases={releases} selected={selected} setSelected={setSelected} dirty={dirty} releaseDirty={releaseDirty} existing={existing} disabled={disabled} confirmed={confirmed} setConfirmed={setConfirmed} onPublish={() => void publish()} onBack={goVersions} />
       <details data-testid="preview-disclosure" className="mt-3 rounded-lg border" open={previewOpen} onToggle={event => setPreviewOpen(event.currentTarget.open)}>
         <summary className="cursor-pointer px-3 py-2.5 text-sm font-medium">商品页预览<span className="ml-2 text-xs font-normal text-muted-foreground">{previewOpen ? "收起" : "展开查看"} · 不提供草稿下载</span></summary>
         <div className="border-t p-3">

@@ -65,14 +65,14 @@ async function fillForm(selector,values) {
   },values);
 }
 const status = async text=>page.waitForFunction(text=>Array.from(document.querySelectorAll('[role="status"]')).some(x=>x.textContent.includes(text)),{},text);
-async function save() { await page.click('[data-testid="save-product-draft"]');await status('草稿已保存'); }
+async function save() { await page.locator('[data-testid="save-product-draft"]').click();await status('草稿已保存'); }
 async function publish(mode = "product") {
-  await page.click(`[data-publication-mode="${mode}"]`);
-  await page.click(`[data-testid="confirm-${mode === "software" ? "software" : "product"}-publication"]`);
-  await page.click(`[data-testid="publish-${mode === "software" ? "software" : "product"}"]`);await status('已发布');
+  await page.locator(`[data-publication-mode="${mode}"]`).click();
+  await page.locator(`[data-testid="confirm-${mode === "software" ? "software" : "product"}-publication"]`).click();
+  await page.locator(`[data-testid="publish-${mode === "software" ? "software" : "product"}"]`).click();await status('已发布');
 }
 
-async function tab(name) { await page.click(`[data-tab="${name}"]`); }
+async function tab(name) { await page.locator(`[data-tab="${name}"]`).click(); }
 async function createVersion(version) {
   await tab('versions');
   await page.$eval('[data-testid="new-product-release"]', node => { node.open = true; });
@@ -80,7 +80,7 @@ async function createVersion(version) {
   await fillForm(form,{version,channel:'stable',title_zh:'软件 '+version,notes_zh:'独立版本说明'});
   report.stage='save-version-'+version;
   const savedResponse=page.waitForResponse(r=>r.request().method()==='POST' && r.url().startsWith(base+'/admin/'));
-  await page.click(form+' button[type="submit"]');
+  await page.locator(form+' button[type="submit"]').click();
   await savedResponse;
   await page.waitForFunction(() => location.search.includes('saved=1'));
   const r=(await catalog()).releases.find(r=>r.version===version);
@@ -124,16 +124,16 @@ try {
   await tab('versions');const rform=`#release-${r.id} [data-testid="release-details-form"]`;
   await fillForm(rform,{title_zh:'只保存软件版本，不保存商品'});
   const response=page.waitForResponse(r=>r.request().method()==='POST' && r.url().startsWith(base+'/admin/'));
-  await page.click(rform+' button[type="submit"]');await response;
+  await page.locator(rform+' button[type="submit"]').click();await response;
   await page.waitForFunction(id=>!document.querySelector(`#release-${id} [data-testid="release-details-form"] fieldset`).disabled,{},r.id);
   assert.equal(await page.$eval('input[name="name_zh"]',e=>e.value),'尚未保存的商品编辑');
   assert.equal((await catalog()).productDrafts[original.slug].product.name_zh,'未准备好的资料草稿');
   check('saving version changes preserves unsaved product fields across the in-place save');
 
-  await page.click(`[data-preview-release="${r.id}"]`);
+  await page.locator(`[data-preview-release="${r.id}"]`).click();
   await page.waitForSelector('[data-publication-scope="software"]');
   assert.equal(await page.$('[data-testid="product-publication-issues"]'),null);
-  if (!(await page.$eval('[data-testid="preview-disclosure"]', e=>e.open))) await page.click('[data-testid="preview-disclosure"] > summary');
+  if (!(await page.$eval('[data-testid="preview-disclosure"]', e=>e.open))) await page.locator('[data-testid="preview-disclosure"] > summary').click();
   await page.waitForSelector('[data-testid="product-preview"] .product-detail-grid', {visible:true});
   const preview=await page.$eval('[data-testid="product-preview"]',e=>e.textContent);
   assert.match(preview,/公开商品标题/);assert.doesNotMatch(preview,/尚未保存|未准备好/);
@@ -151,7 +151,11 @@ try {
   await tab('versions');await page.$eval('[data-testid="new-product-release"]',e=>{e.open=true;});
   const newForm='[data-testid="new-product-release"] [data-testid="release-details-form"]';
   await fillForm(newForm,{version:'2.0.0',title_zh:'未保存的软件草稿'});
-  await page.click('[data-preview-product]');
+  // Return to the workspace toolbar before a real pointer click. Auto-scrolling
+  // to a toolbar at the viewport edge can otherwise hit the global sticky nav.
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.waitForFunction(() => document.querySelector('[data-preview-product]').getBoundingClientRect().top >= 56);
+  await page.locator('[data-preview-product]').click();
   await page.waitForSelector('[data-publication-scope="product"]');
   assert.equal(await page.$eval('[data-testid="confirm-product-publication"]',e=>e.disabled),false);
   const beforeProduct=(await catalog()).releases;
@@ -164,8 +168,8 @@ try {
   await page.goto(editor+'?tab=versions',{waitUntil:'networkidle0'});
   const second=await createVersion('2.0.0');const uploaded=await uploadPackage(second,'isolated-two.zip');
   const disk=path.join(storage,uploaded.a.storage_path);await writeFile(disk,'tampered software');
-  const snapshot=await catalog();await page.click(`[data-preview-release="${second.id}"]`);
-  await page.click('[data-testid="confirm-software-publication"]');await page.click('[data-testid="publish-software"]');
+  const snapshot=await catalog();await page.locator(`[data-preview-release="${second.id}"]`).click();
+  await page.locator('[data-testid="confirm-software-publication"]').click();await page.locator('[data-testid="publish-software"]').click();
   await page.waitForFunction(()=>Array.from(document.querySelectorAll('[role="alert"]')).some(e=>e.textContent.includes('校验失败')));
   assert.deepEqual(await catalog(),snapshot);assert.equal(await page.$eval('[data-testid="confirm-software-publication"]',e=>e.checked),false);
   await writeFile(disk,uploaded.bytes);await publish('software');
@@ -174,8 +178,8 @@ try {
   check('software hash failure changes neither stream, clears confirmation, and a separately confirmed retry succeeds');
 
   await page.setViewport({width:390,height:844});await tab('preview');
-  await page.click('[data-publication-mode="product"]');assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));await shot('independent-publication-mobile.png');
-  await page.click('[data-publication-mode="software"]'); if (!(await page.$eval('[data-testid="preview-disclosure"]', e => e.open))) await page.click('[data-testid="preview-disclosure"] > summary');assert.equal(await page.$eval('[data-testid="publish-software"]',e=>e.disabled),true);
+  await page.locator('[data-publication-mode="product"]').click();assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));await shot('independent-publication-mobile.png');
+  await page.locator('[data-publication-mode="software"]').click(); if (!(await page.$eval('[data-testid="preview-disclosure"]', e => e.open))) await page.locator('[data-testid="preview-disclosure"] > summary').click();assert.equal(await page.$eval('[data-testid="publish-software"]',e=>e.disabled),true);
   await stop();await start();
   await page.goto(base+'/zh/products/'+original.slug,{waitUntil:'networkidle0'});
   assert.match(await page.$eval('h1',e=>e.textContent),/新的商品介绍已准备/);
@@ -190,5 +194,6 @@ try {
   await browser?.close().catch(()=>{});await stop();await rm(temporary,{recursive:true,force:true});
   await writeFile(path.join(output,'result.json'),JSON.stringify(report,null,2)+'\n');
   if(report.status==='failed')await writeFile(path.join(output,'server.log'),serverLog);
-  console.log(JSON.stringify({...report,output},null,2));
+  // End this CLI after flushing the finished report, not while checks are pending.
+  process.stdout.write(JSON.stringify({...report,output},null,2)+'\n',()=>process.exit(report.status==='passed'?0:1));
 }

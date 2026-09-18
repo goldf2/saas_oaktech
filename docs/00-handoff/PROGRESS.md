@@ -2,11 +2,11 @@
 
 > 不要直接编辑本文件。修改TASKS.json后运行 `npm run handoff:render`。
 
-账本revision：30；更新时间：2026-09-19T06:04:00+08:00；计划版本：1.0.0。
+账本revision：32；更新时间：2026-09-19T06:38:42+08:00；计划版本：1.0.0。
 
 **权限主线任务完成：1/14。这是任务计数，不是代码完成百分比；PLAN-01文档不计入。**
 
-生产超管状态：`not_implemented`；唯一下一任务：**ADM-02**。
+生产超管状态：`not_implemented`；唯一下一任务：**PUB-02**。
 
 | 任务 | 阶段/类型 | 优先级 | 状态 | 负责人 | 依赖 |
 | --- | --- | --- | --- | --- | --- |
@@ -39,6 +39,7 @@
 | DASH-01 · Dashboard与商品管理统一工作台 | STORE / feature | P0 | 完成 | ChatGPT / tsk_b677b669147495db | 无 |
 | DASH-02 · 软件目录与商品管理合为单一商品列表 | STORE / feature | P0 | 完成 | ChatGPT / tsk_bc34f6eb218684af | DASH-01 |
 | LANG-01 · 恢复浏览器语言检测与手动偏好 | STORE / feature | P0 | 完成 | ChatGPT / tsk_5ef8f47aca946698 | 无 |
+| PUB-02 · 商品图文视频发布可发现性与结果核验 | STORE / feature | P0 | 阻塞 | ChatGPT / tsk_d66259b906c7a92b | PUB-01 |
 
 ## 任务详情与接续动作
 
@@ -527,3 +528,24 @@
 - verification / passed：`docs/00-handoff/evidence/2026-09-19-language-recovery.json`
 - implementation / passed：`i18n/config.ts`
 - implementation / passed：`components/language-switcher.tsx`
+
+### PUB-02 · 商品图文视频发布可发现性与结果核验
+
+状态：阻塞；负责人：ChatGPT / tsk_d66259b906c7a92b；实施：partial_local_not_ready_for_integration；部署：not_deployed。
+
+下一动作：先获取当前OpenPlay预览发布页截图（顶部状态、视频资料和按钮旁提示），保留现有内容；继续定位回归失败，完成后才合入和部署。
+
+验收条件：
+- 直接准备商品发布并明确保存不等于上线
+- 图文视频改动范围、空标题与空来源定位明确
+- 隔离环境从新增介绍与视频走通确认发布且软件不变
+- 真实草稿不可读取时如实说明，不擅自公开生产内容
+
+计划文件（可能尚未创建）：`components/admin/product-workspace.tsx`、`components/admin/publication-review.tsx`、`lib/store/product-publication-summary.ts`
+
+阻塞：
+- 尚未获取用户OpenPlay真实草稿/发布记录，不能定位该条内容未公开的直接原因。
+- 专项图文视频流程通过，但完整独立发布浏览器回归在后半段仍超时/节点重建异常；未完成集成验收。
+
+证据：
+- verification / partial：`docs/00-handoff/evidence/2026-09-19-product-publication-partial.json`

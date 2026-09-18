@@ -1,0 +1,101 @@
+{
+  "checkedAt": "2026-09-19T06:38:42+08:00",
+  "task": "PUB-02",
+  "candidateVersion": "0.1.36",
+  "production": {
+    "codeBaseline": "43d638b / 0.1.35",
+    "publicChinesePage": "Observed original introduction and no video section",
+    "publicEnglishPage": "Observed original introduction and no video section",
+    "authenticatedDraftAndAudit": "Not obtained. Original-session script blocked; native desktop observation lacked Accessibility permission. No bypass attempted.",
+    "rootCauseOfUserSpecificSubmission": "unconfirmed",
+    "contentWrites": false,
+    "deployed": false,
+    "gitPush": false
+  },
+  "validation": {
+    "unit": {
+      "passed": 171,
+      "failed": 0
+    },
+    "typecheck": "passed",
+    "productionBuild": "passed",
+    "targetedFinal": {
+      "status": "passed",
+      "checks": [
+        "editing text plus an incomplete video can prepare a private draft, with precise blockers rather than an unexplained disabled publication",
+        "repair links focus the exact field; the direct product action saves and previews text/video without publishing or requiring software",
+        "explicit confirmation publishes new Chinese content and the shared video on both public pages while leaving the incomplete software draft untouched",
+        "plain preview still never saves; saving from review clears earlier success feedback and keeps the public page unchanged",
+        "mobile review has no horizontal overflow; published video and later unpublished draft both survive server restart"
+      ],
+      "error": ""
+    },
+    "independentPublicationRetry": {
+      "status": "failed",
+      "checks": [
+        "incomplete product copy does not prevent creating a software version or uploading its private package",
+        "saving version changes preserves unsaved product fields across the in-place save",
+        "software-only preview and publication use public product content while saved and unsaved product drafts remain untouched"
+      ],
+      "error": "TimeoutError: Timed out after waiting 25000ms\n    at file:///Users/tefulong/.agentdock/tmp/oaktech-publish-clarity-20260919/node_modules/puppeteer-core/lib/esm/puppeteer/common/util.js:225:19\n    at file:///Users/tefulong/.agentdock/tmp/oaktech-publish-clarity-20260919/node_modules/puppeteer-core/lib/esm/third_party/rxjs/rxjs.js:1944:31\n    at OperatorSubscriber2._this._next (file:///Users/tefulong/.agentdock/tmp/oaktech-publish-clarity-20260919/node_modules/puppeteer-core/lib/esm/third_party/rxjs/rxjs.js:1001:9)\n    at Subscriber2.next (file:///Users/tefulong/.agentdock/tmp/oaktech-publish-clarity-20260919/node_modules/puppeteer-core/lib/esm/third_party/rxjs/rxjs.js:704:12)\n    at AsyncAction2.<anonymous> (file:///Users/tefulong/.agentdock/tmp/oaktech-publish-clarity-20260919/node_modules/puppeteer-core/lib/esm/third_party/rxjs/rxjs.js:2288:20)\n    at AsyncAction2._execute (file:///User"
+    },
+    "releaseFinal": {
+      "status": "passed",
+      "checks": [
+        "upload step is visible before save, version input is not a false default, and product visibility is distinct from software publication",
+        "English defaults are explicit; independent English fields are visible when required",
+        "missing product artwork blocks confirmation early; real local media upload and draft save satisfy the unchanged server prerequisites",
+        "Chinese-only version saves with deliberate bilingual fallback, stays in product context, and missing artifacts prevent software publication",
+        "saving an existing version normalizes surrounding whitespace without leaving the upload step falsely locked",
+        "interrupted upload becomes uncertain with no automatic retry and preserves the selected file for reconciliation",
+        "manual retry after reconciliation uploads 8+1 MiB with exact server-confirmed chunks",
+        "server validation errors preserve inputs; switching/editing product tabs does not unmount unsaved version data",
+        "keyboard tabs and independently scoped confirmation reject each stream own unsaved edits"
+      ],
+      "error": ""
+    },
+    "initialBatch": [
+      {
+        "suite": "clarity",
+        "exitCode": 0,
+        "checks": 5
+      },
+      {
+        "suite": "publication",
+        "exitCode": 1,
+        "checks": 3
+      },
+      {
+        "suite": "video",
+        "exitCode": 0,
+        "checks": 6
+      },
+      {
+        "suite": "store",
+        "exitCode": 0,
+        "checks": 13
+      },
+      {
+        "suite": "workspace",
+        "exitCode": 0,
+        "checks": 8
+      },
+      {
+        "suite": "language",
+        "exitCode": 0,
+        "checks": 7
+      },
+      {
+        "suite": "release",
+        "exitCode": 124,
+        "checks": 9
+      },
+      {
+        "suite": "compact",
+        "exitCode": 0,
+        "checks": 3
+      }
+    ]
+  },
+  "nextAction": "Obtain current OpenPlay product-publication screenshot or authorized read of saved draft/publication audit before concluding the actual failure; investigate independent-publishing browser regression before integration."
+}
