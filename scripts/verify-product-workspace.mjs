@@ -178,6 +178,8 @@ try {
 
   await page.waitForFunction(()=>!document.querySelector('[data-tab="preview"]').disabled);
   await page.click('[data-tab="preview"]');await page.click(`[data-release-select="${release.id}"]`);
+  if (!(await page.$eval('[data-testid="preview-disclosure"]', el => el.open))) await page.click('[data-testid="preview-disclosure"] > summary');
+  await page.waitForSelector('[data-testid="product-preview"] .product-detail-grid', { visible: true });
   assert.equal(await page.$('[data-testid="product-preview"] a[download]'),null);
   await page.evaluate(()=>Array.from(document.querySelectorAll('button')).find(x=>x.textContent==='手机宽度').click());
   await page.waitForFunction(()=>{

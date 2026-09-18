@@ -97,10 +97,13 @@ try {
 
   const thirdPartyBefore = requests.length;
   await page.click('[data-tab="preview"]');
+  if (!(await page.$eval('[data-testid="preview-disclosure"]', el => el.open))) await page.click('[data-testid="preview-disclosure"] > summary');
   await page.waitForSelector('[data-testid="product-preview"] [data-video-load]');
   assert.equal((await page.$$('iframe')).length, 0);
   assert.equal(requests.length, thirdPartyBefore, 'preview must not contact video providers before a click');
   await shot('video-preview-desktop.png');
+  // The collapsed preview mounts its player lazily after the toggle event.
+  await page.waitForSelector('[data-testid="product-preview"] [data-video-load]', { visible: true });
   await page.click('[data-testid="product-preview"] [data-video-load]');
   await page.waitForSelector('iframe[data-video-player="youtube"]');
   let props = await page.$eval('iframe[data-video-player]', node => ({ src: node.src, title: node.title, referrer: node.referrerPolicy, width: node.clientWidth, height: node.clientHeight }));
@@ -108,6 +111,8 @@ try {
   assert.equal(props.referrer, 'strict-origin-when-cross-origin'); assert.ok(props.width >= 200 && props.height >= 200);
   await page.click(`[data-video-source="${video.sources[1].id}"]`);
   assert.equal((await page.$$('iframe')).length, 0, 'changing source removes the previous player');
+  // The collapsed preview mounts its player lazily after the toggle event.
+  await page.waitForSelector('[data-testid="product-preview"] [data-video-load]', { visible: true });
   await page.click('[data-testid="product-preview"] [data-video-load]');
   await page.waitForSelector('iframe[data-video-player="bilibili"]');
   assert.equal(new URL(await page.$eval('iframe[data-video-player]', node => node.src)).host, 'player.bilibili.com');
@@ -149,7 +154,11 @@ try {
   assert.ok(!(await visitor.$eval('[data-testid="product-video-introductions"]', node => node.textContent)).includes('尚未公开的新标题'));
   pass('anonymous mobile storefront displays the published video only; later saved edits do not leak');
 
-  await page.click('[data-tab="preview"]'); await page.click('[data-testid="product-preview"] [data-video-load]');
+  await page.click('[data-tab="preview"]');
+  if (!(await page.$eval('[data-testid="preview-disclosure"]', el => el.open))) await page.click('[data-testid="preview-disclosure"] > summary');
+  // The collapsed preview mounts its player lazily after the toggle event.
+  await page.waitForSelector('[data-testid="product-preview"] [data-video-load]', { visible: true });
+  await page.click('[data-testid="product-preview"] [data-video-load]');
   await page.click('[data-tab="details"]'); assert.equal((await page.$$('iframe')).length, 0);
   await page.click('[aria-label="移除视频1"]'); await save();
   await visitor.reload({ waitUntil: 'networkidle0' }); assert.ok(await visitor.$('[data-testid="product-video-introductions"]'));

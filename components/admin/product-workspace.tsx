@@ -50,6 +50,7 @@ export function ProductWorkspace({ product = blankProduct(), editToken = "", pub
   const [error, setError] = useState("");
   const [locale, setLocale] = useState<Locale>("zh");
   const [mobile, setMobile] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
   const [selected, setSelected] = useState<string[]>([]);
   const [confirmed, setConfirmed] = useState(false);
   const [activities, setActivities] = useState<Record<string, ReleaseActivity>>({});
@@ -158,41 +159,41 @@ export function ProductWorkspace({ product = blankProduct(), editToken = "", pub
   function artwork(field: "icon_url" | "hero_image_url", title: string) {
     return <section className="min-w-0 rounded-xl border p-4">
       <h3 className="font-semibold">{title}</h3>
-      <div className="mt-3 flex h-40 items-center justify-center rounded-lg bg-muted/40">{value[field] ? <img src={value[field]} alt={`${title}预览`} className="max-h-40 max-w-full object-contain" /> : <span className="text-sm text-muted-foreground">尚未上传</span>}</div>
-      <label className="mt-4 block text-sm">{value[field] ? `替换${title}` : `上传${title}`}<Input data-upload={field} className="mt-2 h-auto file:mr-3 file:rounded-md file:bg-primary file:px-4 file:py-2 file:text-primary-foreground" type="file" accept="image/png,image/jpeg,image/webp" disabled={disabled || !existing} onChange={event => { const file = event.target.files?.[0]; event.target.value = ""; void upload(file, field); }} /></label>
+      <div className="mt-2 flex h-24 items-center justify-center rounded-lg bg-muted/40">{value[field] ? <img src={value[field]} alt={`${title}预览`} className="max-h-24 max-w-full object-contain" /> : <span className="text-sm text-muted-foreground">尚未上传</span>}</div>
+      <label className="mt-3 block text-sm">{value[field] ? `替换${title}` : `上传${title}`}<Input data-upload={field} className="mt-2 h-auto file:mr-3 file:rounded-md file:bg-primary file:px-4 file:py-2 file:text-primary-foreground" type="file" accept="image/png,image/jpeg,image/webp" disabled={disabled || !existing} onChange={event => { const file = event.target.files?.[0]; event.target.value = ""; void upload(file, field); }} /></label>
       <details className="mt-3"><summary className="cursor-pointer text-xs text-muted-foreground">高级：使用已有图片地址</summary><Input aria-label={`${title}地址`} className="mt-2" value={value[field]} disabled={disabled} onChange={event => update(field, event.target.value)} placeholder="本站路径或HTTPS地址" /></details>
     </section>;
   }
   const displayedReleases = releases.filter(r => selected.includes(r.id) || r.status === "published").sort((a, b) => Number(selected.includes(b.id)) - Number(selected.includes(a.id)));
 
-  return <ReleaseFlowContext.Provider value={{ setActivity, goPreview, goVersions, operationBusy: disabled }}><div className="container max-w-7xl px-4 py-8" data-testid="product-workspace">
+  return <ReleaseFlowContext.Provider value={{ setActivity, goPreview, goVersions, operationBusy: disabled }}><div className="container max-w-7xl px-3 py-4 sm:px-4" data-testid="product-workspace">
     <div className="flex flex-wrap items-start justify-between gap-4">
-      <div className="min-w-0"><Link href="/admin/products" className="text-sm text-primary" onClick={event => { if ((unsaved || disabled) && !window.confirm("有未保存修改或上传正在进行，确定离开吗？")) event.preventDefault(); }}>← 商品管理</Link><h1 className="mt-3 break-words text-3xl font-semibold">{existing ? value.name_zh || value.slug : "新增商品"}</h1><p className="mt-2 text-sm text-muted-foreground">商品：{product.visibility === "published" ? "已上架" : "未上架"} · 软件：{publishedVersionCount ? `${publishedVersionCount} 个已发布版本` : "尚无已发布版本"} · {dirty ? "商品资料未保存" : hasDraft ? "商品资料有待发布修改" : "商品资料已保存"}</p></div>
-      <Button data-testid="save-product-draft" disabled={disabled} onClick={save}>{busy ? "处理中…" : "保存商品资料"}</Button>
+      <div className="min-w-0"><Link href="/admin/products" className="text-sm text-primary" onClick={event => { if ((unsaved || disabled) && !window.confirm("有未保存修改或上传正在进行，确定离开吗？")) event.preventDefault(); }}>← 商品管理</Link><h1 className="mt-1.5 break-words text-xl sm:text-2xl font-semibold">{existing ? value.name_zh || value.slug : "新增商品"}</h1><p className="mt-1 text-xs sm:text-sm text-muted-foreground">商品：{product.visibility === "published" ? "已上架" : "未上架"} · 软件：{publishedVersionCount ? `${publishedVersionCount} 个已发布版本` : "尚无已发布版本"} · {dirty ? "商品资料未保存" : hasDraft ? "商品资料有待发布修改" : "商品资料已保存"}</p></div>
+      <Button className="h-9" data-testid="save-product-draft" disabled={disabled} onClick={save}>{busy ? "处理中…" : "保存商品资料"}</Button>
     </div>
-    <nav role="tablist" className="mt-7 flex flex-wrap gap-2 border-b pb-3" aria-label="商品编辑分区">{tabs.map(([id, title], index) => <Button key={id} id={`tab-${id}`} role="tab" aria-selected={tab === id} aria-controls={`panel-${id}`} tabIndex={tab === id ? 0 : -1} data-tab={id} variant={tab === id ? "default" : "outline"} disabled={disabled} onClick={() => setTab(id)} onKeyDown={event => {
+    <nav role="tablist" className="mb-3 mt-4 flex flex-wrap gap-1.5 border-b pb-2" aria-label="商品编辑分区">{tabs.map(([id, title], index) => <Button className="h-9 px-3" key={id} id={`tab-${id}`} role="tab" aria-selected={tab === id} aria-controls={`panel-${id}`} tabIndex={tab === id ? 0 : -1} data-tab={id} variant={tab === id ? "default" : "outline"} disabled={disabled} onClick={() => setTab(id)} onKeyDown={event => {
       if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
       event.preventDefault(); const next = event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1 : (index + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
       setTab(tabs[next][0]); document.querySelector<HTMLButtonElement>(`[data-tab="${tabs[next][0]}"]`)?.focus();
     }}>{title}</Button>)}</nav>
-    {message && <p role="status" className="mt-4 rounded-lg border bg-muted/20 p-3 text-sm">{message}</p>}
-    {error && <p ref={feedbackRef} tabIndex={-1} role="alert" className="mt-4 rounded-lg border border-destructive p-3 text-sm text-destructive">{error}</p>}
-    <div id="panel-details" role="tabpanel" aria-labelledby="tab-details" className="mt-6" hidden={tab !== "details"}>
-      <fieldset disabled={disabled} className="grid min-w-0 gap-5 rounded-xl border p-5 md:grid-cols-2">
-        <label className="text-sm font-medium">商品名称<Input name="name_zh" className="mt-2" required value={value.name_zh} onChange={e => update("name_zh", e.target.value)} placeholder="例如：我的软件" /></label>
+    {message && <p role="status" className="mb-3 mt-3 rounded-lg border bg-muted/20 p-3 text-sm">{message}</p>}
+    {error && <p ref={feedbackRef} tabIndex={-1} role="alert" className="mb-3 mt-3 rounded-lg border border-destructive p-3 text-sm text-destructive">{error}</p>}
+    <div id="panel-details" role="tabpanel" aria-labelledby="tab-details" className="mt-3" hidden={tab !== "details"}>
+      <fieldset disabled={disabled} className="grid min-w-0 gap-3 rounded-lg border p-3 sm:p-4 md:grid-cols-2">
+        <label className="text-sm font-medium">商品名称<Input name="name_zh" className="mt-1 h-9" required value={value.name_zh} onChange={e => update("name_zh", e.target.value)} placeholder="例如：我的软件" /></label>
         <label className="text-sm font-medium">商品地址标识<Input name="slug" className="mt-2" required readOnly={existing} value={value.slug} onChange={e => update("slug", e.target.value)} placeholder="my-software" /><span className="mt-1 block text-xs text-muted-foreground">小写字母、数字、连字符；创建后固定。</span></label>
-        <label className="text-sm font-medium">分类<select name="category_slug" className="mt-2 h-10 w-full rounded-md border bg-background px-3" value={value.category_slug} onChange={e => update("category_slug", e.target.value)}>{categories.map(([id, name]) => <option key={id} value={id}>{name}</option>)}</select></label>
-        <label className="text-sm font-medium">软件状态<select name="status" className="mt-2 h-10 w-full rounded-md border bg-background px-3" value={value.status} onChange={e => update("status", e.target.value as AdminStoreProductRow["status"])}><option value="beta">测试版</option><option value="released">正式版</option><option value="coming-soon">即将推出</option></select></label>
-        <label className="text-sm font-medium md:col-span-2">一句话简介<Input name="tagline_zh" className="mt-2" value={value.tagline_zh} onChange={e => update("tagline_zh", e.target.value)} /></label>
-        <label className="text-sm font-medium md:col-span-2">详细说明<Textarea name="description_zh" rows={7} className="mt-2" value={value.description_zh} onChange={e => update("description_zh", e.target.value)} placeholder="说明软件用途、功能和使用方式。支持换行，不执行HTML。" /></label>
-        <label className="text-sm font-medium">支持平台<Input name="supported_platforms" className="mt-2" value={value.supported_platforms.join(", ")} onChange={e => update("supported_platforms", e.target.value.split(",").map(v => v.trim()))} placeholder="macOS, Windows, Linux" /></label>
+        <label className="text-sm font-medium">分类<select name="category_slug" className="mt-1 h-9 w-full rounded-md border bg-background px-3" value={value.category_slug} onChange={e => update("category_slug", e.target.value)}>{categories.map(([id, name]) => <option key={id} value={id}>{name}</option>)}</select></label>
+        <label className="text-sm font-medium">软件状态<select name="status" className="mt-1 h-9 w-full rounded-md border bg-background px-3" value={value.status} onChange={e => update("status", e.target.value as AdminStoreProductRow["status"])}><option value="beta">测试版</option><option value="released">正式版</option><option value="coming-soon">即将推出</option></select></label>
+        <label className="text-sm font-medium md:col-span-2">一句话简介<Input name="tagline_zh" className="mt-1 h-9" value={value.tagline_zh} onChange={e => update("tagline_zh", e.target.value)} /></label>
+        <label className="text-sm font-medium md:col-span-2">详细说明<Textarea name="description_zh" rows={4} className="mt-1" value={value.description_zh} onChange={e => update("description_zh", e.target.value)} placeholder="说明软件用途、功能和使用方式。支持换行，不执行HTML。" /></label>
+        <label className="text-sm font-medium">支持平台<Input name="supported_platforms" className="mt-1 h-9" value={value.supported_platforms.join(", ")} onChange={e => update("supported_platforms", e.target.value.split(",").map(v => v.trim()))} placeholder="macOS, Windows, Linux" /></label>
         <label className="flex items-center gap-2 text-sm"><input name="featured" type="checkbox" checked={value.featured} onChange={e => update("featured", e.target.checked)} />首页推荐</label>
-        <details className="md:col-span-2"><summary className="cursor-pointer font-medium">英文资料（可选，未填写时使用中文）</summary><div className="mt-4 grid gap-4"><label className="text-sm">English name<Input name="name_en" value={value.name_en} onChange={e => update("name_en", e.target.value)} /></label><label className="text-sm">English tagline<Input name="tagline_en" value={value.tagline_en} onChange={e => update("tagline_en", e.target.value)} /></label><label className="text-sm">English description<Textarea name="description_en" rows={5} value={value.description_en} onChange={e => update("description_en", e.target.value)} /></label></div></details>
+        <details className="md:col-span-2"><summary className="cursor-pointer font-medium">英文资料（可选，未填写时使用中文）</summary><div className="mt-4 grid gap-4"><label className="text-sm">English name<Input name="name_en" value={value.name_en} onChange={e => update("name_en", e.target.value)} /></label><label className="text-sm">English tagline<Input name="tagline_en" value={value.tagline_en} onChange={e => update("tagline_en", e.target.value)} /></label><label className="text-sm">English description<Textarea name="description_en" rows={3} value={value.description_en} onChange={e => update("description_en", e.target.value)} /></label></div></details>
       </fieldset>
       <div id="product-artwork" className="mt-6">
       {!existing && <p className="mb-5 rounded-lg border p-4">先填写商品名称和地址标识，保存草稿后即可上传图片。</p>}
       <p className="mb-4 text-sm text-muted-foreground">PNG / JPEG / WebP · 每张最多8 MiB · 上传后重新编码并移除原始元数据 · 新图在发布前仅管理员可见</p>
-      <div className="grid gap-5 md:grid-cols-2">{artwork("icon_url", "图标")}{artwork("hero_image_url", "封面")}</div>
+      <div className="grid gap-3 md:grid-cols-2">{artwork("icon_url", "图标")}{artwork("hero_image_url", "封面")}</div>
       <section className="mt-5 rounded-xl border p-5"><h2 className="text-xl font-semibold">产品截图 <span className="text-sm font-normal text-muted-foreground">{value.gallery_urls?.length ?? 0}/8</span></h2><div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{(value.gallery_urls ?? []).map((url, index) => <div key={`${url}-${index}`} className="min-w-0 rounded-lg border p-3"><img src={url} alt={`截图 ${index + 1}`} className="h-36 w-full object-contain" /><div className="mt-3 flex flex-wrap gap-2"><Button size="sm" variant="outline" aria-label={`截图${index + 1}前移`} disabled={disabled || index === 0} onClick={() => reorder(index, -1)}>前移</Button><Button size="sm" variant="outline" aria-label={`截图${index + 1}后移`} disabled={disabled || index === (value.gallery_urls?.length ?? 0) - 1} onClick={() => reorder(index, 1)}>后移</Button><Button size="sm" variant="outline" aria-label={`移除截图${index + 1}`} disabled={disabled} onClick={() => update("gallery_urls", value.gallery_urls!.filter((_, i) => i !== index))}>移除</Button></div></div>)}</div>
         <label className="mt-5 block text-sm">添加产品截图<Input data-upload="gallery_urls" className="mt-2 h-auto max-w-md file:mr-3 file:rounded-md file:bg-primary file:px-4 file:py-2 file:text-primary-foreground" type="file" accept="image/png,image/jpeg,image/webp" disabled={disabled || !existing || (value.gallery_urls?.length ?? 0) >= 8} onChange={event => { const file = event.target.files?.[0]; event.target.value = ""; void upload(file, "gallery_urls"); }} /></label>
       </section>
@@ -204,8 +205,13 @@ export function ProductWorkspace({ product = blankProduct(), editToken = "", pub
     </div>
     <div id="panel-preview" role="tabpanel" aria-labelledby="tab-preview" hidden={tab !== "preview"}>
       <PublicationReview product={value} onFixProduct={target => { if (!disabled) { setTab("details"); if (target === "media") requestAnimationFrame(() => document.getElementById("product-artwork")?.scrollIntoView({ behavior: "smooth", block: "start" })); } }} releases={releases} selected={selected} setSelected={setSelected} dirty={dirty} releaseDirty={releaseDirty} existing={existing} disabled={disabled} confirmed={confirmed} setConfirmed={setConfirmed} onPublish={() => void publish()} onBack={goVersions} />
-      <div className="mt-6 flex flex-wrap items-center justify-between gap-3"><h2 className="font-semibold">商品页预览 · 不提供草稿下载</h2><div className="flex gap-2"><Button size="sm" variant="outline" onClick={() => setLocale(locale === "zh" ? "en" : "zh")}>{locale === "zh" ? "切换英文" : "切换中文"}</Button><Button size="sm" variant="outline" onClick={() => setMobile(!mobile)}>{mobile ? "桌面宽度" : "手机宽度"}</Button></div></div>
-      <div data-testid="product-preview" className={`mx-auto mt-4 overflow-hidden rounded-xl border ${mobile ? "max-w-[390px]" : "w-full"}`}>{tab === "preview" && <DatabaseProductPage product={previewProduct(value, locale)} releases={previewReleases(displayedReleases, locale)} locale={locale} preview />}</div>
+      <details data-testid="preview-disclosure" className="mt-3 rounded-lg border" onToggle={event => setPreviewOpen(event.currentTarget.open)}>
+        <summary className="cursor-pointer px-3 py-2.5 text-sm font-medium">商品页预览<span className="ml-2 text-xs font-normal text-muted-foreground">{previewOpen ? "收起" : "展开查看"} · 不提供草稿下载</span></summary>
+        <div className="border-t p-3">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2"><span className="text-xs text-muted-foreground">按需查看完整商品、图片和视频，发布确认在上方。</span><div className="flex gap-2"><Button size="sm" variant="outline" onClick={() => setLocale(locale === "zh" ? "en" : "zh")}>{locale === "zh" ? "切换英文" : "切换中文"}</Button><Button size="sm" variant="outline" onClick={() => setMobile(!mobile)}>{mobile ? "桌面宽度" : "手机宽度"}</Button></div></div>
+          <div data-testid="product-preview" className={`mx-auto overflow-hidden rounded-lg border ${mobile ? "max-w-[390px]" : "w-full"}`}>{tab === "preview" && previewOpen && <DatabaseProductPage product={previewProduct(value, locale)} releases={previewReleases(displayedReleases, locale)} locale={locale} preview />}</div>
+        </div>
+      </details>
     </div>
   </div></ReleaseFlowContext.Provider>;
 }

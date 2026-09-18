@@ -2,7 +2,7 @@
 
 > 不要直接编辑本文件。修改TASKS.json后运行 `npm run handoff:render`。
 
-账本revision：17；更新时间：2026-09-18T09:06:20+08:00；计划版本：1.0.0。
+账本revision：20；更新时间：2026-09-18T09:43:12+08:00；计划版本：1.0.0。
 
 **权限主线任务完成：1/14。这是任务计数，不是代码完成百分比；PLAN-01文档不计入。**
 
@@ -34,6 +34,7 @@
 | STORE-01 · 商品内图文、版本、预览和统一发布工作台 | STORE / feature | P0 | 完成 | ChatGPT / tsk_5a4be4c4b63f215d | 无 |
 | STORE-02 · 发布流程可发现性、批量上传与校验预览 | STORE / feature | P0 | 完成 | ChatGPT / tsk_b02c9763689e79dc | STORE-01 |
 | VIDEO-01 · 商品介绍视频源、按需嵌入与三组编辑页 | STORE / feature | P0 | 完成 | ChatGPT / tsk_6e89bb30274d3e30 | STORE-01 |
+| STORE-03 · 商品发布页面紧凑布局 | STORE / feature | P1 | 完成 | ChatGPT / tsk_df0424b2b9310843 | STORE-02, VIDEO-01 |
 
 ## 任务详情与接续动作
 
@@ -427,3 +428,20 @@
 - verification / passed：`docs/00-handoff/evidence/2026-09-18-product-videos.json`
 - implementation / passed：`components/product-videos.tsx`
 - documentation / passed：`docs/product-video-sources.md`
+
+### STORE-03 · 商品发布页面紧凑布局
+
+状态：完成；负责人：ChatGPT / tsk_df0424b2b9310843；实施：compact_layout_local_browser_verified；部署：pending_remote_delivery。
+
+下一动作：核对远程CI、官网health和代码版本；不自动发布真实软件草稿。
+
+验收条件：
+- 版本资料/上传/确认密度提升，必要入口和状态不隐藏，基本文字可读
+- 合并重复文件清单，商品整页预览按需展开，保留视频与现有发布逻辑
+- 记录同屏尺寸对比，390px/1024px/1440px无溢出，上传发布回归通过
+
+计划文件（可能尚未创建）：`components/admin/product-workspace.tsx`、`components/admin/product-releases.tsx`、`components/admin/artifact-upload.tsx`、`components/admin/publication-review.tsx`、`components/admin/release-file-list.tsx`、`scripts/verify-compact-release.mjs`
+
+证据：
+- implementation / passed：`components/admin/release-file-list.tsx`
+- verification / passed：`docs/00-handoff/evidence/2026-09-18-compact-release-layout.json`

@@ -1,0 +1,71 @@
+{
+  "verified_at": "2026-09-18T09:43:12+08:00",
+  "version": "0.1.32",
+  "base_commit": "6e47cc1c35744254d351a3dbed02838602b42c84",
+  "task": "STORE-03",
+  "unit_tests_passed": 130,
+  "typecheck": "passed",
+  "default_turbopack_build": "passed",
+  "signed_release_browser_checks": 14,
+  "workspace_browser_checks": 12,
+  "video_browser_checks": 6,
+  "compact_layout_checks": [
+    "1440, 1024 and 390px forms retain readable controls and visible upload guidance without horizontal overflow",
+    "full storefront preview is on demand; phone preview works and does not expose draft downloads",
+    "publication confirmation remains explicit, mobile layout and dark mode have no runtime errors",
+    "measured same-fixture desktop form and default publication workspace are substantially shorter"
+  ],
+  "same_fixture_comparison": {
+    "new-1440": {
+      "before": 1063,
+      "after": 755,
+      "reductionPercent": 29
+    },
+    "new-1024": {
+      "before": 1502,
+      "after": 755,
+      "reductionPercent": 50
+    },
+    "files-1440": {
+      "before": 1766,
+      "after": 1249,
+      "reductionPercent": 29
+    },
+    "review-1440": {
+      "before": 2092,
+      "after": 760,
+      "reductionPercent": 64
+    }
+  },
+  "viewports": [
+    1440,
+    1024,
+    390
+  ],
+  "minimum_version_input_font_px": 14,
+  "control_height_px": 36,
+  "new_form_save_button_bottom_at_1024px": 766,
+  "production_data_modified": false,
+  "backend_and_video_implementation_unchanged": true,
+  "preview_default": "collapsed; explicit expand renders original full product/video preview",
+  "scope": "Isolated local browser and temporary catalogs only; no real administrator or software publication",
+  "source_sha256": {
+    "components/admin/product-workspace.tsx": "a3eda709a2cf12f9fa4c11527d4d124f9b083e008912acff2588218ef9ffbf97",
+    "components/admin/product-releases.tsx": "e74493ece396d3a1eff0ada6429ecef5e94213af4e07d4d3be8b127ac89820bf",
+    "components/admin/artifact-upload.tsx": "c728d028f35bb45ef5e55e2759c2ff9ab55bc891edebe7db4674f16343c5fcf2",
+    "components/admin/publication-review.tsx": "096a859c034145eef22b4585660f9f3685f857b6d6c47c6d1e149640995e5d85",
+    "components/admin/release-file-list.tsx": "6e4f8f62b888587497971f7554df69757ae20a152b41638f0e1aef4273e78ad8",
+    "lib/store/release-display.ts": "32b68d288baf69fbbf988109643770e741f5fa127c8ae3c543979da8d3633cab",
+    "scripts/verify-compact-release.mjs": "b3a045bf6678bd790342f5a2ab6a3708c6566d86160ec313ba57d35e2178f01d",
+    "scripts/verify-product-videos.mjs": "5da7413e29501a7b50f7910e6e66c022ade40cd7472bdcfe8cd0d329f34f2521",
+    "scripts/verify-product-workspace.mjs": "5ae6142bdff42da9fb69425cbdd83e70509fdbd9b1b5e6ef8728ac542acf2df6",
+    "scripts/verify-release-workflow.mjs": "02cddbe0d57788264219afb6a778e572444d62e42c7ae7e1f575b0f2fd82e7a2",
+    "tests/release-display.test.ts": "02a74d377698d342323db46e3823a20dfc4bb46ac444cb9cea4efc8f7df0291b",
+    "package.json": "9260309d15f91a6205167c40874f7bc1ad20dd62dc96e89c54861ad10bd8f8f5",
+    "package-lock.json": "6ac2958f97d2b9f3048e4310aa0a0a52a443062e55e16e3aafae5188bfdfd8d8"
+  },
+  "retained_failure_notes": [
+    "Initial compact pass still placed the save button below the 1024x768 fold; removed duplicated titles and secondary instructions without weakening the target.",
+    "Video test clicked the newly lazy-mounted preview before it was visible; waitForSelector was added and the six checks passed."
+  ]
+}
