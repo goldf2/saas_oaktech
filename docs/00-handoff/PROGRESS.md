@@ -2,7 +2,7 @@
 
 > 不要直接编辑本文件。修改TASKS.json后运行 `npm run handoff:render`。
 
-账本revision：32；更新时间：2026-09-19T06:38:42+08:00；计划版本：1.0.0。
+账本revision：34；更新时间：2026-09-19T07:00:12+08:00；计划版本：1.0.0。
 
 **权限主线任务完成：1/14。这是任务计数，不是代码完成百分比；PLAN-01文档不计入。**
 
@@ -39,7 +39,8 @@
 | DASH-01 · Dashboard与商品管理统一工作台 | STORE / feature | P0 | 完成 | ChatGPT / tsk_b677b669147495db | 无 |
 | DASH-02 · 软件目录与商品管理合为单一商品列表 | STORE / feature | P0 | 完成 | ChatGPT / tsk_bc34f6eb218684af | DASH-01 |
 | LANG-01 · 恢复浏览器语言检测与手动偏好 | STORE / feature | P0 | 完成 | ChatGPT / tsk_5ef8f47aca946698 | 无 |
-| PUB-02 · 商品图文视频发布可发现性与结果核验 | STORE / feature | P0 | 阻塞 | ChatGPT / tsk_d66259b906c7a92b | PUB-01 |
+| PUB-02 · 商品图文视频发布可发现性与结果核验 | STORE / feature | P0 | 待验收 | ChatGPT / tsk_d66259b906c7a92b | PUB-01 |
+| LAYOUT-01 · 商品编辑整页重排与发布操作清晰化 | STORE / feature | P0 | 完成 | ChatGPT / tsk_5c35347895781361 | 无 |
 
 ## 任务详情与接续动作
 
@@ -531,9 +532,9 @@
 
 ### PUB-02 · 商品图文视频发布可发现性与结果核验
 
-状态：阻塞；负责人：ChatGPT / tsk_d66259b906c7a92b；实施：partial_local_not_ready_for_integration；部署：not_deployed。
+状态：待验收；负责人：ChatGPT / tsk_d66259b906c7a92b；实施：integrated_browser_verified；部署：included_in_0.1.36_candidate。
 
-下一动作：先获取当前OpenPlay预览发布页截图（顶部状态、视频资料和按钮旁提示），保留现有内容；继续定位回归失败，完成后才合入和部署。
+下一动作：用户截图已定位空视频标题和待发布状态；本轮提供界面及定位修复，真实商品发布仍由管理员补齐资料并确认，不自动消费其草稿。
 
 验收条件：
 - 直接准备商品发布并明确保存不等于上线
@@ -543,9 +544,24 @@
 
 计划文件（可能尚未创建）：`components/admin/product-workspace.tsx`、`components/admin/publication-review.tsx`、`lib/store/product-publication-summary.ts`
 
-阻塞：
-- 尚未获取用户OpenPlay真实草稿/发布记录，不能定位该条内容未公开的直接原因。
-- 专项图文视频流程通过，但完整独立发布浏览器回归在后半段仍超时/节点重建异常；未完成集成验收。
-
 证据：
 - verification / partial：`docs/00-handoff/evidence/2026-09-19-product-publication-partial.json`
+- verification / passed：`docs/00-handoff/evidence/2026-09-19-product-editor-layout.json`
+
+### LAYOUT-01 · 商品编辑整页重排与发布操作清晰化
+
+状态：完成；负责人：ChatGPT / tsk_5c35347895781361；实施：complete_browser_verified；部署：pending_post_commit_verification。
+
+下一动作：源码提交推送后分别读取GitHub任务和公网版本/资源；不替用户公开生产草稿。
+
+验收条件：
+- 商品文字与图片桌面双栏、手机单栏，视频链接为主字段且缺项就地提示
+- 固定工具栏区分保存、预览和发布，不丢未保存输入
+- 隔离环境复现用户截图并发布图文视频，无软件包也可上架
+- 保留其他任务与生产数据，代码和上线分别验证
+
+计划文件（可能尚未创建）：`components/admin/product-details-editor.tsx`、`components/admin/product-video-editor.tsx`、`components/admin/product-workspace.tsx`、`scripts/verify-product-editor-layout.mjs`
+
+证据：
+- verification / passed：`docs/00-handoff/evidence/2026-09-19-product-editor-layout.json`
+- implementation / passed：`components/admin/product-details-editor.tsx`

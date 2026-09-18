@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus, Upload, Video, ArrowUp, ArrowDown, Trash2 } from "lucide-react";
+import { Plus, Upload, Video, ArrowUp, ArrowDown, Trash2, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MAX_PRODUCT_VIDEOS, MAX_VIDEO_SOURCES, videoSourceInfo, videoMessages, parseVideoSource, type ProductVideo } from "@/lib/store/product-videos";
@@ -14,59 +14,53 @@ export function ProductVideoEditor({ videos, disabled, canUpload, onChange, onUp
 }) {
   const update = (id: string, changes: Partial<ProductVideo>) => onChange(videos.map(video => video.id === id ? { ...video, ...changes } : video));
   function moveVideo(index: number, delta: number) {
+    if (index + delta < 0 || index + delta >= videos.length) return;
     const next = [...videos]; [next[index], next[index + delta]] = [next[index + delta], next[index]]; onChange(next);
   }
   function sourceError(url: string) {
-    if (!url.trim()) return "粘贴视频链接，自动识别平台，不需要 HTML 嵌入代码。";
+    if (!url.trim()) return "粘贴完整视频链接，不需要 HTML 嵌入代码。";
     try { parseVideoSource(url); return ""; } catch (error) { return videoMessages[(error as Error).message] || "视频链接暂无法识别。"; }
   }
-  return <section className="mt-6 rounded-xl border p-4 sm:p-5" data-testid="product-video-editor">
-    <div className="flex flex-wrap items-center justify-between gap-3">
-      <div><h2 className="flex items-center gap-2 text-xl font-semibold"><Video className="h-5 w-5" aria-hidden="true" />视频介绍</h2>
-        <p className="mt-2 text-sm text-muted-foreground">{videos.length}/{MAX_PRODUCT_VIDEOS} 段视频 · 支持 YouTube、B站页内播放；其他平台保留外链观看。第一条来源作为默认来源。</p></div>
-      <Button type="button" data-testid="add-product-video" disabled={disabled || videos.length >= MAX_PRODUCT_VIDEOS}
-        onClick={() => onChange([...videos, { id: crypto.randomUUID(), title: "", poster_url: "", sources: [{ id: crypto.randomUUID(), label: "", url: "" }] }])}>
-        <Plus className="mr-2 h-4 w-4" />添加视频
-      </Button>
+  return <section className="rounded-xl border bg-background p-4 sm:p-5" data-testid="product-video-editor">
+    <div className="flex flex-wrap items-start justify-between gap-3">
+      <div><h2 className="flex items-center gap-2 text-base font-semibold"><Video className="h-4 w-4" aria-hidden="true" />视频介绍 <span className="text-sm font-normal text-muted-foreground">{videos.length}/{MAX_PRODUCT_VIDEOS}</span></h2><p className="mt-1 text-xs text-muted-foreground">粘贴 YouTube / B站完整链接。标题和链接必填，封面可选；视频随商品资料发布。</p></div>
+      <Button type="button" size="sm" data-testid="add-product-video" disabled={disabled || videos.length >= MAX_PRODUCT_VIDEOS} onClick={() => onChange([...videos, { id: crypto.randomUUID(), title: "", poster_url: "", sources: [{ id: crypto.randomUUID(), label: "", url: "" }] }])}><Plus className="mr-1 h-4 w-4" />添加视频</Button>
     </div>
-    {!videos.length && <p className="mt-4 rounded-lg bg-muted/30 p-5 text-sm text-muted-foreground">添加产品演示、安装教程或使用说明。同一段视频可以配置 B站、YouTube 等多个播放来源；视频文件仍由原平台托管。</p>}
-    <fieldset disabled={disabled} className="mt-5 min-w-0 space-y-5">
-      {videos.map((video, index) => <article key={video.id} data-edit-video={video.id} className="min-w-0 rounded-xl border bg-muted/10 p-4">
-        <div className="flex flex-wrap items-center justify-between gap-3"><h3 className="font-semibold">视频 {index + 1}</h3><div className="flex flex-wrap gap-2">
-          <Button type="button" size="sm" variant="outline" disabled={disabled || index === 0} aria-label={`视频${index + 1}前移`} onClick={() => moveVideo(index, -1)}><ArrowUp className="h-4 w-4" /><span className="sr-only">前移</span></Button>
-          <Button type="button" size="sm" variant="outline" disabled={disabled || index === videos.length - 1} aria-label={`视频${index + 1}后移`} onClick={() => moveVideo(index, 1)}><ArrowDown className="h-4 w-4" /><span className="sr-only">后移</span></Button>
-          <Button type="button" size="sm" variant="outline" aria-label={`移除视频${index + 1}`} onClick={() => onChange(videos.filter(item => item.id !== video.id))}><Trash2 className="mr-1 h-4 w-4" />移除视频</Button>
-        </div></div>
-        <label className="mt-4 block text-sm font-medium">视频标题<Input data-video-title className="mt-2" value={video.title} maxLength={160} onChange={e => update(video.id, { title: e.target.value })} placeholder="例如：产品功能演示" /></label>
-        <div className="mt-4 rounded-lg border p-3">
-          {video.poster_url && <img data-video-poster-preview src={video.poster_url} alt="视频封面预览" className="mb-3 max-h-44 max-w-full rounded-lg object-contain" />}
-          <label className={`inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-lg bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 ${disabled || !canUpload ? 'cursor-not-allowed opacity-50' : 'hover:opacity-90'}`}>
-            <Upload className="h-4 w-4" aria-hidden="true" />{video.poster_url ? "替换视频封面" : "上传视频封面（可选）"}
-            <input data-video-poster-upload className="sr-only" type="file" accept="image/png,image/jpeg,image/webp" disabled={disabled || !canUpload}
-              onChange={event => { const file = event.target.files?.[0]; event.target.value = ""; if (file) onUploadPoster(file, video.id); }} />
-          </label>
-          {video.poster_url && <Button type="button" size="sm" variant="ghost" className="ml-2" onClick={() => update(video.id, { poster_url: "" })}>移除封面</Button>}
-          <p className="mt-2 text-xs text-muted-foreground">PNG / JPEG / WebP，最多8 MiB。{!canUpload ? "先保存商品草稿即可上传。" : "不上传时使用统一的视频占位，不会自动访问第三方缩略图。"}</p>
-        </div>
-        <div className="mt-4 space-y-3">
-          {video.sources.map((source, sourceIndex) => {
-            const info = videoSourceInfo(source.url);
-            const updateSource = (changes: Partial<typeof source>) => update(video.id, { sources: video.sources.map(item => item.id === source.id ? { ...item, ...changes } : item) });
-            return <div key={source.id} data-edit-source={source.id} className="min-w-0 rounded-lg border bg-background p-3">
-              <div className="flex flex-wrap items-center justify-between gap-2"><span className="text-sm font-medium">来源 {sourceIndex + 1}{sourceIndex === 0 ? " · 默认" : ""}</span><div className="flex gap-2">
-                {sourceIndex > 0 && <Button type="button" size="sm" variant="outline" onClick={() => { const next = [...video.sources]; [next[sourceIndex - 1], next[sourceIndex]] = [next[sourceIndex], next[sourceIndex - 1]]; update(video.id, { sources: next }); }}>前移</Button>}
-                <Button type="button" size="sm" variant="ghost" aria-label={`移除视频${index + 1}来源${sourceIndex + 1}`} onClick={() => update(video.id, { sources: video.sources.filter(item => item.id !== source.id) })}>移除来源</Button>
-              </div></div>
-              <label className="mt-3 block text-sm">视频链接<Input data-video-url className="mt-1" value={source.url} maxLength={2048} onChange={e => updateSource({ url: e.target.value })} placeholder="https://www.youtube.com/watch?v=… 或 https://www.bilibili.com/video/BV…" /></label>
-              <p data-video-detection className={`mt-2 break-words text-xs ${source.url && !info ? 'text-destructive' : 'text-muted-foreground'}`}>{info ? `${info.label} · ${info.embedUrl ? "可在商品页内播放" : info.label === "B站短链接" ? "短链接暂用外链；粘贴完整BV视频页可内嵌播放" : "在原平台观看，不嵌入未知网页"}` : sourceError(source.url)}</p>
-              <label className="mt-3 block text-sm">来源名称（可选）<Input data-video-label className="mt-1" value={source.label} maxLength={80} onChange={e => updateSource({ label: e.target.value })} placeholder={info?.label ?? "例如：B站、YouTube、备用来源"} /></label>
-            </div>;
-          })}
-        </div>
-        <Button type="button" variant="outline" className="mt-3" data-add-video-source disabled={disabled || video.sources.length >= MAX_VIDEO_SOURCES}
-          onClick={() => update(video.id, { sources: [...video.sources, { id: crypto.randomUUID(), label: "", url: "" }] })}><Plus className="mr-2 h-4 w-4" />添加播放来源</Button>
-      </article>)}
+    {!videos.length && <p className="mt-3 rounded-lg border border-dashed p-4 text-sm text-muted-foreground">可添加产品演示、安装教程；同一视频支持多个平台来源。</p>}
+    <fieldset disabled={disabled} className="mt-3 min-w-0 space-y-3">
+      {videos.map((video, index) => {
+        const titleMissing = !video.title.trim() && video.sources.some(source => source.url.trim());
+        return <article key={video.id} data-edit-video={video.id} className="min-w-0 rounded-lg border bg-muted/10 p-3 sm:p-4">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <h3 className="min-w-0 break-words text-sm font-semibold">视频 {index + 1}{video.title ? ` · ${video.title}` : ""}</h3>
+            <div className="flex shrink-0 items-center gap-1"><Button type="button" size="icon" variant="ghost" className="h-8 w-8" disabled={disabled || index === 0} aria-label={`视频${index + 1}前移`} onClick={() => moveVideo(index, -1)}><ArrowUp className="h-4 w-4" /></Button><Button type="button" size="icon" variant="ghost" className="h-8 w-8" disabled={disabled || index === videos.length - 1} aria-label={`视频${index + 1}后移`} onClick={() => moveVideo(index, 1)}><ArrowDown className="h-4 w-4" /></Button><Button type="button" size="sm" variant="ghost" className="h-8" aria-label={`移除视频${index + 1}`} onClick={() => onChange(videos.filter(item => item.id !== video.id))}><Trash2 className="mr-1 h-3.5 w-3.5" />移除</Button></div>
+          </div>
+          <div className="grid min-w-0 gap-4 md:grid-cols-[minmax(0,1fr)_184px]">
+            <div className="min-w-0 space-y-3">
+              {video.sources.map((source, sourceIndex) => {
+                const info = videoSourceInfo(source.url);
+                const updateSource = (changes: Partial<typeof source>) => update(video.id, { sources: video.sources.map(item => item.id === source.id ? { ...item, ...changes } : item) });
+                return <div key={source.id} data-edit-source={source.id} className={`min-w-0 ${sourceIndex ? "border-t pt-3" : ""}`}>
+                  <div className="mb-1 flex flex-wrap items-center justify-between gap-2"><label htmlFor={`video-url-${source.id}`} className="text-sm font-medium">{sourceIndex === 0 ? "视频链接 · 默认来源" : `备用来源 ${sourceIndex}`}</label><div className="flex items-center gap-1">{sourceIndex > 0 && <Button type="button" size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={() => { const next = [...video.sources]; [next[sourceIndex - 1], next[sourceIndex]] = [next[sourceIndex], next[sourceIndex - 1]]; update(video.id, { sources: next }); }}>前移</Button>}<Button type="button" size="sm" variant="ghost" className="h-7 px-2 text-xs text-muted-foreground" aria-label={`移除视频${index + 1}来源${sourceIndex + 1}`} onClick={() => update(video.id, { sources: video.sources.filter(item => item.id !== source.id) })}>移除来源</Button></div></div>
+                  <Input id={`video-url-${source.id}`} data-video-url className="h-10" value={source.url} maxLength={2048} aria-required="true" onChange={e => updateSource({ url: e.target.value })} placeholder="https://www.bilibili.com/video/BV… 或 YouTube 链接" />
+                  <div className="mt-1.5 flex flex-wrap items-start justify-between gap-x-3 gap-y-1"><p data-video-detection className={`min-w-0 break-words text-xs ${source.url && !info ? "text-destructive" : "text-muted-foreground"}`}>{info ? `${info.label} · ${info.embedUrl ? "可在商品页内播放" : info.label === "B站短链接" ? "请换成完整BV链接以支持页内播放" : "仅提供外链观看"}（链接已识别，非发布状态）` : sourceError(source.url)}</p><details className="min-w-0 text-xs"><summary className="cursor-pointer text-muted-foreground">自定义来源名称</summary><Input data-video-label className="mt-1 h-8" value={source.label} maxLength={80} onChange={e => updateSource({ label: e.target.value })} placeholder={info?.label ?? "例如：备用来源"} /></details></div>
+                </div>;
+              })}
+              {!video.sources.length && <p className="text-sm text-destructive">请添加至少一个播放来源。</p>}
+              <label className="block text-sm font-medium">视频标题 <span className="text-destructive">（发布必填）</span><Input data-video-title className={`mt-1.5 h-10 ${titleMissing ? "border-destructive" : ""}`} aria-required="true" aria-invalid={titleMissing} aria-describedby={`video-title-help-${video.id}`} value={video.title} maxLength={160} onChange={e => update(video.id, { title: e.target.value })} placeholder="例如：产品功能演示" /></label>
+              <p id={`video-title-help-${video.id}`} data-video-title-help className={`text-xs ${titleMissing ? "text-destructive" : "text-muted-foreground"}`}>{titleMissing ? `视频${index + 1}缺少标题：可保存草稿，但暂不能发布商品资料。` : "当前只自动识别播放器，标题需填写。"}</p>
+              <Button type="button" variant="outline" size="sm" data-add-video-source disabled={disabled || video.sources.length >= MAX_VIDEO_SOURCES} onClick={() => update(video.id, { sources: [...video.sources, { id: crypto.randomUUID(), label: "", url: "" }] })}><Plus className="mr-1 h-3.5 w-3.5" />添加备用来源</Button>
+            </div>
+            <div className="min-w-0 border-t pt-3 md:border-l md:border-t-0 md:pl-4 md:pt-0">
+              <p className="mb-2 text-xs font-medium">视频封面 <span className="font-normal text-muted-foreground">· 可选</span></p>
+              <div className="mb-2 flex aspect-video max-h-28 items-center justify-center overflow-hidden rounded-lg border bg-muted/40">{video.poster_url ? <img data-video-poster-preview src={video.poster_url} alt="视频封面预览" className="h-full w-full object-contain" /> : <ImageIcon className="h-6 w-6 text-muted-foreground" aria-hidden="true" />}</div>
+              <label className={`inline-flex min-h-9 cursor-pointer items-center justify-center gap-1.5 rounded-md bg-primary px-3 py-2 text-xs font-medium text-primary-foreground focus-within:ring-2 focus-within:ring-ring ${disabled || !canUpload ? "pointer-events-none opacity-50" : "hover:opacity-90"}`}><Upload className="h-3.5 w-3.5" aria-hidden="true" />{video.poster_url ? "替换视频封面" : "上传视频封面"}<input data-video-poster-upload className="sr-only" type="file" accept="image/png,image/jpeg,image/webp" disabled={disabled || !canUpload} onChange={event => { const file = event.target.files?.[0]; event.target.value = ""; if (file) onUploadPoster(file, video.id); }} /></label>
+              {video.poster_url && <Button type="button" size="sm" variant="ghost" className="mt-1 h-7 px-0 text-xs" onClick={() => update(video.id, { poster_url: "" })}>移除封面</Button>}
+              <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{!canUpload ? "先保存商品草稿即可上传。" : "不上传则使用默认占位。"}支持 PNG/JPEG/WebP，最多 8 MiB。</p>
+            </div>
+          </div>
+        </article>;
+      })}
     </fieldset>
-    <p className="mt-4 text-xs text-muted-foreground">先保存草稿，再到“预览发布”检查视频并确认公开。平台上的视频是否公开、是否允许嵌入，由原平台控制。</p>
   </section>;
 }

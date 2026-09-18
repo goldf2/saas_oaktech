@@ -19,7 +19,8 @@
     "test:compact-ui": "node scripts/verify-compact-release.mjs",
     "test:workspace-ui": "node scripts/verify-workspace-dashboard.mjs",
     "test:language-ui": "node scripts/verify-language-preference.mjs",
-    "test:product-publish-ui": "node scripts/verify-product-publication-clarity.mjs"
+    "test:product-publish-ui": "node scripts/verify-product-publication-clarity.mjs",
+    "test:editor-layout-ui": "node scripts/verify-product-editor-layout.mjs"
   },
   "dependencies": {
     "@creem_io/nextjs": "^0.4.0",

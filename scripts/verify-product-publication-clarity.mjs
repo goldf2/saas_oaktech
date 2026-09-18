@@ -82,7 +82,11 @@ try {
   await page.$$eval('[data-testid="product-publication-issues"] button',buttons=>buttons.find(b=>b.textContent.includes('标题')).click());
   await page.waitForFunction(()=>document.activeElement?.hasAttribute('data-video-title'));
   await input('[data-video-title]','OpenPlay 使用演示');
-  await page.click('[aria-label="移除视频1来源2"]');
+  const removeSource = '[aria-label="移除视频1来源2"]';
+  await page.$eval(removeSource, el => el.scrollIntoView({ block: 'center', behavior: 'instant' }));
+  await page.waitForFunction(selector => { const el = document.querySelector(selector); const r = el?.getBoundingClientRect(); if (!el || !r) return false; const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2); return hit === el || el.contains(hit); }, {}, removeSource);
+  await page.locator(removeSource).click();
+  await page.waitForFunction(() => document.querySelectorAll('[data-edit-source]').length === 1);
   await page.click('[data-testid="prepare-product-publication"]');await status('草稿已保存');
   await page.waitForFunction(()=>!document.querySelector('[data-testid="confirm-product-publication"]').disabled);
   const summary=await page.$eval('[data-testid="product-change-summary"]',e=>e.textContent);

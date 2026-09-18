@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "plan_version": "1.0.0",
-  "revision": 32,
-  "updated_at": "2026-09-19T06:38:42+08:00",
+  "revision": 34,
+  "updated_at": "2026-09-19T07:00:12+08:00",
   "project": "saas_oaktech",
   "source_commit": "54a42b33bc5fc3e9c42541fdd3bdd6fae4700bce",
   "current_next_task": "PUB-02",
@@ -1046,7 +1046,7 @@
       "kind": "feature",
       "milestone": "STORE",
       "priority": "P0",
-      "status": "blocked",
+      "status": "in_review",
       "owner": "ChatGPT / tsk_d66259b906c7a92b",
       "depends_on": [
         "PUB-01"
@@ -1062,21 +1062,63 @@
         "隔离环境从新增介绍与视频走通确认发布且软件不变",
         "真实草稿不可读取时如实说明，不擅自公开生产内容"
       ],
-      "next_action": "先获取当前OpenPlay预览发布页截图（顶部状态、视频资料和按钮旁提示），保留现有内容；继续定位回归失败，完成后才合入和部署。",
-      "blockers": [
-        "尚未获取用户OpenPlay真实草稿/发布记录，不能定位该条内容未公开的直接原因。",
-        "专项图文视频流程通过，但完整独立发布浏览器回归在后半段仍超时/节点重建异常；未完成集成验收。"
-      ],
+      "next_action": "用户截图已定位空视频标题和待发布状态；本轮提供界面及定位修复，真实商品发布仍由管理员补齐资料并确认，不自动消费其草稿。",
+      "blockers": [],
       "evidence": [
         {
           "path": "docs/00-handoff/evidence/2026-09-19-product-publication-partial.json",
           "kind": "verification",
           "result": "partial"
+        },
+        {
+          "path": "docs/00-handoff/evidence/2026-09-19-product-editor-layout.json",
+          "kind": "verification",
+          "result": "passed"
         }
       ],
-      "implementation": "partial_local_not_ready_for_integration",
-      "deployment": "not_deployed",
-      "updated_at": "2026-09-19T06:38:42+08:00"
+      "implementation": "integrated_browser_verified",
+      "deployment": "included_in_0.1.36_candidate",
+      "updated_at": "2026-09-19T07:00:12+08:00"
+    },
+    {
+      "id": "LAYOUT-01",
+      "title": "商品编辑整页重排与发布操作清晰化",
+      "kind": "feature",
+      "milestone": "STORE",
+      "priority": "P0",
+      "status": "done",
+      "owner": "ChatGPT / tsk_5c35347895781361",
+      "depends_on": [],
+      "planned_files": [
+        "components/admin/product-details-editor.tsx",
+        "components/admin/product-video-editor.tsx",
+        "components/admin/product-workspace.tsx",
+        "scripts/verify-product-editor-layout.mjs"
+      ],
+      "acceptance": [
+        "商品文字与图片桌面双栏、手机单栏，视频链接为主字段且缺项就地提示",
+        "固定工具栏区分保存、预览和发布，不丢未保存输入",
+        "隔离环境复现用户截图并发布图文视频，无软件包也可上架",
+        "保留其他任务与生产数据，代码和上线分别验证"
+      ],
+      "next_action": "源码提交推送后分别读取GitHub任务和公网版本/资源；不替用户公开生产草稿。",
+      "blockers": [],
+      "evidence": [
+        {
+          "path": "docs/00-handoff/evidence/2026-09-19-product-editor-layout.json",
+          "kind": "verification",
+          "result": "passed"
+        },
+        {
+          "path": "components/admin/product-details-editor.tsx",
+          "kind": "implementation",
+          "result": "passed"
+        }
+      ],
+      "implementation": "complete_browser_verified",
+      "deployment": "pending_post_commit_verification",
+      "updated_at": "2026-09-19T07:00:12+08:00",
+      "completed_at": "2026-09-19T07:00:12+08:00"
     }
   ]
 }

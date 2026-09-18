@@ -1,0 +1,96 @@
+{
+  "checkedAt": "2026-09-19T07:00:12+08:00",
+  "task": "LAYOUT-01",
+  "candidateVersion": "0.1.36",
+  "baseCommit": "877c704",
+  "userScreenshotEvidence": {
+    "savedDraftShown": true,
+    "videoTitleBlank": true,
+    "videoLinkRecognized": true,
+    "productionAuditRead": false
+  },
+  "implementation": [
+    "desktop two-column product details",
+    "compact media and link-first video editor",
+    "distinct live/draft status and sticky controls",
+    "field-specific publication blockers",
+    "separate product/software publication preserved"
+  ],
+  "tests": {
+    "unit": 171,
+    "typecheck": "passed",
+    "defaultTurbopackBuild": "passed",
+    "browserChecks": 63,
+    "browserSuites": [
+      {
+        "suite": "compact",
+        "checks": 3,
+        "result": "passed"
+      },
+      {
+        "suite": "video",
+        "checks": 6,
+        "result": "passed"
+      },
+      {
+        "suite": "layout",
+        "checks": 6,
+        "result": "passed"
+      },
+      {
+        "suite": "publication",
+        "checks": 6,
+        "result": "passed"
+      },
+      {
+        "suite": "store",
+        "checks": 13,
+        "result": "passed"
+      },
+      {
+        "suite": "release",
+        "checks": 9,
+        "result": "passed"
+      },
+      {
+        "suite": "language",
+        "checks": 7,
+        "result": "passed"
+      },
+      {
+        "suite": "workspace",
+        "checks": 8,
+        "result": "passed"
+      },
+      {
+        "suite": "clarity",
+        "checks": 5,
+        "result": "passed"
+      }
+    ]
+  },
+  "layoutWidths": [
+    1440,
+    1024,
+    390,
+    320
+  ],
+  "compact1024SaveBottom": 765,
+  "scope": "disposable local catalogs and synthetic sessions; no production product/role/release writes",
+  "preservedOriginalFiles": {
+    "count": 5,
+    "changed": []
+  },
+  "limitations": [
+    "Third-party player responses are isolated fixtures in these regressions; this does not certify the user video plays on every network.",
+    "Native signed production-package browser fixture was not supplied; cryptographic unit tests and generic upload regression remain.",
+    "User production draft was not published."
+  ],
+  "previousFailuresRetained": [
+    "integrated/video/result.json",
+    "integrated/store/result.json",
+    "integrated/compact/result.json",
+    "final/clarity/result.json"
+  ],
+  "deployment": "not yet pushed; read deployment.json after push"
+}

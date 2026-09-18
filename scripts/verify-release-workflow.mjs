@@ -75,7 +75,8 @@ try {
   await page.goto(base + '/admin/products/open-play?tab=versions', { waitUntil: 'networkidle0' });
   assert.ok(await page.$('[data-testid="upload-awaiting-release"]')); assert.equal(await page.$eval('[data-testid="upload-awaiting-release"] button', b => b.disabled), true);
   assert.equal(await page.$eval('[data-testid="new-product-release"] input[name="version"]', x => x.value), '');
-  assert.match(await page.$eval('h1 + p', p => p.textContent), /商品：已上架.*软件：尚无已发布版本/);
+  assert.match(await page.$eval('[data-testid="product-state-line"]', p => p.textContent), /线上介绍：已公开/);
+  assert.match(await page.$eval('[data-testid="product-workspace"]', p => p.textContent), /软件：尚无已发布版本/);
   await shot('release-empty-desktop.png');
   pass('upload step is visible before save, version input is not a false default, and product visibility is distinct from software publication');
   const form = '[data-testid="new-product-release"] [data-testid="release-details-form"]';

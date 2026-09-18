@@ -188,7 +188,10 @@ try {
   check('version save returns automatically to this product; embedded 8+1 MiB upload remains a private version draft');
 
   await page.waitForFunction(()=>!document.querySelector('[data-tab="preview"]').disabled);
-  await page.click('[data-tab="preview"]');await page.click('[data-publication-mode="software"]');await page.click(`[data-release-select="${release.id}"]`);
+  await page.locator('[data-tab="preview"]').click();
+  await page.locator('[data-publication-mode="software"]').click();
+  await page.waitForSelector(`[data-release-select="${release.id}"]`, { visible: true });
+  await page.locator(`[data-release-select="${release.id}"]`).click();
   if (!(await page.$eval('[data-testid="preview-disclosure"]', el => el.open))) await page.click('[data-testid="preview-disclosure"] > summary');
   await page.waitForSelector('[data-testid="product-preview"] .product-detail-grid', { visible: true });
   assert.equal(await page.$('[data-testid="product-preview"] a[download]'),null);

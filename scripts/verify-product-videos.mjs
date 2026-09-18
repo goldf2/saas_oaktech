@@ -122,7 +122,8 @@ try {
   await page.click('[data-tab="details"]'); assert.equal((await page.$$('iframe')).length, 0);
   pass('in-page players load only on click, switch sources safely, stop on tab exit, and unknown platforms stay external');
 
-  await page.click('[data-testid="add-product-video"]');
+  await page.locator('[data-testid="add-product-video"]').click();
+  await page.waitForFunction(() => document.querySelectorAll('[data-edit-video]').length === 2);
   const nodes = await page.$$('[data-edit-video]'); const secondId = await nodes[1].evaluate(node => node.dataset.editVideo);
   await input(`[data-edit-video="${secondId}"] [data-video-title]`, '安装教程');
   await input(`[data-edit-video="${secondId}"] [data-video-url]`, 'https://youtube.com/shorts/M7lc1UVf-VE');
