@@ -282,3 +282,11 @@
 130单元、类型检查、默认Turbopack构建通过；14签名发布、12工作台、6视频及4紧凑度浏览器检查通过。原生签名/权限/服务端发布/视频逻辑未修改；模拟身份仅在隔离服务使用。本次没有实际生产商品或软件版本写入。
 
 代码交付与公网状态须分别核对，不能以本地截图当真实管理员上线操作。工作目录`/Users/tefulong/.agentdock/tmp/oaktech-compact-release-20260918`，分支feat/compact-release-layout-20260918；测量/截图/原始结果在.local-verification/compact。验收：[紧凑布局](evidence/2026-09-18-compact-release-layout.json)，说明：[页面密度](../compact-release-layout.md)。
+
+## 0.1.32 公网代码版本核验 · 2026-09-18T09:45:52+08:00
+
+实现ec93734已非强制快进推送main；匿名health与独立浏览器返回0.1.32。此结果说明当前代码版本，不等于使用真实管理员再次执行生产上传/发布。
+
+CI35296473098的Test and build和真实PostgreSQL任务成功；Deploy through Coolify在Require deployment credentials失败。保留这个独立故障，不把整个CI写成通过，不推断新版本来自该失败job。没有读取或修改部署凭据。
+
+本轮130测试与14发布+12工作台+6视频+4布局浏览器检查通过，布局对比和截图见compact目录。公开版本回执附在独立feature分支，不为纯收据再次部署。主目录的管理员与其他并行工作保持原样，接续先同步远端不要reset或force覆盖。

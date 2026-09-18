@@ -1,0 +1,47 @@
+{
+  "recorded_at": "2026-09-18T09:47:18+08:00",
+  "public_health_observed_at": "2026-09-18T09:45:52+08:00",
+  "version": "0.1.32",
+  "implementation_commit": "ec937343028aea7debc0098d86a83802ad7df3c8",
+  "public_health": {
+    "status": "ok",
+    "service": "oaktech-software-store",
+    "version": "0.1.32"
+  },
+  "code_version_observed_online": true,
+  "ci": {
+    "id": 35296473098,
+    "status": "completed",
+    "conclusion": "failure",
+    "jobs": [
+      {
+        "name": "Test and build",
+        "conclusion": "success",
+        "failed_steps": []
+      },
+      {
+        "name": "Admin storage (real PostgreSQL)",
+        "conclusion": "success",
+        "failed_steps": []
+      },
+      {
+        "name": "Deploy through Coolify",
+        "conclusion": "failure",
+        "failed_steps": [
+          "Require deployment credentials"
+        ]
+      }
+    ]
+  },
+  "deployment_trigger_attribution": "Not inferred: CI deploy credential check failed, but independent public health reached .32.",
+  "real_administrator_flow_executed": false,
+  "production_software_artifacts_modified": false,
+  "local_validation": {
+    "unit": 130,
+    "layout": 4,
+    "signed_release_browser": 14,
+    "workspace_browser": 12,
+    "video_browser": 6
+  },
+  "parallel_primary_runtime_changes_made": false
+}

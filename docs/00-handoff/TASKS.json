@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "plan_version": "1.0.0",
-  "revision": 20,
-  "updated_at": "2026-09-18T09:43:12+08:00",
+  "revision": 21,
+  "updated_at": "2026-09-18T09:47:18+08:00",
   "project": "saas_oaktech",
   "source_commit": "54a42b33bc5fc3e9c42541fdd3bdd6fae4700bce",
   "current_next_task": "ADM-02",
@@ -828,7 +828,7 @@
         "合并重复文件清单，商品整页预览按需展开，保留视频与现有发布逻辑",
         "记录同屏尺寸对比，390px/1024px/1440px无溢出，上传发布回归通过"
       ],
-      "next_action": "核对远程CI、官网health和代码版本；不自动发布真实软件草稿。",
+      "next_action": "紧凑布局代码版本已在公网观察；CI部署凭据缺口交由OPS-01，真实软件包发布仍是独立操作，不自动公开草稿。",
       "blockers": [],
       "evidence": [
         {
@@ -840,11 +840,16 @@
           "path": "docs/00-handoff/evidence/2026-09-18-compact-release-layout.json",
           "kind": "verification",
           "result": "passed"
+        },
+        {
+          "path": "docs/00-handoff/evidence/2026-09-18-compact-release-deployment.json",
+          "kind": "observation",
+          "result": "passed"
         }
       ],
       "implementation": "compact_layout_local_browser_verified",
-      "deployment": "pending_remote_delivery",
-      "updated_at": "2026-09-18T09:43:12+08:00",
+      "deployment": "public_health_0.1.32_observed_ci_deploy_credentials_failed",
+      "updated_at": "2026-09-18T09:47:18+08:00",
       "completed_at": "2026-09-18T09:43:12+08:00"
     }
   ]

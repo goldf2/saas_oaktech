@@ -14,4 +14,4 @@
 
 130单元、类型检查、默认Turbopack构建通过；14签名发布、12工作台、6视频及4紧凑度浏览器检查通过。原生签名/权限/服务端发布/视频逻辑未修改；模拟身份仅在隔离服务使用。本次没有实际生产商品或软件版本写入。
 
-代码交付与公网状态须分别核对，不能以本地截图当真实管理员上线操作。工作目录`/Users/tefulong/.agentdock/tmp/oaktech-compact-release-20260918`，分支feat/compact-release-layout-20260918；测量/截图/原始结果在.local-verification/compact。验收：[紧凑布局](evidence/2026-09-18-compact-release-layout.json)，说明：[页面密度](../compact-release-layout.md)。
+代码交付与公网状态须分别核对，不能以本地截图当真实管理员上线操作。工作目录`/Users/tefulong/.agentdock/tmp/oaktech-compact-release-20260918`，分支feat/compact-release-layout-20260918；测量/截图/原始结果在.local-verification/compact。验收：[紧凑布局](00-handoff/evidence/2026-09-18-compact-release-layout.json)，说明：[页面密度](compact-release-layout.md)。

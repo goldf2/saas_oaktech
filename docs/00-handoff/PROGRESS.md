@@ -2,7 +2,7 @@
 
 > 不要直接编辑本文件。修改TASKS.json后运行 `npm run handoff:render`。
 
-账本revision：20；更新时间：2026-09-18T09:43:12+08:00；计划版本：1.0.0。
+账本revision：21；更新时间：2026-09-18T09:47:18+08:00；计划版本：1.0.0。
 
 **权限主线任务完成：1/14。这是任务计数，不是代码完成百分比；PLAN-01文档不计入。**
 
@@ -431,9 +431,9 @@
 
 ### STORE-03 · 商品发布页面紧凑布局
 
-状态：完成；负责人：ChatGPT / tsk_df0424b2b9310843；实施：compact_layout_local_browser_verified；部署：pending_remote_delivery。
+状态：完成；负责人：ChatGPT / tsk_df0424b2b9310843；实施：compact_layout_local_browser_verified；部署：public_health_0.1.32_observed_ci_deploy_credentials_failed。
 
-下一动作：核对远程CI、官网health和代码版本；不自动发布真实软件草稿。
+下一动作：紧凑布局代码版本已在公网观察；CI部署凭据缺口交由OPS-01，真实软件包发布仍是独立操作，不自动公开草稿。
 
 验收条件：
 - 版本资料/上传/确认密度提升，必要入口和状态不隐藏，基本文字可读
@@ -445,3 +445,4 @@
 证据：
 - implementation / passed：`components/admin/release-file-list.tsx`
 - verification / passed：`docs/00-handoff/evidence/2026-09-18-compact-release-layout.json`
+- observation / passed：`docs/00-handoff/evidence/2026-09-18-compact-release-deployment.json`
