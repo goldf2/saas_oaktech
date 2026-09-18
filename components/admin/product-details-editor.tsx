@@ -63,7 +63,7 @@ export function ProductDetailsEditor({ value, disabled, existing, update, onUplo
         </div>
         <section className="mt-4 border-t pt-4" aria-label="编辑产品截图">
           <h3 className="mb-2 text-sm font-medium">产品截图 <span className="font-normal text-muted-foreground">{value.gallery_urls?.length ?? 0}/8</span></h3>
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+          <div className="grid grid-cols-2 gap-2">
             {(value.gallery_urls ?? []).map((url, index) => <div key={`${url}-${index}`} className="min-w-0 rounded-lg border p-1">
               <img src={url} alt={`截图 ${index + 1}`} className="h-16 w-full rounded object-contain" />
               <div className="mt-1 flex justify-center gap-0.5"><Button type="button" size="icon" variant="ghost" className="h-8 w-8" aria-label={`截图${index + 1}前移`} disabled={disabled || index === 0} onClick={() => onMoveScreenshot(index, -1)}><ArrowUp className="h-3.5 w-3.5" /></Button><Button type="button" size="icon" variant="ghost" className="h-8 w-8" aria-label={`截图${index + 1}后移`} disabled={disabled || index === (value.gallery_urls?.length ?? 0) - 1} onClick={() => onMoveScreenshot(index, 1)}><ArrowDown className="h-3.5 w-3.5" /></Button><Button type="button" size="icon" variant="ghost" className="h-8 w-8" aria-label={`移除截图${index + 1}`} disabled={disabled} onClick={() => update("gallery_urls", value.gallery_urls!.filter((_, i) => i !== index))}><X className="h-3.5 w-3.5" /></Button></div>

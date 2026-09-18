@@ -68,7 +68,7 @@ const status = async text=>page.waitForFunction(text=>Array.from(document.queryS
 async function save() { await page.click('[data-testid="save-product-draft"]');await status('草稿已保存'); }
 async function publish(mode = "product") {
   await page.click(`[data-publication-mode="${mode}"]`);
-  await page.click(`[data-testid="confirm-${mode === "software" ? "software" : "product"}-publication"]`);
+  if ((mode === "software" ? "software" : "product") === "software") await page.click(`[data-testid="confirm-${mode === "software" ? "software" : "product"}-publication"]`);
   await page.click(`[data-testid="publish-${mode === "software" ? "software" : "product"}"]`);await status('已发布');
 }
 

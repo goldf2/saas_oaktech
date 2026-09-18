@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { normalizeProductVideos, parseVideoSource, videoSourceInfo } from '../lib/store/product-videos.ts';
+import { normalizeProductVideos, parseVideoSource, videoSourceInfo, productVideoTitle } from '../lib/store/product-videos.ts';
 
 const youtubeId = 'M7lc1UVf-VE';
 const biliId = 'BV1B7411m7LV';
@@ -94,5 +94,38 @@ test('video posters accept managed image paths but reject executable and credent
   assert.equal(normalizeProductVideos([{ ...video(), poster_url: '/media/products/demo/test.webp' }], true)[0].poster_url, '/media/products/demo/test.webp');
   for (const poster of ['javascript:alert(1)', '//attacker.example/x', '/\\attacker.example/image.png', 'https://user:pass@cdn.example/x.png']) {
     assert.throws(() => normalizeProductVideos([{ ...video(), poster_url: poster }], true));
+  }
+});
+
+test('a valid source publishes without an editorial title or poster', () => {
+  const linkOnly = { ...video(), title: '', poster_url: '' };
+  const before = JSON.stringify(linkOnly);
+  const result = normalizeProductVideos([linkOnly], true)[0];
+  assert.equal(result.title, '');
+  assert.equal(result.sources.length, 1);
+  assert.equal(JSON.stringify(linkOnly), before);
+});
+
+
+test('omitted, null and whitespace-only display titles do not block publication', () => {
+  for (const title of [undefined, null, '  \t  ', '']) {
+    const item = { ...video(), title };
+    const before = JSON.stringify(item);
+    const normalized = normalizeProductVideos([item], true)[0];
+    assert.equal(normalized.title, '');
+    assert.equal(productVideoTitle(normalized, 'zh'), '视频介绍');
+    assert.equal(productVideoTitle(normalized, 'en'), 'Video introduction');
+    assert.equal(JSON.stringify(item), before);
+  }
+  assert.equal(productVideoTitle({}), '视频介绍');
+  assert.equal(productVideoTitle({title: '  自定义名称  '}, 'en'), '自定义名称');
+});
+
+test('optional title does not bypass source validation or accept malformed titles', () => {
+  for (const title of [12, {}, 'x'.repeat(161)]) {
+    assert.throws(() => normalizeProductVideos([{ ...video(), title }], true), /PRODUCT_VIDEO_INVALID/);
+  }
+  for (const url of ['', 'javascript:alert(1)', 'https://127.0.0.1/video']) {
+    assert.throws(() => normalizeProductVideos([{ ...video(), title: '', sources: [{id:'source',label:'',url}] }], true));
   }
 });

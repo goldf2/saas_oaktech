@@ -40,6 +40,9 @@ export function ProductWorkspace({ product = blankProduct(), editToken = "", pub
   const [value, setValue] = useState<AdminStoreProductRow>({ ...product, gallery_urls: product.gallery_urls ?? [], videos: product.videos ?? [] });
   const [saved, setSaved] = useState(() => JSON.stringify({ ...product, gallery_urls: product.gallery_urls ?? [], videos: product.videos ?? [] }));
   const [tokens, setTokens] = useState({ edit: editToken, publish: publishToken });
+  // A successful save is already a pending draft before the route refresh returns.
+  const [pendingProductDraft, setPendingProductDraft] = useState(hasDraft);
+  useEffect(() => { setPendingProductDraft(hasDraft); }, [hasDraft]);
   const [tab, setTab] = useState<Tab>(tabs.some(([id]) => id === initialTab) ? initialTab as Tab : "details");
   const [busy, setBusy] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -102,7 +105,7 @@ export function ProductWorkspace({ product = blankProduct(), editToken = "", pub
   useEffect(() => { setSoftwareToken(releasePublishToken); }, [releasePublishToken]);
   useEffect(() => { if (publicationMode === "product") setConfirmed(false); }, [value, publishToken, publicationMode]);
   useEffect(() => { if (publicationMode === "software") setConfirmed(false); }, [selected, releasePublishToken, releaseDirty, releaseBusy, publicationMode]);
-  function update<K extends keyof AdminStoreProductRow>(field: K, next: AdminStoreProductRow[K]) { setValue(prev => ({ ...prev, [field]: next })); setMessage(""); }
+  function update<K extends keyof AdminStoreProductRow>(field: K, next: AdminStoreProductRow[K]) { setValue(prev => ({ ...prev, [field]: next })); setMessage(""); setPublishedReceipt(null); }
 
   function showProductPublication() {
     setPublicationMode("product"); setConfirmed(false); setPreviewOpen(true); activateTab("preview");
@@ -129,6 +132,7 @@ export function ProductWorkspace({ product = blankProduct(), editToken = "", pub
       if (!result.ok) { setError(result.error ?? "草稿保存失败"); return; }
       dirtyRef.current = false;
       setSaved(JSON.stringify(value));
+      setPendingProductDraft(true);
       setTokens({ edit: result.editToken!, publish: result.publishToken! });
       setMessage(result.warning ?? "草稿已保存，线上内容没有改变。");
       if (!existing) router.push(`/admin/products/${result.slug}?tab=${preparePublication ? "preview" : "media"}&saved=1`);
@@ -137,8 +141,11 @@ export function ProductWorkspace({ product = blankProduct(), editToken = "", pub
     finally { operationInFlight.current = false; setBusy(false); }
   }
   async function publish() {
-    if (disabled || !existing || !confirmed || operationInFlight.current) return;
+    if (disabled || !existing || operationInFlight.current) return;
     const software = publicationMode === "software";
+    // Clicking the product publication button is the explicit publishing intent.
+    // Software still has its separate package-selection confirmation.
+    if (software && !confirmed) return;
     if (!software && (dirty || productPublicationIssues(value).length)) {
       setConfirmed(false); setError("请先保存并完善商品资料；软件版本不受影响。"); return;
     }
@@ -161,7 +168,7 @@ export function ProductWorkspace({ product = blankProduct(), editToken = "", pub
       // A software response must not advance the product edit token or overwrite
       // local copy. Otherwise an unrelated stale edit could be accepted later.
       if (software) { setSoftwareToken(result.releaseToken!); setSelected([]); }
-      else setTokens({ edit: result.editToken!, publish: result.publishToken! });
+      else { setTokens({ edit: result.editToken!, publish: result.publishToken! }); setPendingProductDraft(false); }
       setConfirmed(false);
       if (!software) setPublishedReceipt({ slug: result.slug!, videos: value.videos?.length ?? 0 });
       setMessage(result.warning ?? (software ? "软件版本已发布。商品资料及其草稿保持不变。" : `商品资料已发布，包含 ${value.videos?.length ?? 0} 段视频。软件版本和下载保持不变。`));
@@ -173,7 +180,7 @@ export function ProductWorkspace({ product = blankProduct(), editToken = "", pub
     if (!file || disabled || !existing) return;
     if (file.size > 8 * 1024 * 1024) { setError(imageErrors.PRODUCT_IMAGE_TOO_LARGE); return; }
     if (field === "gallery_urls" && (value.gallery_urls?.length ?? 0) >= 8) { setError("最多添加8张截图。"); return; }
-    setUploading(true); setError(""); setMessage("图片上传与校验中…");
+    setUploading(true); setPublishedReceipt(null); setError(""); setMessage("图片上传与校验中…");
     try {
       const response = await fetch(`/api/admin/products/${value.slug}/media`, { method: "POST", headers: { "Content-Type": file.type || "application/octet-stream", "x-oaktech-product-upload": "1" }, body: file });
       const result = await response.json();
@@ -198,7 +205,7 @@ export function ProductWorkspace({ product = blankProduct(), editToken = "", pub
   return <ReleaseFlowContext.Provider value={{ setActivity, goPreview, goVersions, operationBusy: disabled }}><div className="container max-w-7xl px-3 py-4 sm:px-4" data-testid="product-workspace">
     <div className="mb-2 flex flex-wrap items-start justify-between gap-3">
       <div className="min-w-0"><Link href="/dashboard?view=products" className="text-xs text-primary" onClick={event => { if ((unsaved || disabled) && !window.confirm("有未保存修改或上传正在进行，确定离开吗？")) event.preventDefault(); }}>← 商品管理</Link><h1 className="mt-2 break-words text-2xl font-semibold">{existing ? value.name_zh || value.slug : "新增商品"}</h1>
-        <p data-testid="product-state-line" className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground"><span>线上介绍：{publishedProduct ? "已公开" : "尚未公开"}</span><span className={dirty || hasDraft ? "font-medium text-amber-700 dark:text-amber-300" : ""}>本次资料：{dirty ? "尚未保存" : hasDraft ? "草稿已保存，待发布" : existing ? "与线上一致" : "尚未创建"}</span></p>
+        <p data-testid="product-state-line" className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground"><span>线上介绍：{publishedProduct || publishedReceipt ? "已公开" : "尚未公开"}</span><span className={dirty || pendingProductDraft ? "font-medium text-amber-700 dark:text-amber-300" : ""}>本次资料：{dirty ? "尚未保存" : pendingProductDraft && !publishedReceipt ? "草稿已保存，待发布" : publishedProduct || publishedReceipt ? "与线上一致" : existing ? "未发布" : "尚未创建"}</span></p>
       </div>
       {tab === "versions" && <p className="self-end text-sm text-muted-foreground">软件：{publishedVersionCount ? `${publishedVersionCount} 个已发布版本` : "尚无已发布版本"}</p>}
     </div>
@@ -210,9 +217,9 @@ export function ProductWorkspace({ product = blankProduct(), editToken = "", pub
       }}>{title}</Button>)}</nav>
       <div className="flex flex-wrap gap-2"><Button className="h-9" variant="outline" data-testid="save-product-draft" disabled={disabled} onClick={() => void save()}>{busy ? "处理中…" : "保存草稿"}</Button><Button className="h-9" data-preview-product variant="outline" disabled={disabled} onClick={showProductPublication}>预览</Button><Button className="h-9" data-testid="prepare-product-publication" disabled={disabled} onClick={() => void prepareProductPublication()}>发布商品资料</Button></div>
     </div>
-    {(dirty || hasDraft) && <div data-testid="product-publish-pending" className="mb-3 rounded-lg border border-amber-300 bg-amber-50/60 px-3 py-2 text-sm dark:border-amber-800 dark:bg-amber-950/20">
+    {(dirty || pendingProductDraft && !publishedReceipt) && <div data-testid="product-publish-pending" className="mb-3 rounded-lg border border-amber-300 bg-amber-50/60 px-3 py-2 text-sm dark:border-amber-800 dark:bg-amber-950/20">
       <strong>{dirty ? "本次修改尚未保存" : "草稿已保存，尚未发布"}</strong> · {publishedProduct ? "商品已上架，但访客仍看到上一次发布的资料。" : "商品介绍尚未公开。"}
-      <span className="ml-1">使用“发布商品资料”检查并确认新介绍、图片和视频；不需要发布软件。</span>
+
     </div>}
     {publishedReceipt && !dirty && <div data-testid="product-publication-success" className="mb-3 rounded-lg border border-primary/40 bg-primary/5 p-3 text-sm">
       <strong>商品资料发布成功 · {publishedReceipt.videos} 段视频</strong>

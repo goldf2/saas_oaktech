@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
   "plan_version": "1.0.0",
-  "revision": 34,
-  "updated_at": "2026-09-19T07:00:12+08:00",
+  "revision": 38,
+  "updated_at": "2026-09-19T07:48:34+08:00",
   "project": "saas_oaktech",
   "source_commit": "54a42b33bc5fc3e9c42541fdd3bdd6fae4700bce",
-  "current_next_task": "PUB-02",
+  "current_next_task": "ADM-02",
   "production_admin_bootstrap": "not_implemented",
   "standard": {
     "path": "docs/standards/CT-ADMIN-001-v1.0.0.md",
@@ -1046,7 +1046,7 @@
       "kind": "feature",
       "milestone": "STORE",
       "priority": "P0",
-      "status": "in_review",
+      "status": "done",
       "owner": "ChatGPT / tsk_d66259b906c7a92b",
       "depends_on": [
         "PUB-01"
@@ -1057,12 +1057,12 @@
         "lib/store/product-publication-summary.ts"
       ],
       "acceptance": [
-        "直接准备商品发布并明确保存不等于上线",
-        "图文视频改动范围、空标题与空来源定位明确",
-        "隔离环境从新增介绍与视频走通确认发布且软件不变",
-        "真实草稿不可读取时如实说明，不擅自公开生产内容"
+        "有效视频链接可不填标题/封面发布；省略或空白标题兼容",
+        "商品发布通过明确按钮完成，无重复勾选；保留鉴权/指纹/内容校验和软件独立发布",
+        "受信任播放器自动加载且autoplay=0，切源/离开预览销毁旧播放器，未知来源仍外链",
+        "隔离端到端与生产只读核验分别记录，用户正式内容不修改"
       ],
-      "next_action": "用户截图已定位空视频标题和待发布状态；本轮提供界面及定位修复，真实商品发布仍由管理员补齐资料并确认，不自动消费其草稿。",
+      "next_action": "核对0.1.37推送和公网收据；用户自行点击发布正式资料，不代替用户执行。",
       "blockers": [],
       "evidence": [
         {
@@ -1074,11 +1074,22 @@
           "path": "docs/00-handoff/evidence/2026-09-19-product-editor-layout.json",
           "kind": "verification",
           "result": "passed"
+        },
+        {
+          "path": "docs/00-handoff/evidence/2026-09-19-simple-publishing-autoload.json",
+          "kind": "verification",
+          "result": "passed"
+        },
+        {
+          "path": "components/product-videos.tsx",
+          "kind": "implementation",
+          "result": "passed"
         }
       ],
-      "implementation": "integrated_browser_verified",
-      "deployment": "included_in_0.1.36_candidate",
-      "updated_at": "2026-09-19T07:00:12+08:00"
+      "implementation": "implemented_and_verified_on_8acb7a4",
+      "deployment": "0.1.37_pending_verification",
+      "updated_at": "2026-09-19T07:48:34+08:00",
+      "completed_at": "2026-09-19T07:49:14+08:00"
     },
     {
       "id": "LAYOUT-01",

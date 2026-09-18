@@ -68,7 +68,7 @@ const status = async text=>page.waitForFunction(text=>Array.from(document.queryS
 async function save() { await page.locator('[data-testid="save-product-draft"]').click();await status('草稿已保存'); }
 async function publish(mode = "product") {
   await page.locator(`[data-publication-mode="${mode}"]`).click();
-  await page.locator(`[data-testid="confirm-${mode === "software" ? "software" : "product"}-publication"]`).click();
+  if (mode === "software") await page.locator(`[data-testid="confirm-software-publication"]`).click();
   await page.locator(`[data-testid="publish-${mode === "software" ? "software" : "product"}"]`).click();await status('已发布');
 }
 
@@ -157,7 +157,7 @@ try {
   await page.waitForFunction(() => document.querySelector('[data-preview-product]').getBoundingClientRect().top >= 56);
   await page.locator('[data-preview-product]').click();
   await page.waitForSelector('[data-publication-scope="product"]');
-  assert.equal(await page.$eval('[data-testid="confirm-product-publication"]',e=>e.disabled),false);
+  assert.equal(await page.$eval('[data-testid="publish-product"]',e=>e.disabled),false);
   const beforeProduct=(await catalog()).releases;
   await shot('product-publication-desktop.png');await publish('product');
   assert.deepEqual((await catalog()).releases,beforeProduct);

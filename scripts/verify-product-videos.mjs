@@ -37,12 +37,18 @@ async function start() {
   throw new Error('Local server timeout');
 }
 async function stop() { if (!server || server.exitCode !== null) return; const child = server; await new Promise(resolve => { const t = setTimeout(() => child.kill('SIGKILL'), 8000); child.once('exit', () => { clearTimeout(t); resolve(); }); child.kill('SIGTERM'); }); }
+async function click(selector) {
+  await page.waitForSelector(selector, { visible: true });
+  await page.$eval(selector, el => el.scrollIntoView({ block: 'center', behavior: 'instant' }));
+  await page.waitForFunction(sel => { const el = document.querySelector(sel); if (!el || el.disabled) return false; const r = el.getBoundingClientRect(); const hit = document.elementFromPoint(r.left+r.width/2,r.top+r.height/2); return hit === el || el.contains(hit); }, {}, selector);
+  await page.locator(selector).click();
+}
 async function input(selector, value) {
   await page.$eval(selector, (element, value) => { const p = element.tagName === 'TEXTAREA' ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype; Object.getOwnPropertyDescriptor(p, 'value').set.call(element, value); element.dispatchEvent(new Event('input', { bubbles: true })); }, value);
 }
 async function status(text) { await page.waitForFunction(text => Array.from(document.querySelectorAll('[role="status"]')).some(node => node.textContent.includes(text)), {}, text); }
-async function save() { await page.click('[data-testid="save-product-draft"]'); await status('草稿已保存'); await page.waitForFunction(() => !document.querySelector('[data-testid="save-product-draft"]').disabled); }
-async function publish() { await page.click('[data-tab="preview"]'); await page.click('[data-testid="confirm-product-publication"]'); await page.click('[data-testid="publish-product"]'); await status('已发布'); }
+async function save() { await click('[data-testid="save-product-draft"]'); await status('草稿已保存'); await page.waitForFunction(() => !document.querySelector('[data-testid="save-product-draft"]').disabled); }
+async function publish() { assert.equal(await page.$('[data-testid="confirm-product-publication"]'), null); await click('[data-tab="preview"]'); await click('[data-testid="publish-product"]'); await status('已发布'); }
 async function shot(name, target = page) { const file = path.join(output, name); await target.screenshot({ path: file, fullPage: true }); report.screenshots.push(file); }
 const players = ['www.youtube-nocookie.com', 'player.bilibili.com'];
 const requests = [];
@@ -72,13 +78,13 @@ try {
   await page.waitForSelector('[data-testid="product-video-editor"]');
   pass('anonymous users have no editor; administrators get merged product information and three working tabs');
 
-  await page.click('[data-testid="add-product-video"]');
+  await click('[data-testid="add-product-video"]');
   await input('[data-video-title]', '产品功能演示');
   await input('[data-video-url]', 'https://youtu.be/M7lc1UVf-VE?t=4&si=tracking');
   await page.waitForFunction(() => document.querySelector('[data-video-detection]').textContent.includes('可在商品页内播放'));
-  await page.click('[data-add-video-source]');
+  await click('[data-add-video-source]');
   await input('[data-edit-source]:nth-child(2) [data-video-url]', 'https://www.bilibili.com/video/BV1B7411m7LV/?p=1');
-  await page.click('[data-add-video-source]');
+  await click('[data-add-video-source]');
   await input('[data-edit-source]:nth-child(3) [data-video-url]', 'https://vimeo.com/76979871');
   await input('[data-edit-source]:nth-child(3) [data-video-label]', '其他平台');
   const png = path.join(root, 'video-cover.png');
@@ -96,42 +102,46 @@ try {
   await shot('video-editor-desktop.png');
 
   const thirdPartyBefore = requests.length;
-  await page.click('[data-tab="preview"]');
-  if (!(await page.$eval('[data-testid="preview-disclosure"]', el => el.open))) await page.click('[data-testid="preview-disclosure"] > summary');
-  await page.waitForSelector('[data-testid="product-preview"] [data-video-load]');
-  assert.equal((await page.$$('iframe')).length, 0);
-  assert.equal(requests.length, thirdPartyBefore, 'preview must not contact video providers before a click');
+  await click('[data-tab="preview"]');
+  if (!(await page.$eval('[data-testid="preview-disclosure"]', el => el.open))) await click('[data-testid="preview-disclosure"] > summary');
+  await page.waitForSelector('[data-testid="product-preview"] iframe[data-video-player]');
+  assert.equal((await page.$$('iframe')).length, 1);
+  assert.equal(await page.$('[data-video-load]'), null, 'there is no extra load-player button');
+  await page.$eval('iframe[data-video-player]', el => el.scrollIntoView({ block: 'center', behavior: 'instant' }));
+  await page.waitForNetworkIdle({ idleTime: 250, timeout: 10000 });
+  assert.ok(requests.slice(thirdPartyBefore).some(r => r.host === 'www.youtube-nocookie.com'), 'player loads automatically without a click');
+  assert.equal(await page.$eval('iframe[data-video-player]', el => new URL(el.src).searchParams.get('autoplay')), '0');
   await shot('video-preview-desktop.png');
-  // The collapsed preview mounts its player lazily after the toggle event.
-  await page.waitForSelector('[data-testid="product-preview"] [data-video-load]', { visible: true });
-  await page.click('[data-testid="product-preview"] [data-video-load]');
+  // Expanding preview mounts the official player without another click.
+  await page.waitForSelector('[data-testid="product-preview"] iframe[data-video-player]', { visible: true });
+
   await page.waitForSelector('iframe[data-video-player="youtube"]');
   let props = await page.$eval('iframe[data-video-player]', node => ({ src: node.src, title: node.title, referrer: node.referrerPolicy, width: node.clientWidth, height: node.clientHeight }));
   assert.equal(new URL(props.src).host, 'www.youtube-nocookie.com'); assert.equal(new URL(props.src).searchParams.get('start'), '4');
   assert.equal(props.referrer, 'strict-origin-when-cross-origin'); assert.ok(props.width >= 200 && props.height >= 200);
-  await page.click(`[data-video-source="${video.sources[1].id}"]`);
-  assert.equal((await page.$$('iframe')).length, 0, 'changing source removes the previous player');
-  // The collapsed preview mounts its player lazily after the toggle event.
-  await page.waitForSelector('[data-testid="product-preview"] [data-video-load]', { visible: true });
-  await page.click('[data-testid="product-preview"] [data-video-load]');
+  await click(`[data-video-source="${video.sources[1].id}"]`);
+  assert.equal((await page.$$('iframe[data-video-player="youtube"]')).length, 0, 'changing source destroys the old frame');
+  // Expanding preview mounts the official player without another click.
+  await page.waitForSelector('[data-testid="product-preview"] iframe[data-video-player]', { visible: true });
+
   await page.waitForSelector('iframe[data-video-player="bilibili"]');
   assert.equal(new URL(await page.$eval('iframe[data-video-player]', node => node.src)).host, 'player.bilibili.com');
-  await page.click(`[data-video-source="${video.sources[2].id}"]`);
+  await click(`[data-video-source="${video.sources[2].id}"]`);
   assert.equal((await page.$$('iframe')).length, 0);
   assert.equal(await page.$eval(`[data-video-external="${video.sources[2].id}"]`, node => node.target), '_blank');
-  await page.click('[data-tab="details"]'); assert.equal((await page.$$('iframe')).length, 0);
-  pass('in-page players load only on click, switch sources safely, stop on tab exit, and unknown platforms stay external');
+  await click('[data-tab="details"]'); assert.equal((await page.$$('iframe')).length, 0);
+  pass('in-page players load automatically without autoplay, switch sources safely, stop on tab exit, and unknown platforms stay external');
 
   await page.locator('[data-testid="add-product-video"]').click();
   await page.waitForFunction(() => document.querySelectorAll('[data-edit-video]').length === 2);
   const nodes = await page.$$('[data-edit-video]'); const secondId = await nodes[1].evaluate(node => node.dataset.editVideo);
   await input(`[data-edit-video="${secondId}"] [data-video-title]`, '安装教程');
   await input(`[data-edit-video="${secondId}"] [data-video-url]`, 'https://youtube.com/shorts/M7lc1UVf-VE');
-  await page.click('[aria-label="视频2前移"]'); await save();
+  await click('[aria-label="视频2前移"]'); await save();
   state = await readCatalog(); assert.equal(state.productDrafts[slug].product.videos[0].title, '安装教程');
   await page.goto(base + `/admin/products/${slug}`, { waitUntil: 'networkidle0' });
   assert.equal(await page.$eval('[data-video-title]', node => node.value), '安装教程');
-  await page.click('[aria-label="移除视频1"]'); await save();
+  await click('[aria-label="移除视频1"]'); await save();
   await publish();
   state = await readCatalog(); assert.equal(state.products[0].videos.length, 1); assert.equal(state.productDrafts?.[slug], undefined);
   assert.deepEqual(state.releases, initial.releases);
@@ -142,26 +152,30 @@ try {
   const count = requests.length;
   await visitor.setViewport({ width: 390, height: 844 });
   await visitor.goto(base + `/zh/products/${slug}`, { waitUntil: 'networkidle0' });
-  await visitor.waitForSelector('[data-video-load]');
-  assert.equal((await visitor.$$('iframe')).length, 0); assert.equal(requests.length, count);
+  await visitor.waitForSelector('iframe[data-video-player]');
+  assert.equal((await visitor.$$('iframe')).length, 1); assert.equal(await visitor.$('[data-video-load]'), null);
+  await visitor.$eval('iframe[data-video-player]', el => el.scrollIntoView({ block: 'center', behavior: 'instant' }));
+  await visitor.waitForNetworkIdle({ idleTime: 250, timeout: 10000 });
+  assert.ok(requests.slice(count).some(r => r.host === 'www.youtube-nocookie.com'));
+  assert.equal(await visitor.$eval('iframe[data-video-player]', el => new URL(el.src).searchParams.get('autoplay')), '0');
   assert.ok(await visitor.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
   await shot('video-public-mobile.png', visitor);
-  await visitor.click('[data-video-load]'); await visitor.waitForSelector('iframe[data-video-player="youtube"]');
+   await visitor.waitForSelector('iframe[data-video-player="youtube"]');
   const dimensions = await visitor.$eval('iframe', node => ({ width: node.clientWidth, height: node.clientHeight }));
   assert.ok(dimensions.width >= 200 && dimensions.height >= 200);
-  await page.click('[data-tab="details"]'); await input('[data-video-title]', '尚未公开的新标题'); await save();
+  await click('[data-tab="details"]'); await input('[data-video-title]', '尚未公开的新标题'); await save();
   await visitor.reload({ waitUntil: 'networkidle0' });
   assert.ok((await visitor.$eval('[data-testid="product-video-introductions"]', node => node.textContent)).includes('产品功能演示'));
   assert.ok(!(await visitor.$eval('[data-testid="product-video-introductions"]', node => node.textContent)).includes('尚未公开的新标题'));
   pass('anonymous mobile storefront displays the published video only; later saved edits do not leak');
 
-  await page.click('[data-tab="preview"]');
-  if (!(await page.$eval('[data-testid="preview-disclosure"]', el => el.open))) await page.click('[data-testid="preview-disclosure"] > summary');
-  // The collapsed preview mounts its player lazily after the toggle event.
-  await page.waitForSelector('[data-testid="product-preview"] [data-video-load]', { visible: true });
-  await page.click('[data-testid="product-preview"] [data-video-load]');
-  await page.click('[data-tab="details"]'); assert.equal((await page.$$('iframe')).length, 0);
-  await page.click('[aria-label="移除视频1"]'); await save();
+  await click('[data-tab="preview"]');
+  if (!(await page.$eval('[data-testid="preview-disclosure"]', el => el.open))) await click('[data-testid="preview-disclosure"] > summary');
+  // Expanding preview mounts the official player without another click.
+  await page.waitForSelector('[data-testid="product-preview"] iframe[data-video-player]', { visible: true });
+
+  await click('[data-tab="details"]'); assert.equal((await page.$$('iframe')).length, 0);
+  await click('[aria-label="移除视频1"]'); await save();
   await visitor.reload({ waitUntil: 'networkidle0' }); assert.ok(await visitor.$('[data-testid="product-video-introductions"]'));
   await publish(); await visitor.reload({ waitUntil: 'networkidle0' }); assert.equal(await visitor.$('[data-testid="product-video-introductions"]'), null);
   assert.equal((await fetch(base + poster)).status, 404);
@@ -169,7 +183,7 @@ try {
   state = await readCatalog(); state.products[0].videos = [video]; await writeFile(catalogFile, JSON.stringify(state));
   await stop(); await start();
   await visitor.goto(base + `/en/products/${slug}`, { waitUntil: 'networkidle0' });
-  await visitor.waitForSelector('[data-video-load]'); assert.equal((await fetch(base + poster)).status, 200);
+  await visitor.waitForSelector('iframe[data-video-player]'); assert.equal((await fetch(base + poster)).status, 200);
   assert.deepEqual(errors, []);
   pass('removal remains draft-only until confirmed; service restart retains published video data and its image');
 
@@ -181,7 +195,7 @@ try {
       try {
         await live.goto(base + `/zh/products/${slug}`, { waitUntil: 'domcontentloaded', timeout: 20000 });
         if (source.id !== video.sources[0].id) await live.click(`[data-video-source="${source.id}"]`);
-        await live.click('[data-video-load]'); await live.waitForSelector('iframe'); result.iframeRequested = true;
+         await live.waitForSelector('iframe'); result.iframeRequested = true;
         const handle = await live.$('iframe'); const frame = await handle.contentFrame();
         await frame.waitForSelector('body', { timeout: 20000 });
         result.playerDocumentLoaded = players.includes(new URL(frame.url()).hostname);

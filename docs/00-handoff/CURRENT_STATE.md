@@ -1,13 +1,11 @@
 # 当前状态
 
-更新时间：2026-09-19T07:00:12+08:00；候选0.1.36，LAYOUT-01及PUB-02界面修复。
+更新时间：2026-09-19T07:48:34+08:00；版本候选0.1.37，基于远端8acb7a4/0.1.36。
 
-## 整页重排与发布澄清已完成本地验收
+## 已实现并完成本地验收
 
-桌面文字/图片双栏、紧凑链接优先视频卡、固定工具栏和底部操作已经接入。线上资料与本次草稿分开标识，视频空标题在原字段提示，发布核对可定位缺项；纯预览不保存，资料和软件分别发布。截图中的空标题会阻挡资料发布，但没有读取生产审计，不断言用户先前是否尝试过发布。
+视频标题和封面可选；商品发布取消重复勾选，明确点击发布按钮才会公开；YouTube/B站播放器自动加载（原生lazy）、不自动播放，切源和离开预览销毁旧帧。保留原鉴权、指纹、链接、图片校验与软件独立发布。保存草稿立即显示待发布，后续修改清除旧成功回执。
 
-171项单元/动作、类型检查、默认生产构建与63组浏览器检查通过。首轮发现并修复页签滚动位置/固定栏遮挡、1024px保存按钮超出视口；历史失败与独立复测均保留，测试不跳过业务断言。见[实现说明](../product-editor-layout.md)和[验收证据](evidence/2026-09-19-product-editor-layout.json)。
+176项单元/动作、类型检查、生产构建及69组隔离浏览器检查通过。初轮旧测试仍点击已移除的复选框，已更新并单独重跑完整商品流程；没有移除业务断言。见[证据](evidence/2026-09-19-simple-publishing-autoload.json)与[当前操作约定](../product-publishing-simple.md)。
 
-当前独立树 `/Users/tefulong/.agentdock/tmp/oaktech-editor-layout-20260919`，分支feat/product-editor-layout-20260919；基线本地877c704，远端截至开始仍43d638b/.35。旧树5项重排文件哈希未变，原管理员/其他项目未覆盖。源码推送和公网待发布后核验；收据写入.local-verification/product-layout/deployment.json。没有发布OpenPlay正式草稿、改变软件版本或账号。
-
-视频标题/封面自动抓取、GitHub主动同步、多平台版本模型与本地超管并非此次交付。前序过程保留在[归档](archive/2026-09-19-before-editor-layout.md)。
+本地目录oaktech-video-publish-final-20260919；分支fix/video-publication-on-latest-20260919。推送和公网结果另存.local-verification/publishing-simplified/deployment.json。尚未以代码测试冒充实际上线；未修改用户正式商品、软件或账号。第三方真实播放不作为本轮通过声明。此前状态见[归档](archive/2026-09-19-before-simple-publishing.md)。

@@ -25,11 +25,12 @@ test('new products and missing legacy video arrays have honest review counts',()
 test('publish prerequisites do not require software releases for complete introduction and video',()=>{
  assert.deepEqual(productPublicationIssues({...original,videos:[video]}),[]);
 });
-test('a missing video title and an unused second source get separate, precise repair targets',()=>{
+test('an optional title does not block publication but an unused source has a precise repair target',()=>{
  const incomplete={...video,title:'',sources:[...video.sources,{id:'two',label:'',url:''}]};
  const issues=productPublicationIssues({...original,videos:[incomplete]});
- assert.deepEqual(issues.map(x=>x.field),['video:0:title','video:0:source:1']);
- assert.match(issues[0].label,/视频1.*标题/);assert.match(issues[1].label,/来源2.*移除/);
+ assert.deepEqual(issues.map(x=>x.field),['video:0:source:1']);
+ assert.match(issues[0].label,/来源2.*移除/);
+ assert.deepEqual(productPublicationIssues({...original,videos:[{...video,title:''}]}),[]);
 });
 test('invalid video and duplicate source remain blocked rather than hidden or removed',()=>{
  assert.equal(productPublicationIssues({...original,videos:[{...video,sources:[{...video.sources[0],url:'javascript:alert(1)'}]}]})[0].field,'video:0');

@@ -2,11 +2,11 @@
 
 > 不要直接编辑本文件。修改TASKS.json后运行 `npm run handoff:render`。
 
-账本revision：34；更新时间：2026-09-19T07:00:12+08:00；计划版本：1.0.0。
+账本revision：38；更新时间：2026-09-19T07:48:34+08:00；计划版本：1.0.0。
 
 **权限主线任务完成：1/14。这是任务计数，不是代码完成百分比；PLAN-01文档不计入。**
 
-生产超管状态：`not_implemented`；唯一下一任务：**PUB-02**。
+生产超管状态：`not_implemented`；唯一下一任务：**ADM-02**。
 
 | 任务 | 阶段/类型 | 优先级 | 状态 | 负责人 | 依赖 |
 | --- | --- | --- | --- | --- | --- |
@@ -39,7 +39,7 @@
 | DASH-01 · Dashboard与商品管理统一工作台 | STORE / feature | P0 | 完成 | ChatGPT / tsk_b677b669147495db | 无 |
 | DASH-02 · 软件目录与商品管理合为单一商品列表 | STORE / feature | P0 | 完成 | ChatGPT / tsk_bc34f6eb218684af | DASH-01 |
 | LANG-01 · 恢复浏览器语言检测与手动偏好 | STORE / feature | P0 | 完成 | ChatGPT / tsk_5ef8f47aca946698 | 无 |
-| PUB-02 · 商品图文视频发布可发现性与结果核验 | STORE / feature | P0 | 待验收 | ChatGPT / tsk_d66259b906c7a92b | PUB-01 |
+| PUB-02 · 商品图文视频发布可发现性与结果核验 | STORE / feature | P0 | 完成 | ChatGPT / tsk_d66259b906c7a92b | PUB-01 |
 | LAYOUT-01 · 商品编辑整页重排与发布操作清晰化 | STORE / feature | P0 | 完成 | ChatGPT / tsk_5c35347895781361 | 无 |
 
 ## 任务详情与接续动作
@@ -532,21 +532,23 @@
 
 ### PUB-02 · 商品图文视频发布可发现性与结果核验
 
-状态：待验收；负责人：ChatGPT / tsk_d66259b906c7a92b；实施：integrated_browser_verified；部署：included_in_0.1.36_candidate。
+状态：完成；负责人：ChatGPT / tsk_d66259b906c7a92b；实施：implemented_and_verified_on_8acb7a4；部署：0.1.37_pending_verification。
 
-下一动作：用户截图已定位空视频标题和待发布状态；本轮提供界面及定位修复，真实商品发布仍由管理员补齐资料并确认，不自动消费其草稿。
+下一动作：核对0.1.37推送和公网收据；用户自行点击发布正式资料，不代替用户执行。
 
 验收条件：
-- 直接准备商品发布并明确保存不等于上线
-- 图文视频改动范围、空标题与空来源定位明确
-- 隔离环境从新增介绍与视频走通确认发布且软件不变
-- 真实草稿不可读取时如实说明，不擅自公开生产内容
+- 有效视频链接可不填标题/封面发布；省略或空白标题兼容
+- 商品发布通过明确按钮完成，无重复勾选；保留鉴权/指纹/内容校验和软件独立发布
+- 受信任播放器自动加载且autoplay=0，切源/离开预览销毁旧播放器，未知来源仍外链
+- 隔离端到端与生产只读核验分别记录，用户正式内容不修改
 
 计划文件（可能尚未创建）：`components/admin/product-workspace.tsx`、`components/admin/publication-review.tsx`、`lib/store/product-publication-summary.ts`
 
 证据：
 - verification / partial：`docs/00-handoff/evidence/2026-09-19-product-publication-partial.json`
 - verification / passed：`docs/00-handoff/evidence/2026-09-19-product-editor-layout.json`
+- verification / passed：`docs/00-handoff/evidence/2026-09-19-simple-publishing-autoload.json`
+- implementation / passed：`components/product-videos.tsx`
 
 ### LAYOUT-01 · 商品编辑整页重排与发布操作清晰化
 

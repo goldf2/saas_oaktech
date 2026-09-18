@@ -1,0 +1,83 @@
+{
+  "at": "2026-09-19T07:48:34+08:00",
+  "version": "0.1.37",
+  "base": "8acb7a4",
+  "scope": [
+    "optional video title and poster including omitted/blank titles",
+    "explicit product publication button without checkbox; software workflow unchanged",
+    "automatically rendered trusted iframe, browser lazy loading, autoplay=0",
+    "pending draft feedback and cleared stale success receipts"
+  ],
+  "verification": {
+    "unit": 176,
+    "typecheck": "passed",
+    "productionBuild": "passed",
+    "browserChecks": 69,
+    "browserSuites": [
+      {
+        "suite": "link",
+        "checks": 6,
+        "status": "passed",
+        "result": ".local-verification/publishing-simplified/link/result.json"
+      },
+      {
+        "suite": "editor",
+        "checks": 6,
+        "status": "passed",
+        "result": ".local-verification/publishing-simplified/editor/result.json"
+      },
+      {
+        "suite": "clarity",
+        "checks": 5,
+        "status": "passed",
+        "result": ".local-verification/publishing-simplified/clarity/result.json"
+      },
+      {
+        "suite": "publication",
+        "checks": 6,
+        "status": "passed",
+        "result": ".local-verification/publishing-simplified/publication/result.json"
+      },
+      {
+        "suite": "video",
+        "checks": 6,
+        "status": "passed",
+        "result": ".local-verification/publishing-simplified/video/result.json"
+      },
+      {
+        "suite": "store",
+        "checks": 13,
+        "status": "passed",
+        "result": ".local-verification/publishing-simplified/recheck/store/result.json"
+      },
+      {
+        "suite": "release",
+        "checks": 9,
+        "status": "passed",
+        "result": ".local-verification/publishing-simplified/release/result.json"
+      },
+      {
+        "suite": "workspace",
+        "checks": 8,
+        "status": "passed",
+        "result": ".local-verification/publishing-simplified/workspace/result.json"
+      },
+      {
+        "suite": "compact",
+        "checks": 3,
+        "status": "passed",
+        "result": ".local-verification/publishing-simplified/compact/result.json"
+      },
+      {
+        "suite": "language",
+        "checks": 7,
+        "status": "passed",
+        "result": ".local-verification/publishing-simplified/language/result.json"
+      }
+    ]
+  },
+  "initialRegression": "Legacy workspace browser test still clicked the removed product checkbox. Updated that test to retain software-only confirmation; complete store regression passed separately in recheck/store. Original failure result retained.",
+  "productionWrites": false,
+  "livePlatformPlayback": "not part of this deterministic regression; iframe requests use explicit local test responses",
+  "deployment": "awaiting push and independent public verification"
+}

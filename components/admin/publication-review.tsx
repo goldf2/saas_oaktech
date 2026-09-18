@@ -27,29 +27,25 @@ export function PublicationReview({ product, liveProduct = null, onSave, product
     ? !releaseDirty && chosen.length > 0 && !stale && !conflict && !blockedFiles
     : !dirty && productIssues.length === 0);
   return <section data-testid="publication-review" data-publication-scope={mode} className="min-w-0 space-y-2 rounded-lg border bg-background p-3 sm:p-4">
-    <div><h2 className="text-lg font-semibold">独立预览与发布</h2><p className="mt-2 text-sm text-muted-foreground">商品资料和软件版本分别确认、分别发布。一次操作只改变当前选中的发布对象。</p></div>
-    <div className="grid gap-2 sm:grid-cols-2" role="group" aria-label="选择发布对象">
-      <button type="button" data-publication-mode="product" aria-pressed={!software} disabled={disabled} onClick={() => onModeChange("product")}
-        className="rounded-lg border p-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring aria-pressed:border-primary aria-pressed:bg-primary/5 disabled:opacity-50">
-        <span className="flex items-center gap-2 font-semibold"><Globe className="h-5 w-5" aria-hidden="true" />商品资料发布</span><span className="mt-1 block text-xs text-muted-foreground">名称、介绍、图片与视频；不发布或切换软件版本。</span>
-      </button>
-      <button type="button" data-publication-mode="software" aria-pressed={software} disabled={disabled} onClick={() => onModeChange("software")}
-        className="rounded-lg border p-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring aria-pressed:border-primary aria-pressed:bg-primary/5 disabled:opacity-50">
-        <span className="flex items-center gap-2 font-semibold"><PackageCheck className="h-5 w-5" aria-hidden="true" />软件版本发布</span><span className="mt-1 block text-xs text-muted-foreground">版本、安装包和更新清单；不公开或保存商品资料草稿。</span>
-      </button>
+    <div className="flex flex-wrap items-center justify-between gap-3 border-b pb-3">
+      <h2 className="text-lg font-semibold">{software ? "发布软件版本" : "发布商品资料"}</h2>
+      <div className="flex flex-wrap gap-1 rounded-lg bg-muted/50 p-1" role="group" aria-label="选择发布对象">
+        <Button type="button" size="sm" variant="ghost" data-publication-mode="product" aria-pressed={!software} disabled={disabled} onClick={() => onModeChange("product")} className="h-9 aria-pressed:bg-background aria-pressed:text-primary aria-pressed:shadow-sm"><Globe className="mr-1.5 h-4 w-4" />商品资料</Button>
+        <Button type="button" size="sm" variant="ghost" data-publication-mode="software" aria-pressed={software} disabled={disabled} onClick={() => onModeChange("software")} className="h-9 aria-pressed:bg-background aria-pressed:text-primary aria-pressed:shadow-sm"><PackageCheck className="mr-1.5 h-4 w-4" />软件版本</Button>
+      </div>
     </div>
     {!software ? <>
-      <p data-testid="metadata-only-notice" className="rounded-lg bg-primary/5 p-3 text-sm">本次仅发布商品资料。已有软件版本和下载保持不变，待上传、待校验或未保存的软件版本不会阻止资料发布。</p>
+      <p data-testid="metadata-only-notice" className="rounded-lg bg-primary/5 p-3 text-sm">更新商品名称、介绍、图片和视频。无需安装包；软件版本保持不变。</p>
       <ProductPublicationSummary product={product} live={liveProduct} dirty={dirty} />
       {productIssues.length > 0 && <div data-testid="product-publication-issues" className="rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm dark:border-amber-900 dark:bg-amber-950/20">
-        <h3 className="font-semibold">商品资料尚需完善</h3><div className="mt-2 flex flex-wrap gap-2">{productIssues.map(issue => <Button key={issue.field} variant="outline" type="button" size="sm" onClick={() => onFixProduct(issue.tab, issue.field)} disabled={disabled}>{issue.label} →</Button>)}</div>
+        <h3 className="font-semibold">需要处理的项目</h3><div className="mt-2 flex flex-wrap gap-2">{productIssues.map(issue => <Button key={issue.field} className="h-auto min-h-9 whitespace-normal text-left" variant="outline" type="button" size="sm" onClick={() => onFixProduct(issue.tab, issue.field)} disabled={disabled}>{issue.label} →</Button>)}</div>
       </div>}
-      {dirty && <div role="alert" className="rounded-lg bg-destructive/5 p-3 text-sm text-destructive">商品资料有未保存修改，保存后即可确认发布；软件版本不受影响。
+      {dirty && <div role="alert" className="rounded-lg bg-muted/40 p-3 text-sm">有未保存修改，请先保存，再确认发布。
         {onSave && <Button type="button" variant="outline" className="ml-3" data-testid="save-for-product-publication" disabled={disabled} onClick={onSave}>保存草稿并继续</Button>}
       </div>}
       {!existing && <p className="text-sm text-muted-foreground">请先保存并创建商品记录。</p>}
     </> : <>
-      <p data-testid="software-only-notice" className="rounded-lg bg-primary/5 p-3 text-sm">本次只发布选中的软件版本。商品介绍、图片、视频及其草稿保持原样；无需先保存、完善或发布正在编辑的商品资料。</p>
+      <p data-testid="software-only-notice" className="rounded-lg bg-primary/5 p-3 text-sm">仅开放选中的软件版本和下载；商品介绍及其草稿保持不变。</p>
       {!productIsPublished && <p data-testid="unlisted-product-release-warning" className="rounded-lg border border-amber-300 p-3 text-sm">商品尚未上架。软件发布后安装包可通过其正式下载地址获取，但不会自动公开商品介绍页。需要展示商品时，请另行发布商品资料。</p>}
       <div className="flex flex-wrap items-center justify-between gap-3"><h3 className="font-semibold">选择本次发布的软件版本</h3><Button type="button" variant="outline" onClick={onBack} disabled={disabled}><ArrowLeft className="mr-1 h-4 w-4" aria-hidden="true" />返回软件版本</Button></div>
       <p className="text-xs text-muted-foreground">同一渠道一次只切换一个当前版本；所有选中安装包仍需服务端大小、摘要及适用的签名校验。未选版本保持原状。</p>
@@ -71,11 +67,11 @@ export function PublicationReview({ product, liveProduct = null, onSave, product
       {(stale || conflict) && <p role="alert" className="text-sm text-destructive">所选版本已变化或渠道冲突，请刷新并核对软件版本。</p>}
     </>}
     <div className="border-t pt-3">
-      <label className="flex items-start gap-3 rounded-lg border p-3 text-sm">
-        <input data-testid={software ? "confirm-software-publication" : "confirm-product-publication"} className="mt-1 h-4 w-4 shrink-0 accent-primary" type="checkbox" checked={confirmed} disabled={!canConfirm} onChange={e => setConfirmed(e.target.checked)} />
-        <span>{software ? `我确认公开 ${chosen.length ? chosen.map(r => `${r.version}（${r.channel}）`).join("、") : "所选软件版本"}的安装包与更新清单，不发布商品资料。` : "我确认仅公开已保存的商品资料，不发布或切换软件版本。"}</span>
-      </label>
-      <div className="mt-3"><Button className="h-9" data-testid={software ? "publish-software" : "publish-product"} onClick={onPublish} disabled={!canConfirm || !confirmed}>{disabled ? "正在处理，请稍候…" : software ? `校验并发布 ${chosen.length} 个软件版本` : "仅发布商品资料"}</Button></div>
+      {software && <label className="flex items-start gap-3 rounded-lg border p-3 text-sm">
+        <input data-testid="confirm-software-publication" className="mt-1 h-4 w-4 shrink-0 accent-primary" type="checkbox" checked={confirmed} disabled={!canConfirm} onChange={e => setConfirmed(e.target.checked)} />
+        <span>{`我确认公开 ${chosen.length ? chosen.map(r => `${r.version}（${r.channel}）`).join("、") : "所选软件版本"}的安装包与更新清单，不发布商品资料。`}</span>
+      </label>}
+      <div className={software ? "mt-3" : ""}><Button type="button" className="h-9" data-testid={software ? "publish-software" : "publish-product"} onClick={onPublish} disabled={!canConfirm || (software && !confirmed)}>{disabled ? "正在处理，请稍候…" : software ? `校验并发布 ${chosen.length} 个软件版本` : "发布商品资料"}</Button></div>
     </div>
   </section>;
 }

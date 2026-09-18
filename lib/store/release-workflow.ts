@@ -94,7 +94,6 @@ export function productPublicationIssues(product: AdminStoreProductRow) {
   const videoIssueStart = issues.length;
   if (Array.isArray(product.videos)) product.videos.forEach((video, index) => {
     const start = issues.length;
-    if (!video.title?.trim()) issues.push({ field: `video:${index}:title`, label: `视频${index + 1}：请填写标题`, tab: "details" });
     if (!video.sources?.length) issues.push({ field: `video:${index}`, label: `视频${index + 1}：请添加播放来源`, tab: "details" });
     video.sources?.forEach((source, sourceIndex) => {
       if (!source.url?.trim()) issues.push({ field: `video:${index}:source:${sourceIndex}`, label: `视频${index + 1}来源${sourceIndex + 1}：填写链接或移除空来源`, tab: "details" });

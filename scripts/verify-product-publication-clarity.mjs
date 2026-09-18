@@ -43,7 +43,7 @@ async function input(selector, value) {
 }
 async function status(text) { await page.waitForFunction(text => Array.from(document.querySelectorAll('[role="status"]')).some(node => node.textContent.includes(text)), {}, text); }
 async function save() { await page.click('[data-testid="save-product-draft"]'); await status('草稿已保存'); await page.waitForFunction(() => !document.querySelector('[data-testid="save-product-draft"]').disabled); }
-async function publish() { await page.click('[data-tab="preview"]'); await page.click('[data-testid="confirm-product-publication"]'); await page.click('[data-testid="publish-product"]'); await status('已发布'); }
+async function publish() { await page.click('[data-tab="preview"]'); await page.click('[data-testid="publish-product"]'); await status('已发布'); }
 async function shot(name, target = page) { const file = path.join(output, name); await target.screenshot({ path: file, fullPage: true }); report.screenshots.push(file); }
 const players = ['www.youtube-nocookie.com', 'player.bilibili.com'];
 const requests = [];
@@ -74,13 +74,13 @@ try {
   await page.waitForFunction(()=>!document.querySelector('[data-testid="save-product-draft"]').disabled);
   assert.equal((await readCatalog()).productDrafts[slug].product.videos.length,1);
   assert.equal((await readCatalog()).products[0].videos,undefined);
-  assert.equal(await page.$eval('[data-testid="confirm-product-publication"]',e=>e.disabled),true);
+  assert.equal(await page.$eval('[data-testid="publish-product"]',e=>e.disabled),true);
   const issues=await page.$eval('[data-testid="product-publication-issues"]',e=>e.textContent);
-  assert.match(issues,/视频1.*标题/);assert.match(issues,/来源2.*移除/);
+  assert.doesNotMatch(issues,/请填写标题/);assert.match(issues,/来源2.*移除/);
   assert.match(await page.$eval('[data-testid="product-publish-pending"]',e=>e.textContent),/尚未发布/);
   pass('editing text plus an incomplete video can prepare a private draft, with precise blockers rather than an unexplained disabled publication');
-  await page.$$eval('[data-testid="product-publication-issues"] button',buttons=>buttons.find(b=>b.textContent.includes('标题')).click());
-  await page.waitForFunction(()=>document.activeElement?.hasAttribute('data-video-title'));
+  await page.$$eval('[data-testid="product-publication-issues"] button',buttons=>buttons.find(b=>b.textContent.includes('来源2')).click());
+  await page.waitForFunction(()=>document.activeElement?.hasAttribute('data-video-url'));
   await input('[data-video-title]','OpenPlay 使用演示');
   const removeSource = '[aria-label="移除视频1来源2"]';
   await page.$eval(removeSource, el => el.scrollIntoView({ block: 'center', behavior: 'instant' }));
@@ -88,7 +88,7 @@ try {
   await page.locator(removeSource).click();
   await page.waitForFunction(() => document.querySelectorAll('[data-edit-source]').length === 1);
   await page.click('[data-testid="prepare-product-publication"]');await status('草稿已保存');
-  await page.waitForFunction(()=>!document.querySelector('[data-testid="confirm-product-publication"]').disabled);
+  await page.waitForFunction(()=>!document.querySelector('[data-testid="publish-product"]').disabled);
   const summary=await page.$eval('[data-testid="product-change-summary"]',e=>e.textContent);
   assert.match(summary,/线上 0 段 → 本次 1 段/);assert.match(summary,/OpenPlay 使用演示/);assert.match(summary,/新添加的 OpenPlay/);
   assert.ok(await page.$('[data-testid="independent-english-notice"]'));
@@ -96,7 +96,7 @@ try {
   assert.equal((await readCatalog()).products[0].description_zh,existing.description_zh);
   pass('repair links focus the exact field; the direct product action saves and previews text/video without publishing or requiring software');
   await shot('product-publication-review.png');
-  await page.click('[data-testid="confirm-product-publication"]');await page.click('[data-testid="publish-product"]');await status('商品资料已发布');
+  await page.click('[data-testid="publish-product"]');await status('商品资料已发布');
   await page.waitForSelector('[data-testid="product-publication-success"]');
   assert.ok(await page.$(`[data-testid="product-publication-success"] a[href="/zh/products/${slug}"]`));
   assert.ok(await page.$(`[data-testid="product-publication-success"] a[href="/en/products/${slug}"]`));
@@ -108,9 +108,9 @@ try {
   await shot('public-product-with-video.png',publicPage);
   await page.click('[data-tab="details"]');await input('textarea[name="description_zh"]','第二次修改，先预览不保存');
   const beforePreview=await readCatalog();await page.click('[data-preview-product]');
-  assert.deepEqual(await readCatalog(),beforePreview);assert.equal(await page.$eval('[data-testid="confirm-product-publication"]',e=>e.disabled),true);
+  assert.deepEqual(await readCatalog(),beforePreview);assert.equal(await page.$eval('[data-testid="publish-product"]',e=>e.disabled),true);
   await page.click('[data-testid="save-for-product-publication"]');await status('草稿已保存');
-  await page.waitForFunction(()=>!document.querySelector('[data-testid="confirm-product-publication"]').disabled);
+  await page.waitForFunction(()=>!document.querySelector('[data-testid="publish-product"]').disabled);
   assert.equal((await readCatalog()).products[0].description_zh,published.products[0].description_zh);
   assert.equal((await readCatalog()).productDrafts[slug].product.description_zh,'第二次修改，先预览不保存');
   assert.equal(await page.$('[data-testid="product-publication-success"]'),null,'an earlier success receipt must not label a later saved draft as published');

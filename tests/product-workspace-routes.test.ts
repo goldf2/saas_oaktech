@@ -160,7 +160,7 @@ test('invalid video HTML and URLs cannot be persisted, and an incomplete draft c
     assert.equal((await action.saveWorkspaceAction(f)).ok, undefined);
     assert.deepEqual((await catalog.readStoreCatalog()).catalog, before);
   }
-  const f = form(p, workspace.productToken(before, slug)); f.set('videos', JSON.stringify([{ ...introVideo(), title: '' }]));
+  const f = form(p, workspace.productToken(before, slug)); f.set('videos', JSON.stringify([{ ...introVideo(), title: '', sources: [] }]));
   const result = await action.saveWorkspaceAction(f); assert.equal(result.ok, true);
   const pub = new FormData(); pub.set('slug', slug); pub.set('publish_token', result.publishToken!); pub.set('confirm', 'on');
   assert.equal((await action.publishWorkspaceAction(pub)).code, 'PRODUCT_VIDEO_INCOMPLETE');
@@ -215,4 +215,31 @@ test('video-only changes still reject stale edits and stale publication confirma
   const pub = new FormData(); pub.set('slug', slug); pub.set('publish_token', saved.publishToken!); pub.set('confirm', 'on');
   assert.equal((await action.publishWorkspaceAction(pub)).code, 'PRODUCT_PUBLICATION_CONFLICT');
   assert.equal((await catalog.readStoreCatalog()).catalog.products[0].videos, undefined);
+});
+
+test('link-only video publishes through the authorized action without any software release', async () => {
+  const before = (await catalog.readStoreCatalog()).catalog, p = before.products[0];
+  const f = form(p, workspace.productToken(before, slug));
+  f.set('videos', JSON.stringify([{ ...introVideo(), title: '', poster_url: '' }]));
+  const saved = await action.saveWorkspaceAction(f); assert.equal(saved.ok, true);
+  const pub = new FormData(); pub.set('slug', slug); pub.set('publish_token', saved.publishToken!); pub.set('confirm', 'on');
+  assert.equal((await action.publishWorkspaceAction(pub)).ok, true);
+  const next = (await catalog.readStoreCatalog()).catalog;
+  assert.equal(next.products[0].videos?.[0].title, '');
+  assert.equal(next.products[0].videos?.[0].sources.length, introVideo().sources.length);
+  assert.deepEqual(next.releases, before.releases);
+});
+
+
+test('a legacy caller omitting title can publish without inventing platform metadata', async () => {
+  const before = (await catalog.readStoreCatalog()).catalog, p = before.products[0];
+  const { title: _unused, ...linkOnly } = introVideo();
+  const f = form(p, workspace.productToken(before, slug));
+  f.set('videos', JSON.stringify([linkOnly]));
+  const saved = await action.saveWorkspaceAction(f); assert.equal(saved.ok, true);
+  const pub = new FormData(); pub.set('slug', slug); pub.set('publish_token', saved.publishToken!); pub.set('confirm', 'on');
+  assert.equal((await action.publishWorkspaceAction(pub)).ok, true);
+  const next = (await catalog.readStoreCatalog()).catalog;
+  assert.equal(next.products[0].videos?.[0].title, '');
+  assert.deepEqual(next.releases, before.releases);
 });

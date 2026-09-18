@@ -23,13 +23,12 @@ export function ProductVideoEditor({ videos, disabled, canUpload, onChange, onUp
   }
   return <section className="rounded-xl border bg-background p-4 sm:p-5" data-testid="product-video-editor">
     <div className="flex flex-wrap items-start justify-between gap-3">
-      <div><h2 className="flex items-center gap-2 text-base font-semibold"><Video className="h-4 w-4" aria-hidden="true" />视频介绍 <span className="text-sm font-normal text-muted-foreground">{videos.length}/{MAX_PRODUCT_VIDEOS}</span></h2><p className="mt-1 text-xs text-muted-foreground">粘贴 YouTube / B站完整链接。标题和链接必填，封面可选；视频随商品资料发布。</p></div>
+      <div><h2 className="flex items-center gap-2 text-base font-semibold"><Video className="h-4 w-4" aria-hidden="true" />视频介绍 <span className="text-sm font-normal text-muted-foreground">{videos.length}/{MAX_PRODUCT_VIDEOS}</span></h2><p className="mt-1 text-xs text-muted-foreground">粘贴 YouTube 或B站链接即可添加；标题和封面可选。</p></div>
       <Button type="button" size="sm" data-testid="add-product-video" disabled={disabled || videos.length >= MAX_PRODUCT_VIDEOS} onClick={() => onChange([...videos, { id: crypto.randomUUID(), title: "", poster_url: "", sources: [{ id: crypto.randomUUID(), label: "", url: "" }] }])}><Plus className="mr-1 h-4 w-4" />添加视频</Button>
     </div>
     {!videos.length && <p className="mt-3 rounded-lg border border-dashed p-4 text-sm text-muted-foreground">可添加产品演示、安装教程；同一视频支持多个平台来源。</p>}
     <fieldset disabled={disabled} className="mt-3 min-w-0 space-y-3">
       {videos.map((video, index) => {
-        const titleMissing = !video.title.trim() && video.sources.some(source => source.url.trim());
         return <article key={video.id} data-edit-video={video.id} className="min-w-0 rounded-lg border bg-muted/10 p-3 sm:p-4">
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
             <h3 className="min-w-0 break-words text-sm font-semibold">视频 {index + 1}{video.title ? ` · ${video.title}` : ""}</h3>
@@ -47,8 +46,8 @@ export function ProductVideoEditor({ videos, disabled, canUpload, onChange, onUp
                 </div>;
               })}
               {!video.sources.length && <p className="text-sm text-destructive">请添加至少一个播放来源。</p>}
-              <label className="block text-sm font-medium">视频标题 <span className="text-destructive">（发布必填）</span><Input data-video-title className={`mt-1.5 h-10 ${titleMissing ? "border-destructive" : ""}`} aria-required="true" aria-invalid={titleMissing} aria-describedby={`video-title-help-${video.id}`} value={video.title} maxLength={160} onChange={e => update(video.id, { title: e.target.value })} placeholder="例如：产品功能演示" /></label>
-              <p id={`video-title-help-${video.id}`} data-video-title-help className={`text-xs ${titleMissing ? "text-destructive" : "text-muted-foreground"}`}>{titleMissing ? `视频${index + 1}缺少标题：可保存草稿，但暂不能发布商品资料。` : "当前只自动识别播放器，标题需填写。"}</p>
+              <label className="block text-sm font-medium">显示标题 <span className="font-normal text-muted-foreground">· 可选</span><Input data-video-title className="mt-1.5 h-10" aria-describedby={`video-title-help-${video.id}`} value={video.title} maxLength={160} onChange={e => update(video.id, { title: e.target.value })} placeholder="留空显示“视频介绍”" /></label>
+              <p id={`video-title-help-${video.id}`} data-video-title-help className="text-xs text-muted-foreground">留空不影响发布。此处是自定义显示名称，不是平台自动获取的标题。</p>
               <Button type="button" variant="outline" size="sm" data-add-video-source disabled={disabled || video.sources.length >= MAX_VIDEO_SOURCES} onClick={() => update(video.id, { sources: [...video.sources, { id: crypto.randomUUID(), label: "", url: "" }] })}><Plus className="mr-1 h-3.5 w-3.5" />添加备用来源</Button>
             </div>
             <div className="min-w-0 border-t pt-3 md:border-l md:border-t-0 md:pl-4 md:pt-0">

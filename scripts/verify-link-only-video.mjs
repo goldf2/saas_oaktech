@@ -40,9 +40,8 @@ try {
   assert.match(await (await request(base + '/admin/products/open-play')).text(), /admin-access-notice/);
   const chrome = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
   browser = await puppeteer.launch({ headless: true, ...(existsSync(chrome) ? { executablePath: chrome } : {}), args: ['--disable-background-networking'] });
-  page = await browser.newPage(); page.setDefaultTimeout(25000); page.on('pageerror', e => errors.push(e.message)); page.on('dialog', d => d.accept());
+  page = await browser.newPage(); await page.emulateMediaFeatures([{name:'prefers-color-scheme', value:'light'}]); page.setDefaultTimeout(25000); page.on('pageerror', e => errors.push(e.message)); page.on('dialog', d => d.accept());
   await page.setExtraHTTPHeaders({ 'accept-language': 'zh-CN,zh;q=0.9' });
-  await page.emulateMediaFeatures([{ name: 'prefers-color-scheme', value: 'light' }]);
   await page.setRequestInterception(true); page.on('request', r => r.url().startsWith(base) || /^(data:|blob:)/.test(r.url()) ? r.continue() : r.abort());
   await browser.setCookie({ name: 'next-auth.session-token', value: await encode({ secret, token: { sub: subject, casdoorSubject: subject, casdoorIssuer: issuer }, maxAge: 3600 }), domain: '127.0.0.1', path: '/', httpOnly: true, sameSite: 'Lax' });
   await page.setViewport({ width: 1440, height: 960 }); await page.goto(base + '/admin/products/open-play', { waitUntil: 'domcontentloaded' }); await page.waitForSelector('[data-testid="product-details-layout"]');
@@ -51,7 +50,7 @@ try {
   assert.match(await page.$eval('[data-video-title-help]', el => el.textContent), /留空不影响发布/);
   assert.match(await page.$eval('[data-testid="product-state-line"]', el => el.textContent), /线上介绍：已公开.*草稿已保存，待发布/);
   assert.doesNotMatch(await (await request(base + '/zh/products/open-play')).text(), /video-screenshot|新写的中文介绍/);
-  pass('the actual screenshot condition is explicit: valid link plus optional empty title is a saved draft, not published content');
+  pass('the screenshot condition is reproduced: the title is empty and the link valid, saved changes remain private');
   for (const width of [1440, 1024, 390, 320]) {
     await page.setViewport({ width, height: 960 });
     const metrics = await page.evaluate(() => { const rect = selector => { const r = document.querySelector(selector).getBoundingClientRect(); return { top: r.top + scrollY, left: r.left, width: r.width, bottom: r.bottom + scrollY }; }; return { width: innerWidth, overflow: document.documentElement.scrollWidth > innerWidth + 1, copy: rect('[data-testid="product-copy-panel"]'), media: rect('[data-testid="product-media-panel"]'), details: rect('[data-testid="product-details-layout"]'), inputFontSize: getComputedStyle(document.querySelector('input[name="name_zh"]')).fontSize }; });
@@ -67,19 +66,19 @@ try {
   assert.equal(await page.$('[data-testid="confirm-product-publication"]'), null, 'product publication has no redundant checkbox');
   assert.equal(await page.$('[data-testid="product-publication-issues"]'), null);
   assert.equal((await data()).releases.length, 0);
-  pass('persistent actions lead to product confirmation without requiring a video title');
+  pass('persistent actions lead to product-only confirmation; a valid link needs neither a title nor a software package');
   await tab('details');
-  await fill('[data-video-title]', 'OpenPlay 功能演示'); await fill('textarea[name="description_zh"]', '新的完整商品介绍与视频说明。');
+  await fill('textarea[name="description_zh"]', '新的完整商品介绍与视频说明。');
   await click('[data-testid="prepare-product-publication"]'); await waitStatus('草稿已保存');
   await page.waitForFunction(() => !document.querySelector('[data-testid="publish-product"]').disabled);
   assert.match(await page.$eval('[data-testid="publication-video-count"]', el => el.textContent), /线上 0 段 → 本次 1 段/);
-  assert.equal((await data()).productDrafts['open-play'].product.videos[0].title, 'OpenPlay 功能演示');
+  assert.equal((await data()).productDrafts['open-play'].product.videos[0].title, '');
   assert.doesNotMatch(await (await request(base + '/zh/products/open-play')).text(), /新的完整商品介绍/);
   await click('[data-testid="publish-product"]'); await page.waitForSelector('[data-testid="product-publication-success"]');
   const saved = await data(); assert.equal(saved.products[0].description_zh, '新的完整商品介绍与视频说明。'); assert.equal(saved.products[0].videos.length, 1); assert.equal(saved.releases.length, 0); assert.equal(saved.productDrafts?.['open-play'], undefined);
-  const html = await (await request(base + '/zh/products/open-play')).text(); assert.match(html, /新的完整商品介绍与视频说明/); assert.match(html, /data-video-id="video-screenshot"/); assert.match(html, /data-video-autoload="true"/); assert.doesNotMatch(html, /data-video-load=/);
+  const html = await (await request(base + '/zh/products/open-play')).text(); assert.match(html, /新的完整商品介绍与视频说明/); assert.match(html, /data-video-id="video-screenshot"/); assert.match(html, /data-video-autoload="true"/); assert.doesNotMatch(html, /data-video-load=/); assert.match(html, /data-video-id="video-screenshot"[\s\S]*?<h3[^>]*>视频介绍<\/h3>/);
   assert.match(await (await request(base + '/en/products/open-play')).text(), /data-video-id="video-screenshot"/);
-  pass('filling the title and explicitly confirming publishes the introduction and shared video without creating or publishing any software');
+  pass('leaving the title empty and explicitly confirming publishes the introduction and shared video without creating or publishing any software');
   await tab('details'); await fill('textarea[name="description_zh"]', '仅预览，不保存。'); const beforePreview = await data(); await click('[data-preview-product]'); await page.waitForSelector('[data-testid="product-preview"] .product-detail-grid', { visible: true }); assert.deepEqual(await data(), beforePreview); await tab('details'); assert.equal(await page.$eval('textarea[name="description_zh"]', el => el.value), '仅预览，不保存。');
   pass('pure preview and tab switches retain unsaved inputs and do not write or publish them');
   const poster = path.join(temp, 'test-image.png'); await sharp({ create: { width: 480, height: 270, channels: 3, background: { r: 65, g: 95, b: 130 } } }).png().toFile(poster);
@@ -89,6 +88,7 @@ try {
   await click('[data-save-product-footer]'); await waitStatus('草稿已保存');
   const later = await data(); assert.equal(later.products[0].gallery_urls.length, 0); assert.equal(later.productDrafts['open-play'].product.gallery_urls.length, 1); assert.equal(later.productDrafts['open-play'].product.videos[0].sources.length, 2);
   for (const width of [1440, 390, 320]) { await page.setViewport({ width, height: 960 }); assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)); await shot('editor-with-media-' + width); }
+  await page.setViewport({ width:1440, height:960 }); await page.emulateMediaFeatures([{name:'prefers-color-scheme',value:'dark'}]); await shot('editor-dark');
   assert.deepEqual(errors, []);
   pass('compact image uploads and additional video sources still save only to drafts; populated phone layout remains usable');
   report.status = 'passed';

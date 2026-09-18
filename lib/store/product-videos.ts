@@ -104,7 +104,7 @@ export function normalizeProductVideos(value: unknown, publishing = false): Prod
   return value.map(item => {
     const input = record(item), id = validId(input.id);
     if (videoIds.has(id)) throw new Error("PRODUCT_VIDEO_INVALID"); videoIds.add(id);
-    const title = text(input.title, 160), poster = text(input.poster_url ?? "", 2048);
+    const title = text(input.title ?? "", 160), poster = text(input.poster_url ?? "", 2048);
     if (poster && !(poster.startsWith("/") && !poster.startsWith("//") && !/[\\<>\s]/.test(poster))) webUrl(poster);
     if (!Array.isArray(input.sources) || input.sources.length > MAX_VIDEO_SOURCES) throw new Error("PRODUCT_VIDEO_SOURCE_LIMIT");
     const ids = new Set<string>(), urls = new Set<string>();
@@ -118,7 +118,7 @@ export function normalizeProductVideos(value: unknown, publishing = false): Prod
       if (publishing && !url) throw new Error("PRODUCT_VIDEO_INCOMPLETE");
       return { id: sourceId, label: text(source.label ?? "", 80), url };
     });
-    if (publishing && (!title || !sources.length)) throw new Error("PRODUCT_VIDEO_INCOMPLETE");
+    if (publishing && !sources.length) throw new Error("PRODUCT_VIDEO_INCOMPLETE");
     return { id, title, poster_url: poster, sources };
   });
 }
@@ -130,5 +130,10 @@ export const videoMessages: Record<string, string> = {
   PRODUCT_VIDEO_LIMIT: "每个商品最多添加6段视频。",
   PRODUCT_VIDEO_SOURCE_LIMIT: "同一视频最多添加4个播放来源。",
   PRODUCT_VIDEO_DUPLICATE_SOURCE: "同一视频不能重复添加相同的播放来源。",
-  PRODUCT_VIDEO_INCOMPLETE: "发布前请补齐每段视频的标题和至少一个有效来源，或删除未填写的视频。",
+  PRODUCT_VIDEO_INCOMPLETE: "发布前请为每段视频添加有效链接，补齐或移除空的备用来源。视频标题和封面可以留空。",
 };
+
+// Optional editorial title: default display text is not fetched platform metadata.
+export function productVideoTitle(video: Pick<Partial<ProductVideo>, "title">, locale: "zh" | "en" = "zh") {
+  return (typeof video.title === "string" ? video.title.trim() : "") || (locale === "zh" ? "视频介绍" : "Video introduction");
+}
