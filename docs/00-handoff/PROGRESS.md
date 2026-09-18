@@ -2,7 +2,7 @@
 
 > 不要直接编辑本文件。修改TASKS.json后运行 `npm run handoff:render`。
 
-账本revision：18；更新时间：2026-09-18T09:43:30+08:00；计划版本：1.0.0。
+账本revision：20；更新时间：2026-09-18T09:58:00+08:00；计划版本：1.0.0。
 
 **权限主线任务完成：1/14。这是任务计数，不是代码完成百分比；PLAN-01文档不计入。**
 
@@ -34,7 +34,7 @@
 | STORE-01 · 商品内图文、版本、预览和统一发布工作台 | STORE / feature | P0 | 完成 | ChatGPT / tsk_5a4be4c4b63f215d | 无 |
 | STORE-02 · 发布流程可发现性、批量上传与校验预览 | STORE / feature | P0 | 完成 | ChatGPT / tsk_b02c9763689e79dc | STORE-01 |
 | VIDEO-01 · 商品介绍视频源、按需嵌入与三组编辑页 | STORE / feature | P0 | 完成 | ChatGPT / tsk_6e89bb30274d3e30 | STORE-01 |
-| PUB-01 · 商品资料与软件版本独立发布 | STORE / feature | P0 | 进行中 | ChatGPT / tsk_73ee7c135620db1b | STORE-02, VIDEO-01 |
+| PUB-01 · 商品资料与软件版本独立发布 | STORE / feature | P0 | 阻塞 | ChatGPT / tsk_73ee7c135620db1b | STORE-02, VIDEO-01 |
 
 ## 任务详情与接续动作
 
@@ -431,16 +431,23 @@
 
 ### PUB-01 · 商品资料与软件版本独立发布
 
-状态：进行中；负责人：ChatGPT / tsk_73ee7c135620db1b；实施：in_progress；部署：not_started。
+状态：阻塞；负责人：ChatGPT / tsk_73ee7c135620db1b；实施：local_split_publication_and_state_retention_verified；部署：not_pushed_not_deployed。
 
-下一动作：先复现合并发布和跨对象指纹耦合，再实现独立服务及界面确认。
+下一动作：先读取本地PUB-01接续断点和验证收据；恢复允许的并行差异审查后，合并远端0.1.32紧凑界面，再运行全部回归/构建，递增版本并推送。不能将旧构建测试等同最终集成验收。
 
 验收条件：
 - 商品发布只处理资料/图片/视频，不处理版本或安装包
 - 软件发布只处理选中版本，不消费或校验商品草稿
 - 两类请求使用独立确认与冲突校验，保留未保存输入
 - 真实浏览器、原流程回归、部署核验分别记录
+- 先上架商品、后创建/发布软件的真实浏览器流程通过；无版本时不生成占位下载
+- 版本保存与发布不能丢失未保存的商品编辑
 
 计划文件（可能尚未创建）：`lib/store/product-workspace.ts`、`app/admin/products/editor-actions.ts`、`components/admin/publication-review.tsx`、`components/admin/product-workspace.tsx`
 
-证据：尚无该任务完成证据。
+阻塞：
+- 并行远端已更新为ec93734/0.1.32，必须保留其紧凑界面；读取并行差异的命令被工具安全检查拒绝。已安全中止rebase，回到本地85da32b，不覆盖远端，也不换工具绕过该审查拒绝。
+
+证据：
+- verification / passed：`docs/00-handoff/evidence/2026-09-18-publication-decoupling.json`
+- implementation / passed：`lib/store/product-workspace.ts`

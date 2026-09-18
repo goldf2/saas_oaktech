@@ -78,13 +78,16 @@ async function createVersion(version) {
   await page.$eval('[data-testid="new-product-release"]', node => { node.open = true; });
   const form='[data-testid="new-product-release"] [data-testid="release-details-form"]';
   await fillForm(form,{version,channel:'stable',title_zh:'软件 '+version,notes_zh:'独立版本说明'});
+  report.stage='save-version-'+version;
+  const savedResponse=page.waitForResponse(r=>r.request().method()==='POST' && r.url().startsWith(base+'/admin/'));
   await page.click(form+' button[type="submit"]');
+  await savedResponse;
   await page.waitForFunction(() => location.search.includes('saved=1'));
-  await page.waitForNetworkIdle({idleTime:500});
   const r=(await catalog()).releases.find(r=>r.version===version);
-  assert.ok(r); await page.waitForSelector(`#release-${r.id}[open]`); return r;
+  assert.ok(r); await page.waitForSelector(`#release-${r.id}[open]`); report.stage='version-visible-'+version; return r;
 }
 async function uploadPackage(r, name) {
+  report.stage='upload-package-'+name;
   const bytes=Buffer.from('Isolated browser package '+name), file=path.join(temporary,name);
   await writeFile(file,bytes);
   const form=`#release-${r.id} [data-testid="artifact-upload"] form`;
@@ -121,10 +124,11 @@ try {
   await tab('versions');const rform=`#release-${r.id} [data-testid="release-details-form"]`;
   await fillForm(rform,{title_zh:'只保存软件版本，不保存商品'});
   const response=page.waitForResponse(r=>r.request().method()==='POST' && r.url().startsWith(base+'/admin/'));
-  await page.click(rform+' button[type="submit"]');await response;await page.waitForNetworkIdle({idleTime:500});
+  await page.click(rform+' button[type="submit"]');await response;
+  await page.waitForFunction(id=>!document.querySelector(`#release-${id} [data-testid="release-details-form"] fieldset`).disabled,{},r.id);
   assert.equal(await page.$eval('input[name="name_zh"]',e=>e.value),'尚未保存的商品编辑');
   assert.equal((await catalog()).productDrafts[original.slug].product.name_zh,'未准备好的资料草稿');
-  check('saving version changes preserves unsaved product fields across the action redirect');
+  check('saving version changes preserves unsaved product fields across the in-place save');
 
   await page.click(`[data-preview-release="${r.id}"]`);
   await page.waitForSelector('[data-publication-scope="software"]');

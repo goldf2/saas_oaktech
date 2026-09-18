@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "plan_version": "1.0.0",
-  "revision": 18,
-  "updated_at": "2026-09-18T09:43:30+08:00",
+  "revision": 20,
+  "updated_at": "2026-09-18T09:58:00+08:00",
   "project": "saas_oaktech",
   "source_commit": "54a42b33bc5fc3e9c42541fdd3bdd6fae4700bce",
   "current_next_task": "PUB-01",
@@ -809,7 +809,7 @@
       "kind": "feature",
       "milestone": "STORE",
       "priority": "P0",
-      "status": "in_progress",
+      "status": "blocked",
       "owner": "ChatGPT / tsk_73ee7c135620db1b",
       "depends_on": [
         "STORE-02",
@@ -825,14 +825,29 @@
         "商品发布只处理资料/图片/视频，不处理版本或安装包",
         "软件发布只处理选中版本，不消费或校验商品草稿",
         "两类请求使用独立确认与冲突校验，保留未保存输入",
-        "真实浏览器、原流程回归、部署核验分别记录"
+        "真实浏览器、原流程回归、部署核验分别记录",
+        "先上架商品、后创建/发布软件的真实浏览器流程通过；无版本时不生成占位下载",
+        "版本保存与发布不能丢失未保存的商品编辑"
       ],
-      "next_action": "先复现合并发布和跨对象指纹耦合，再实现独立服务及界面确认。",
-      "blockers": [],
-      "evidence": [],
-      "implementation": "in_progress",
-      "deployment": "not_started",
-      "updated_at": "2026-09-18T09:43:30+08:00"
+      "next_action": "先读取本地PUB-01接续断点和验证收据；恢复允许的并行差异审查后，合并远端0.1.32紧凑界面，再运行全部回归/构建，递增版本并推送。不能将旧构建测试等同最终集成验收。",
+      "blockers": [
+        "并行远端已更新为ec93734/0.1.32，必须保留其紧凑界面；读取并行差异的命令被工具安全检查拒绝。已安全中止rebase，回到本地85da32b，不覆盖远端，也不换工具绕过该审查拒绝。"
+      ],
+      "evidence": [
+        {
+          "path": "docs/00-handoff/evidence/2026-09-18-publication-decoupling.json",
+          "kind": "verification",
+          "result": "passed"
+        },
+        {
+          "path": "lib/store/product-workspace.ts",
+          "kind": "implementation",
+          "result": "passed"
+        }
+      ],
+      "implementation": "local_split_publication_and_state_retention_verified",
+      "deployment": "not_pushed_not_deployed",
+      "updated_at": "2026-09-18T09:58:00+08:00"
     }
   ]
 }

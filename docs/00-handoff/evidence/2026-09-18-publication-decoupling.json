@@ -1,0 +1,34 @@
+{
+  "checkedAt": "2026-09-18T09:58:00+08:00",
+  "task": "PUB-01",
+  "implementationCommit": "85da32b7186c29018739119614ecce5b48e73a3f",
+  "latestObservedRemote": "ec937343028aea7debc0098d86a83802ad7df3c8",
+  "baseVersion": "0.1.31",
+  "remoteVersion": "0.1.32",
+  "status": "local_implementation_verified_integration_blocked",
+  "unitTestsPassed": 135,
+  "typecheck": "passed",
+  "defaultTurbopackBuildAfterSaveFix": "passed",
+  "initialBrowserChecks": {
+    "product": 13,
+    "release": 9,
+    "video": 6,
+    "scope": "before final in-place version-save fix"
+  },
+  "finalIndependentBrowserChecks": [
+    "incomplete product copy does not prevent creating a software version or uploading its private package",
+    "saving version changes preserves unsaved product fields across the in-place save",
+    "software-only preview and publication use public product content while saved and unsaved product drafts remain untouched",
+    "product publication is not blocked by unsaved software fields and does not publish, reset or discard them",
+    "software hash failure changes neither stream, clears confirmation, and a separately confirmed retry succeeds",
+    "both publication modes fit mobile and independently published metadata, current and historical packages survive restart"
+  ],
+  "nativeSignedReleaseFixture": "not_provided_not_rerun",
+  "productionWrites": false,
+  "push": false,
+  "deploy": false,
+  "originalMainFilesPreserved": 16,
+  "blockedStep": "Review/integrate newer compact UI from remote; tool safety check refused read command",
+  "rebase": "aborted_cleanly_back_to_local_snapshot",
+  "nextAction": "Review newer remote through an allowed operation, retain its compact UI, merge, re-run all regressions and bump version before pushing."
+}
