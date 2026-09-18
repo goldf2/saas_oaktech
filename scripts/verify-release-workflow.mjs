@@ -86,7 +86,7 @@ try {
 
   await switchTab('preview');
   assert.ok(await page.$('[data-testid="product-publication-issues"]')); assert.equal(await page.$eval('[data-testid="confirm-product-publication"]', x => x.disabled), true);
-  await switchTab('media');
+  await switchTab('details');
   for (const field of ['icon_url', 'hero_image_url']) {
     const file = path.join(temp, field + '.png'); await sharp({ create: { width: 320, height: 200, channels: 3, background: { r: 25, g: 135, b: 108 } } }).png().toFile(file);
     await (await page.$(`[data-upload="${field}"]`)).uploadFile(file); await waitText('图片已上传'); await page.waitForFunction(() => !document.querySelector('[data-testid="save-product-draft"]').disabled);

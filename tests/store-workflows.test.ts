@@ -59,7 +59,7 @@ async function resultOf(action: (data: FormData) => Promise<unknown>, data: Form
 }
 
 function productForm(product: AdminStoreProductRow, id = product.id) {
-  return form({ ...product, id, gallery_urls: JSON.stringify(product.gallery_urls ?? []), supported_platforms: product.supported_platforms.join(", "), featured: product.featured ? "on" : "" } as Record<string, string>);
+  return form({ ...product, id, gallery_urls: JSON.stringify(product.gallery_urls ?? []), videos: JSON.stringify(product.videos ?? []), supported_platforms: product.supported_platforms.join(", "), featured: product.featured ? "on" : "" } as Record<string, string>);
 }
 
 function draft(overrides: Partial<AdminProductReleaseRow> = {}): AdminProductReleaseRow {

@@ -1,3 +1,5 @@
+import type { ProductVideo } from "./product-videos";
+
 export type AdminActionResult = { error?: string; code?: string };
 
 export type ProductEditorResult = { ok?: boolean; error?: string; code?: string; slug?: string; editToken?: string; publishToken?: string; warning?: string };
@@ -18,6 +20,7 @@ export type StoreProduct = {
   iconUrl: string;
   heroImageUrl: string;
   galleryUrls?: string[];
+  videos?: ProductVideo[];
   supportedPlatforms: string[];
   featured: boolean;
 };
@@ -66,6 +69,7 @@ export type AdminStoreProductRow = {
   icon_url: string;
   hero_image_url: string;
   gallery_urls?: string[];
+  videos?: ProductVideo[];
   supported_platforms: string[];
   featured: boolean;
 };

@@ -56,3 +56,7 @@
 - 修复app/admin/software/page.tsx：默认页面仍共享商品列表，dynamic改为本模块字面量，追加防回归断言。未改任何认证/角色/安装包逻辑。
 - 修复后默认npm run build（Turbopack）已通过；最终0.1.29全量/浏览器记录见evidence/2026-09-17-product-workspace-turbopack-fix.json。
 - 现有lib/admin草稿和pg运行依赖变动仍保留未提交，发布版本与真实线上收据分开核对。
+
+## 2026-09-18T09:04:03+08:00 · VIDEO-TEST-001
+
+新增可选videos字段后，旧测试将整个商品对象强转Record<string,string>导致类型检查失败；fixture改为显式JSON编码videos，类型检查通过。YouTube真实播放器首次已加载但旧版测试按钮选择器找不到新版移动样式按钮；最小同策略iframe探测确认实际控制为ytmCuedOverlayPlayButton，点击后视频currentTime>0、paused=false。更新测试选择器，不修改或放宽生产播放器安全策略；实际平台检查单独记录。

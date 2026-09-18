@@ -30,6 +30,7 @@ type ProductRow = {
   supported_platforms: string[];
   featured: boolean;
   gallery_urls?: string[];
+  videos?: StoreProduct["videos"];
 };
 
 type ReleaseRow = {
@@ -76,6 +77,7 @@ function mapProduct(row: ProductRow, locale: Locale): StoreProduct {
     iconUrl: resolveProductIcon(row.slug, row.icon_url),
     heroImageUrl: row.hero_image_url,
     galleryUrls: row.gallery_urls ?? [],
+    videos: row.videos ?? [],
     supportedPlatforms: row.supported_platforms ?? [],
     featured: row.featured,
   };

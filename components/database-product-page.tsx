@@ -1,5 +1,6 @@
 import { isSoftwareDownload } from "@/lib/store/download-visibility";
 import Image from "next/image";
+import { ProductVideos } from "@/components/product-videos";
 import Link from "next/link";
 import { ArrowRight, Download, Monitor } from "lucide-react";
 import { StoreDownloadCard } from "@/components/store-download-card";
@@ -87,6 +88,7 @@ export function DatabaseProductPage({ product, releases, locale, preview = false
         </div>
       </section>
 
+      <ProductVideos videos={product.videos} locale={locale} />
       {(product.galleryUrls?.length ?? 0) > 0 && <section className="store-shell pb-12" aria-label={locale === "zh" ? "产品截图" : "Screenshots"}>
         <h2 className="mb-5 text-2xl font-semibold">{locale === "zh" ? "产品截图" : "Screenshots"}</h2>
         <div className="product-gallery-grid grid gap-5 sm:grid-cols-2">{product.galleryUrls!.map((url, index) => <Image key={`${url}-${index}`} unoptimized={preview || url.startsWith("/media/") || url.startsWith("https://")} src={url} alt={`${product.name} · ${index + 1}`} width={1280} height={800} className="h-auto w-full rounded-xl border object-contain" />)}</div>

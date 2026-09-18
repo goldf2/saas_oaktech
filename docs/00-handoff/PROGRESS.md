@@ -2,7 +2,7 @@
 
 > 不要直接编辑本文件。修改TASKS.json后运行 `npm run handoff:render`。
 
-账本revision：15；更新时间：2026-09-17T16:20:34+08:00；计划版本：1.0.0。
+账本revision：17；更新时间：2026-09-18T09:06:20+08:00；计划版本：1.0.0。
 
 **权限主线任务完成：1/14。这是任务计数，不是代码完成百分比；PLAN-01文档不计入。**
 
@@ -33,6 +33,7 @@
 | HARD-02 · 分片会话绑定、恢复与过期清理 | HARD / feature | P1 | 暂缓 | 未认领 | 无 |
 | STORE-01 · 商品内图文、版本、预览和统一发布工作台 | STORE / feature | P0 | 完成 | ChatGPT / tsk_5a4be4c4b63f215d | 无 |
 | STORE-02 · 发布流程可发现性、批量上传与校验预览 | STORE / feature | P0 | 完成 | ChatGPT / tsk_b02c9763689e79dc | STORE-01 |
+| VIDEO-01 · 商品介绍视频源、按需嵌入与三组编辑页 | STORE / feature | P0 | 完成 | ChatGPT / tsk_6e89bb30274d3e30 | STORE-01 |
 
 ## 任务详情与接续动作
 
@@ -407,3 +408,22 @@
 - implementation / passed：`components/admin/product-releases.tsx`
 - implementation / passed：`components/admin/publication-review.tsx`
 - verification / passed：`docs/00-handoff/evidence/2026-09-17-release-workflow-ui.json`
+
+### VIDEO-01 · 商品介绍视频源、按需嵌入与三组编辑页
+
+状态：完成；负责人：ChatGPT / tsk_6e89bb30274d3e30；实施：complete_browser_and_real_players_verified；部署：candidate_verified_pending_push。
+
+下一动作：核对源码推送、CI与公网版本；不要自动给生产商品添加测试视频。GitHub自动同步与本地超管独立推进。
+
+验收条件：
+- YouTube与B站视频可在商品页内播放，同视频可添加多个来源
+- 商品视频封面和链接遵守草稿隔离及显式发布
+- 未知来源只提供安全外链，未点击不连接第三方播放器
+- 正常表单输入、预览、发布、重新启动有浏览器验证，既有发布流程不回退
+
+计划文件（可能尚未创建）：`lib/store/product-videos.ts`、`components/product-videos.tsx`、`components/admin/product-video-editor.tsx`、`components/admin/product-workspace.tsx`
+
+证据：
+- verification / passed：`docs/00-handoff/evidence/2026-09-18-product-videos.json`
+- implementation / passed：`components/product-videos.tsx`
+- documentation / passed：`docs/product-video-sources.md`

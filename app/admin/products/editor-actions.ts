@@ -6,7 +6,10 @@ import { appendStoreAudit, readStoreCatalog } from "@/lib/store/file-catalog";
 import { productToken, publicationToken, publishProductDraft, saveProductDraft } from "@/lib/store/product-workspace";
 import type { AdminStoreProductRow, ProductEditorResult } from "@/lib/store/types";
 
+import { videoMessages, normalizeProductVideos } from "@/lib/store/product-videos";
+
 const messages: Record<string, string> = {
+  ...videoMessages,
   STORE_ADMIN_FORBIDDEN: "当前账号没有商品管理权限，请重新登录管理员账号。",
   STORE_PRODUCT_NOT_FOUND: "商品不存在，请返回商品列表。",
   STORE_PRODUCT_SLUG_EXISTS: "商品标识已存在，请编辑已有商品。",
@@ -43,6 +46,12 @@ export async function saveWorkspaceAction(form: FormData): Promise<ProductEditor
     const admin = await requireStoreAdmin();
     let gallery: unknown;
     try { gallery = JSON.parse(text(form, "gallery_urls") || "[]"); } catch { throw new Error("PRODUCT_FIELD_INVALID"); }
+    let videos;
+    if (form.has("videos")) {
+      let raw: unknown;
+      try { raw = JSON.parse(text(form, "videos")); } catch { throw new Error("PRODUCT_VIDEO_INVALID"); }
+      videos = normalizeProductVideos(raw);
+    }
     const input: AdminStoreProductRow = {
       id: text(form, "id"), slug: text(form, "slug"), category_slug: text(form, "category_slug"),
       status: text(form, "status") as AdminStoreProductRow["status"], visibility: "draft",
@@ -51,6 +60,7 @@ export async function saveWorkspaceAction(form: FormData): Promise<ProductEditor
       description_zh: text(form, "description_zh"), description_en: text(form, "description_en"),
       icon_url: text(form, "icon_url"), hero_image_url: text(form, "hero_image_url"),
       gallery_urls: gallery as string[],
+      ...(videos !== undefined ? { videos } : {}),
       supported_platforms: text(form, "supported_platforms").split(",").map(value => value.trim()).filter(Boolean),
       featured: form.get("featured") === "on",
     };

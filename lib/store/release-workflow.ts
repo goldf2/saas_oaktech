@@ -1,3 +1,4 @@
+import { normalizeProductVideos, videoMessages } from "./product-videos.ts";
 import type { AdminProductReleaseRow, AdminStoreProductRow } from "./types";
 import { isSoftwareDownload } from "./download-visibility.ts";
 import { isSafeFileName, isSha512, isManagedAssetUrl } from "./policy.ts";
@@ -83,11 +84,14 @@ export function productPublicationIssues(product: AdminStoreProductRow) {
     ["name_zh", "商品名称", "details"], ["tagline_zh", "一句话简介", "details"], ["description_zh", "详细说明", "details"],
     ["icon_url", "商品图标", "media"], ["hero_image_url", "商品封面", "media"],
   ] as const;
-  return fields.flatMap(([field, label, tab]) => {
+  const issues: { field: string; label: string; tab: "details" | "media" }[] = fields.flatMap(([field, label, tab]) => {
     const value = product[field];
     if (!value?.trim()) return [{ field, label: `请补齐${label}`, tab }];
     if (value.length > (field === "description_zh" ? 30000 : 2048)) return [{ field, label: `${label}超出长度限制`, tab }];
     if ((field === "icon_url" || field === "hero_image_url") && !isManagedAssetUrl(value)) return [{ field, label: `${label}地址无效`, tab }];
     return [];
   });
+  try { normalizeProductVideos(product.videos, true); }
+  catch (error) { issues.push({ field: "videos", label: videoMessages[(error as Error).message] ?? "请完善视频介绍", tab: "details" }); }
+  return issues;
 }

@@ -12,7 +12,7 @@ export const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
 export const MAX_PRODUCT_IMAGES = 64;
 const IMAGE_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\.webp$/;
 export function productImageUrls(product: AdminStoreProductRow) {
-  return [product.icon_url, product.hero_image_url, ...(product.gallery_urls ?? [])].filter(Boolean);
+  return [product.icon_url, product.hero_image_url, ...(product.gallery_urls ?? []), ...(product.videos ?? []).map(video => video.poster_url)].filter(Boolean);
 }
 export function isPublicProductImage(catalog: StoreCatalog, url: string) {
   return catalog.products.some(p => p.visibility === 'published' && productImageUrls(p).includes(url));

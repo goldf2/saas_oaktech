@@ -7,6 +7,7 @@ import { saveWorkspaceAction, publishWorkspaceAction } from "@/app/admin/product
 import { ReleaseFlowContext, type ReleaseActivity } from "./release-flow-context";
 import { PublicationReview } from "./publication-review";
 import { productPublicationIssues, releaseReadiness, selectReleaseForPublication } from "@/lib/store/release-workflow";
+import { ProductVideoEditor } from "./product-video-editor";
 import { DatabaseProductPage } from "@/components/database-product-page";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,7 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import type { AdminStoreProductRow, AdminProductReleaseRow, Locale, ProductRelease, StoreProduct } from "@/lib/store/types";
 
 const categories = [["desktop-apps", "桌面应用"], ["browser-extensions", "浏览器扩展"], ["trading-tools", "交易研究工具"], ["developer-tools", "开发工具"], ["ai-tools", "AI工具"], ["productivity-tools", "效率工具"]];
-const tabs = [["details", "基本资料"], ["media", "图文素材"], ["versions", "软件版本"], ["preview", "校验预览与发布"]] as const;
+const tabs = [["details", "商品资料"], ["versions", "软件版本"], ["preview", "预览发布"]] as const;
 type Tab = typeof tabs[number][0];
 const imageErrors: Record<string, string> = {
   PRODUCT_IMAGE_TYPE: "请选择PNG、JPEG或WebP图片，不支持SVG或动图。",
@@ -29,7 +30,7 @@ function blankProduct(): AdminStoreProductRow {
 }
 function previewProduct(p: AdminStoreProductRow, locale: Locale): StoreProduct {
   const local = (en: string, zh: string) => locale === "en" ? en || zh : zh;
-  return { id: p.id, slug: p.slug, name: local(p.name_en, p.name_zh) || "未命名商品", tagline: local(p.tagline_en, p.tagline_zh), description: local(p.description_en, p.description_zh), status: p.status, visibility: "draft", categorySlug: p.category_slug, iconUrl: p.icon_url, heroImageUrl: p.hero_image_url, galleryUrls: p.gallery_urls ?? [], supportedPlatforms: p.supported_platforms, featured: p.featured };
+  return { id: p.id, slug: p.slug, name: local(p.name_en, p.name_zh) || "未命名商品", tagline: local(p.tagline_en, p.tagline_zh), description: local(p.description_en, p.description_zh), status: p.status, visibility: "draft", categorySlug: p.category_slug, iconUrl: p.icon_url, heroImageUrl: p.hero_image_url, galleryUrls: p.gallery_urls ?? [], videos: p.videos ?? [], supportedPlatforms: p.supported_platforms, featured: p.featured };
 }
 function previewReleases(rows: AdminProductReleaseRow[], locale: Locale): ProductRelease[] {
   return rows.map(row => ({ id: row.id, productSlug: row.product_slug, version: row.version, channel: row.channel, status: row.status, isCurrent: row.is_current, publishedAt: row.published_at ?? undefined, title: locale === "en" ? row.title_en || row.title_zh : row.title_zh, notes: locale === "en" ? row.notes_en || row.notes_zh : row.notes_zh, artifacts: [] }));
@@ -39,8 +40,8 @@ export function ProductWorkspace({ product = blankProduct(), editToken = "", pub
   product?: AdminStoreProductRow; editToken?: string; publishToken?: string; releases?: AdminProductReleaseRow[]; releasePanel?: ReactNode; initialTab?: string; hasDraft?: boolean;
 }) {
   const router = useRouter();
-  const [value, setValue] = useState<AdminStoreProductRow>({ ...product, gallery_urls: product.gallery_urls ?? [] });
-  const [saved, setSaved] = useState(() => JSON.stringify({ ...product, gallery_urls: product.gallery_urls ?? [] }));
+  const [value, setValue] = useState<AdminStoreProductRow>({ ...product, gallery_urls: product.gallery_urls ?? [], videos: product.videos ?? [] });
+  const [saved, setSaved] = useState(() => JSON.stringify({ ...product, gallery_urls: product.gallery_urls ?? [], videos: product.videos ?? [] }));
   const [tokens, setTokens] = useState({ edit: editToken, publish: publishToken });
   const [tab, setTab] = useState<Tab>(tabs.some(([id]) => id === initialTab) ? initialTab as Tab : "details");
   const [busy, setBusy] = useState(false);
@@ -74,10 +75,11 @@ export function ProductWorkspace({ product = blankProduct(), editToken = "", pub
   }
   function goVersions() { if (!disabled) setTab("versions"); }
   useEffect(() => { if (error) feedbackRef.current?.focus(); }, [error]);
+  useEffect(() => { if (initialTab === "media") document.getElementById("product-artwork")?.scrollIntoView({ block: "start" }); }, [initialTab]);
 
   useEffect(() => {
     if (!dirtyRef.current) {
-      const next = { ...product, gallery_urls: product.gallery_urls ?? [] };
+      const next = { ...product, gallery_urls: product.gallery_urls ?? [], videos: product.videos ?? [] };
       setValue(next); setSaved(JSON.stringify(next)); setTokens({ edit: editToken, publish: publishToken });
     }
   }, [editToken, publishToken, product]);
@@ -98,6 +100,7 @@ export function ProductWorkspace({ product = blankProduct(), editToken = "", pub
       const form = new FormData();
       for (const key of ["id", "slug", "category_slug", "status", "name_en", "name_zh", "tagline_en", "tagline_zh", "description_en", "description_zh", "icon_url", "hero_image_url"] as const) form.set(key, value[key]);
       form.set("gallery_urls", JSON.stringify(value.gallery_urls ?? []));
+      form.set("videos", JSON.stringify(value.videos ?? []));
       form.set("supported_platforms", value.supported_platforms.join(","));
       form.set("featured", value.featured ? "on" : ""); form.set("edit_token", tokens.edit);
       const result = await saveWorkspaceAction(form);
@@ -131,7 +134,7 @@ export function ProductWorkspace({ product = blankProduct(), editToken = "", pub
     } catch { setConfirmed(false); setError("发布响应未完成，请刷新检查结果，避免重复操作。"); }
     finally { operationInFlight.current = false; setBusy(false); }
   }
-  async function upload(file: File | undefined, field: "icon_url" | "hero_image_url" | "gallery_urls") {
+  async function upload(file: File | undefined, field: "icon_url" | "hero_image_url" | "gallery_urls" | `video:${string}`) {
     if (!file || disabled || !existing) return;
     if (file.size > 8 * 1024 * 1024) { setError(imageErrors.PRODUCT_IMAGE_TOO_LARGE); return; }
     if (field === "gallery_urls" && (value.gallery_urls?.length ?? 0) >= 8) { setError("最多添加8张截图。"); return; }
@@ -141,7 +144,8 @@ export function ProductWorkspace({ product = blankProduct(), editToken = "", pub
       const result = await response.json();
       if (!response.ok || !result.media?.url) throw new Error(imageErrors[result.error] ?? "图片上传失败，请检查文件或网络。");
       if (field === "gallery_urls") setValue(prev => ({ ...prev, gallery_urls: [...(prev.gallery_urls ?? []), result.media.url] }));
-      else update(field, result.media.url);
+      else if (field.startsWith("video:")) setValue(prev => ({ ...prev, videos: (prev.videos ?? []).map(video => video.id === field.slice(6) ? { ...video, poster_url: result.media.url } : video) }));
+      else update(field as "icon_url" | "hero_image_url", result.media.url);
       setMessage("图片已上传，请保存草稿。确认发布前不会公开新图片。");
     } catch (cause) { setError(cause instanceof Error ? cause.message : "图片上传失败。"); }
     finally { setUploading(false); }
@@ -155,7 +159,7 @@ export function ProductWorkspace({ product = blankProduct(), editToken = "", pub
     return <section className="min-w-0 rounded-xl border p-4">
       <h3 className="font-semibold">{title}</h3>
       <div className="mt-3 flex h-40 items-center justify-center rounded-lg bg-muted/40">{value[field] ? <img src={value[field]} alt={`${title}预览`} className="max-h-40 max-w-full object-contain" /> : <span className="text-sm text-muted-foreground">尚未上传</span>}</div>
-      <label className="mt-4 block text-sm">{value[field] ? `替换${title}` : `上传${title}`}<Input data-upload={field} className="mt-2" type="file" accept="image/png,image/jpeg,image/webp" disabled={disabled || !existing} onChange={event => { const file = event.target.files?.[0]; event.target.value = ""; void upload(file, field); }} /></label>
+      <label className="mt-4 block text-sm">{value[field] ? `替换${title}` : `上传${title}`}<Input data-upload={field} className="mt-2 h-auto file:mr-3 file:rounded-md file:bg-primary file:px-4 file:py-2 file:text-primary-foreground" type="file" accept="image/png,image/jpeg,image/webp" disabled={disabled || !existing} onChange={event => { const file = event.target.files?.[0]; event.target.value = ""; void upload(file, field); }} /></label>
       <details className="mt-3"><summary className="cursor-pointer text-xs text-muted-foreground">高级：使用已有图片地址</summary><Input aria-label={`${title}地址`} className="mt-2" value={value[field]} disabled={disabled} onChange={event => update(field, event.target.value)} placeholder="本站路径或HTTPS地址" /></details>
     </section>;
   }
@@ -185,22 +189,23 @@ export function ProductWorkspace({ product = blankProduct(), editToken = "", pub
         <label className="flex items-center gap-2 text-sm"><input name="featured" type="checkbox" checked={value.featured} onChange={e => update("featured", e.target.checked)} />首页推荐</label>
         <details className="md:col-span-2"><summary className="cursor-pointer font-medium">英文资料（可选，未填写时使用中文）</summary><div className="mt-4 grid gap-4"><label className="text-sm">English name<Input name="name_en" value={value.name_en} onChange={e => update("name_en", e.target.value)} /></label><label className="text-sm">English tagline<Input name="tagline_en" value={value.tagline_en} onChange={e => update("tagline_en", e.target.value)} /></label><label className="text-sm">English description<Textarea name="description_en" rows={5} value={value.description_en} onChange={e => update("description_en", e.target.value)} /></label></div></details>
       </fieldset>
-    </div>
-    <div id="panel-media" role="tabpanel" aria-labelledby="tab-media" hidden={tab !== "media"}>
+      <div id="product-artwork" className="mt-6">
       {!existing && <p className="mb-5 rounded-lg border p-4">先填写商品名称和地址标识，保存草稿后即可上传图片。</p>}
       <p className="mb-4 text-sm text-muted-foreground">PNG / JPEG / WebP · 每张最多8 MiB · 上传后重新编码并移除原始元数据 · 新图在发布前仅管理员可见</p>
       <div className="grid gap-5 md:grid-cols-2">{artwork("icon_url", "图标")}{artwork("hero_image_url", "封面")}</div>
       <section className="mt-5 rounded-xl border p-5"><h2 className="text-xl font-semibold">产品截图 <span className="text-sm font-normal text-muted-foreground">{value.gallery_urls?.length ?? 0}/8</span></h2><div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{(value.gallery_urls ?? []).map((url, index) => <div key={`${url}-${index}`} className="min-w-0 rounded-lg border p-3"><img src={url} alt={`截图 ${index + 1}`} className="h-36 w-full object-contain" /><div className="mt-3 flex flex-wrap gap-2"><Button size="sm" variant="outline" aria-label={`截图${index + 1}前移`} disabled={disabled || index === 0} onClick={() => reorder(index, -1)}>前移</Button><Button size="sm" variant="outline" aria-label={`截图${index + 1}后移`} disabled={disabled || index === (value.gallery_urls?.length ?? 0) - 1} onClick={() => reorder(index, 1)}>后移</Button><Button size="sm" variant="outline" aria-label={`移除截图${index + 1}`} disabled={disabled} onClick={() => update("gallery_urls", value.gallery_urls!.filter((_, i) => i !== index))}>移除</Button></div></div>)}</div>
-        <label className="mt-5 block text-sm">添加产品截图<Input data-upload="gallery_urls" className="mt-2 max-w-md" type="file" accept="image/png,image/jpeg,image/webp" disabled={disabled || !existing || (value.gallery_urls?.length ?? 0) >= 8} onChange={event => { const file = event.target.files?.[0]; event.target.value = ""; void upload(file, "gallery_urls"); }} /></label>
+        <label className="mt-5 block text-sm">添加产品截图<Input data-upload="gallery_urls" className="mt-2 h-auto max-w-md file:mr-3 file:rounded-md file:bg-primary file:px-4 file:py-2 file:text-primary-foreground" type="file" accept="image/png,image/jpeg,image/webp" disabled={disabled || !existing || (value.gallery_urls?.length ?? 0) >= 8} onChange={event => { const file = event.target.files?.[0]; event.target.value = ""; void upload(file, "gallery_urls"); }} /></label>
       </section>
+      </div>
+      <ProductVideoEditor videos={value.videos ?? []} disabled={disabled} canUpload={existing} onChange={videos => update("videos", videos)} onUploadPoster={(file, id) => { void upload(file, `video:${id}`); }} />
     </div>
     <div id="panel-versions" role="tabpanel" aria-labelledby="tab-versions" hidden={tab !== "versions"}>
       {!existing ? <p className="rounded-lg border p-5">请先保存商品草稿，再添加属于该商品的软件版本。</p> : <>{dirty && <p className="mb-4 rounded-lg border p-4 text-sm">图文有未保存修改，请先点击“保存商品资料”，再管理软件版本。已填写的版本资料和上传队列仍保留。</p>}<fieldset disabled={dirty} className="min-w-0">{releasePanel}</fieldset></>}
     </div>
     <div id="panel-preview" role="tabpanel" aria-labelledby="tab-preview" hidden={tab !== "preview"}>
-      <PublicationReview product={value} onFixProduct={target => { if (!disabled) setTab(target); }} releases={releases} selected={selected} setSelected={setSelected} dirty={dirty} releaseDirty={releaseDirty} existing={existing} disabled={disabled} confirmed={confirmed} setConfirmed={setConfirmed} onPublish={() => void publish()} onBack={goVersions} />
+      <PublicationReview product={value} onFixProduct={target => { if (!disabled) { setTab("details"); if (target === "media") requestAnimationFrame(() => document.getElementById("product-artwork")?.scrollIntoView({ behavior: "smooth", block: "start" })); } }} releases={releases} selected={selected} setSelected={setSelected} dirty={dirty} releaseDirty={releaseDirty} existing={existing} disabled={disabled} confirmed={confirmed} setConfirmed={setConfirmed} onPublish={() => void publish()} onBack={goVersions} />
       <div className="mt-6 flex flex-wrap items-center justify-between gap-3"><h2 className="font-semibold">商品页预览 · 不提供草稿下载</h2><div className="flex gap-2"><Button size="sm" variant="outline" onClick={() => setLocale(locale === "zh" ? "en" : "zh")}>{locale === "zh" ? "切换英文" : "切换中文"}</Button><Button size="sm" variant="outline" onClick={() => setMobile(!mobile)}>{mobile ? "桌面宽度" : "手机宽度"}</Button></div></div>
-      <div data-testid="product-preview" className={`mx-auto mt-4 overflow-hidden rounded-xl border ${mobile ? "max-w-[390px]" : "w-full"}`}><DatabaseProductPage product={previewProduct(value, locale)} releases={previewReleases(displayedReleases, locale)} locale={locale} preview /></div>
+      <div data-testid="product-preview" className={`mx-auto mt-4 overflow-hidden rounded-xl border ${mobile ? "max-w-[390px]" : "w-full"}`}>{tab === "preview" && <DatabaseProductPage product={previewProduct(value, locale)} releases={previewReleases(displayedReleases, locale)} locale={locale} preview />}</div>
     </div>
   </div></ReleaseFlowContext.Provider>;
 }

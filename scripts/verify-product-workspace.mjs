@@ -103,8 +103,8 @@ try {
   await shot('product-management-desktop.png');
   await page.click('[data-testid="product-management"] a[href="/admin/products/new"]');
   await page.waitForSelector('[data-testid="product-workspace"]');
-  assert.equal((await page.$$('[data-tab]')).length,4);
-  check('administration has one product list; Add product enters the same four-section editor');
+  assert.equal((await page.$$('[data-tab]')).length,3);
+  check('administration has one product list; Add product enters the same three-section editor');
 
   const slug='new-workspace-tool',editor=base+'/admin/products/'+slug;
   await controlled('input[name="name_zh"]','新建工作台商品');await controlled('input[name="slug"]',slug);
@@ -131,7 +131,7 @@ try {
 
   await controlled('input[name="tagline_zh"]','在商品内完成图文、版本和预览发布');
   await controlled('textarea[name="description_zh"]','第一段：商品介绍。\n第二段：图文与软件版本统一管理。\n<script>window.workspaceXss=1</script>');
-  await page.click('[data-tab="media"]');await page.click('[data-tab="details"]');
+  await page.click('[data-tab="details"]');await page.click('[data-tab="details"]');
   assert.match(await page.$eval('textarea[name="description_zh"]',x=>x.value),/第二段/);
   await save();assert.deepEqual((await catalog()).products.find(p=>p.slug==='existing-tool'),original);
   check('switching sections retains edits; saving new content neither publishes it nor alters another product');
@@ -140,7 +140,7 @@ try {
   for(const [name,width,height,r,g,b] of [['icon',128,128,18,120,105],['cover',1200,700,28,80,145],['screen1',800,500,200,110,45],['screen2',800,500,80,120,160]]) {
     files[name]=path.join(temporary,name+'.png');await sharp({create:{width,height,channels:3,background:{r,g,b}}}).png().toFile(files[name]);
   }
-  await page.click('[data-tab="media"]');const urls=[];
+  await page.click('[data-tab="details"]');const urls=[];
   for(const [field,file] of [['icon_url','icon'],['hero_image_url','cover'],['gallery_urls','screen1'],['gallery_urls','screen2']]) {
     const before=(await catalog()).productMedia?.length??0;
     await (await page.$(`[data-upload="${field}"]`)).uploadFile(files[file]);

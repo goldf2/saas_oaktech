@@ -1,6 +1,6 @@
 {
   "name": "saas_oaktech",
-  "version": "0.1.30",
+  "version": "0.1.31",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -13,7 +13,8 @@
     "handoff:render": "node scripts/check-handoff.mjs --write",
     "handoff:status": "node scripts/check-handoff.mjs --status",
     "test:admin-storage": "node scripts/admin-poc/run.mjs",
-    "test:release-ui": "node scripts/verify-release-workflow.mjs"
+    "test:release-ui": "node scripts/verify-release-workflow.mjs",
+    "test:video-ui": "node scripts/verify-product-videos.mjs"
   },
   "dependencies": {
     "@creem_io/nextjs": "^0.4.0",

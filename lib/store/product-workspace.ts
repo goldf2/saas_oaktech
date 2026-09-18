@@ -1,9 +1,10 @@
 import 'server-only';
-// Internal draft/publication service; HTTP and Server Action adapters must enforce
-// the existing requireStoreAdmin gate. The new adapters are not implemented yet.
+// Internal draft/publication service; HTTP and Server Action adapters enforce
+// the existing requireStoreAdmin gate before calling this module.
 import { createHash, randomUUID } from 'node:crypto';
 import { mutateStoreCatalog, readStoreCatalog, type StoreCatalog } from './file-catalog';
 import { isManagedAssetUrl, isStoreSlug } from './policy';
+import { normalizeProductVideos } from './product-videos';
 import { prepareUpdaterManifests } from './storage';
 import { validateProductImageReferences, verifyProductImages } from './product-media';
 import type { AdminStoreProductRow } from './types';
@@ -19,6 +20,7 @@ export function publicationToken(catalog: StoreCatalog, slug: string) {
   return digest([productToken(catalog,slug),catalog.releases.filter(r=>r.product_slug===slug)]);
 }
 export function validateProductInput(product: AdminStoreProductRow, publishing=false) {
+  normalizeProductVideos(product.videos, publishing);
   if (!isStoreSlug(product.slug) || !isStoreSlug(product.category_slug)) throw new Error('INVALID_PRODUCT_SLUG');
   if (!['beta','released','coming-soon'].includes(product.status)) throw new Error('INVALID_PRODUCT_STATUS');
   for (const key of ['name_zh','name_en','tagline_zh','tagline_en','description_zh','description_en','icon_url','hero_image_url'] as const) {
@@ -37,7 +39,7 @@ export async function saveProductDraft(input: AdminStoreProductRow, expected: st
     if (input.id && (!existing || existing.slug!==input.slug)) throw new Error('PRODUCT_IDENTITY_IMMUTABLE');
     if (!input.id && catalog.products.some(p=>p.slug===input.slug)) throw new Error('STORE_PRODUCT_SLUG_EXISTS');
     if (existing && productToken(catalog,input.slug)!==expected) throw new Error('PRODUCT_EDIT_CONFLICT');
-    const value: AdminStoreProductRow = {...existing,...input,id:existing?.id??randomUUID(),visibility:existing?.visibility??'draft',gallery_urls:[...(input.gallery_urls??[])]};
+    const value: AdminStoreProductRow = {...existing,...input,id:existing?.id??randomUUID(),visibility:existing?.visibility??'draft',gallery_urls:[...(input.gallery_urls??[])],videos:normalizeProductVideos(input.videos ?? (existing ? editableProduct(catalog,input.slug)?.videos : undefined))};
     validateProductImageReferences(catalog,value);
     if(!existing) catalog.products.push({...value,visibility:'draft'});
     catalog.productDrafts ??= {};
@@ -67,7 +69,7 @@ export async function publishProductDraft(slug: string, expected: string, releas
     if(publicationToken(next,slug)!==expected) throw new Error('PRODUCT_PUBLICATION_CONFLICT');
     const index=next.products.findIndex(p=>p.slug===slug);
     if(index<0)throw new Error('STORE_PRODUCT_NOT_FOUND');
-    next.products[index]={...input,visibility:'published',name_en:input.name_en.trim()||input.name_zh,tagline_en:input.tagline_en.trim()||input.tagline_zh,description_en:input.description_en.trim()||input.description_zh};
+    next.products[index]={...input,videos:normalizeProductVideos(input.videos,true),visibility:'published',name_en:input.name_en.trim()||input.name_zh,tagline_en:input.tagline_en.trim()||input.tagline_zh,description_en:input.description_en.trim()||input.description_zh};
     if(next.productDrafts)delete next.productDrafts[slug];
     for(const selectedRelease of selected) {
       for(const r of next.releases) if(r.product_slug===slug&&r.channel===selectedRelease.channel) r.is_current=false;

@@ -1,0 +1,84 @@
+{
+  "checkedAt": "2026-09-18T09:06:20+08:00",
+  "task": "VIDEO-01",
+  "version": "0.1.31",
+  "baselineCommit": "8616682bed82c8e46367ebfc8f949cb5b17573f7",
+  "testsPassed": 124,
+  "typecheck": "passed",
+  "defaultTurbopackBuild": "passed",
+  "browser": {
+    "videoFlowChecksPassed": 6,
+    "storeFlowChecksPassed": 12,
+    "releaseUiChecksPassed": 9,
+    "videoChecks": [
+      "anonymous users have no editor; administrators get merged product information and three working tabs",
+      "real video links and local poster upload save to a private draft without changing live text or releases",
+      "in-page players load only on click, switch sources safely, stop on tab exit, and unknown platforms stay external",
+      "multi-video ordering survives reload; explicit publication makes the introduction and poster public without new releases",
+      "anonymous mobile storefront displays the published video only; later saved edits do not leak",
+      "removal remains draft-only until confirmed; service restart retains published video data and its image"
+    ],
+    "liveOfficialPlayers": [
+      {
+        "provider": "youtube",
+        "iframeRequested": true,
+        "playerDocumentLoaded": true,
+        "playbackObserved": true,
+        "playControlFound": true,
+        "playClicked": true,
+        "mediaState": {
+          "videos": [
+            {
+              "paused": false,
+              "readyState": 4,
+              "currentTime": 4.345983,
+              "error": null
+            }
+          ],
+          "errorText": null
+        }
+      },
+      {
+        "provider": "bilibili",
+        "iframeRequested": true,
+        "playerDocumentLoaded": true,
+        "playbackObserved": true,
+        "playControlFound": true,
+        "playClicked": true,
+        "mediaState": {
+          "videos": [
+            {
+              "paused": false,
+              "readyState": 4,
+              "currentTime": 0.293231,
+              "error": null
+            }
+          ],
+          "errorText": null
+        }
+      }
+    ],
+    "livePlaybackCriterion": "currentTime advances more than 0.25 seconds past configured start, readyState >= 2, paused false",
+    "nativeSignedReleaseFixture": "not supplied; existing optional live-signed acceptance not rerun"
+  },
+  "source": {
+    "acceptedVideoPlatforms": [
+      "YouTube",
+      "Bilibili"
+    ],
+    "others": "HTTPS external links only",
+    "maxVideos": 6,
+    "maxSourcesPerVideo": 4,
+    "unloadedIframeUntilClick": true,
+    "privatePosterUntilPublication": true,
+    "staleEditAndConfirmationRejected": true
+  },
+  "productionMutations": {
+    "catalog": false,
+    "roles": false,
+    "softwareReleases": false
+  },
+  "originalMainFilesPreserved": 15,
+  "screenshots": ".local-verification/0.1.31/",
+  "actualDeployment": "record separately after push"
+}
