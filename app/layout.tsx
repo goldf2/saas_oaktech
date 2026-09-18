@@ -4,6 +4,8 @@ import { ThemeProvider } from "next-themes";
 import { authProvider, getCurrentUser } from "@/lib/auth";
 import { getStoreAdmin } from "@/lib/store/admin";
 import { Toaster } from "@/components/ui/toaster";
+import { getRequestLanguage } from "@/i18n/server";
+import { LocaleProvider } from "@/i18n/locale-provider";
 import "./globals.css";
 
 const baseUrl = process.env.BASE_URL
@@ -35,9 +37,10 @@ export default async function RootLayout({
 }>) {
   const user = await getCurrentUser();
   const admin = user ? await getStoreAdmin() : null;
+  const language = await getRequestLanguage();
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={language.locale === "zh" ? "zh-CN" : "en"} suppressHydrationWarning>
       <body className="bg-background text-foreground" suppressHydrationWarning>
         <ThemeProvider
           attribute="class"
@@ -45,12 +48,14 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <LocaleProvider initialLocale={language.defaultLocale} initialPreference={language.preference}>
           <div className="relative min-h-screen">
             <Header user={user} authProvider={authProvider} isAdmin={Boolean(admin)} />
             <main className="flex-1">{children}</main>
             <Footer />
           </div>
           <Toaster />
+          </LocaleProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -6,11 +6,12 @@ import { Mail } from "lucide-react";
 import packageJson from "@/package.json";
 import { usePathname } from "next/navigation";
 import { getMessages } from "@/i18n/messages";
-import { localeFromPathname, localePath } from "@/i18n/config";
+import { localePath } from "@/i18n/config";
+import { useLocale } from "@/i18n/locale-provider";
 
 export function Footer() {
   const pathname = usePathname();
-  const locale = localeFromPathname(pathname);
+  const { locale } = useLocale();
   const copy = getMessages(locale).common;
   const localized = pathname?.startsWith(`/${locale}`);
   const footerLinks = [

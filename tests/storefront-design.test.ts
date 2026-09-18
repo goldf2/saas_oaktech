@@ -72,7 +72,8 @@ test("browser language detection chooses a supported locale and keeps explicit p
   assert.equal(localeFromAcceptLanguage("en-US,en;q=0.9,zh;q=0.8"), "en");
   assert.equal(localeFromAcceptLanguage("fr-FR,ja;q=0.9"), "en");
   assert.equal(localeFromAcceptLanguage("en;q=0.4,zh;q=0.9"), "zh");
-  assert.match(proxy, /LOCALE_COOKIE/);
-  assert.match(proxy, /pathname === "\/"/);
+  assert.match(proxy, /LANGUAGE_PREFERENCE_COOKIE/);
+  assert.match(proxy, /resolveLocale\(pathname/);
+  assert.doesNotMatch(proxy, /response\.cookies\.set/);
   assert.match(proxy, /matcher:\s*\["\/", "\/en", "\/en\/products\/:path\*", "\/zh", "\/zh\/products\/:path\*"/);
 });

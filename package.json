@@ -1,6 +1,6 @@
 {
   "name": "saas_oaktech",
-  "version": "0.1.34",
+  "version": "0.1.35",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -17,7 +17,8 @@
     "test:video-ui": "node scripts/verify-product-videos.mjs",
     "test:publication-ui": "node scripts/verify-decoupled-publication.mjs",
     "test:compact-ui": "node scripts/verify-compact-release.mjs",
-    "test:workspace-ui": "node scripts/verify-workspace-dashboard.mjs"
+    "test:workspace-ui": "node scripts/verify-workspace-dashboard.mjs",
+    "test:language-ui": "node scripts/verify-language-preference.mjs"
   },
   "dependencies": {
     "@creem_io/nextjs": "^0.4.0",

@@ -2,7 +2,7 @@
 
 > 不要直接编辑本文件。修改TASKS.json后运行 `npm run handoff:render`。
 
-账本revision：28；更新时间：2026-09-19T05:39:40+08:00；计划版本：1.0.0。
+账本revision：30；更新时间：2026-09-19T06:04:00+08:00；计划版本：1.0.0。
 
 **权限主线任务完成：1/14。这是任务计数，不是代码完成百分比；PLAN-01文档不计入。**
 
@@ -38,6 +38,7 @@
 | PUB-01 · 商品资料与软件版本独立发布 | STORE / feature | P0 | 完成 | ChatGPT / tsk_73ee7c135620db1b | STORE-02, VIDEO-01 |
 | DASH-01 · Dashboard与商品管理统一工作台 | STORE / feature | P0 | 完成 | ChatGPT / tsk_b677b669147495db | 无 |
 | DASH-02 · 软件目录与商品管理合为单一商品列表 | STORE / feature | P0 | 完成 | ChatGPT / tsk_bc34f6eb218684af | DASH-01 |
+| LANG-01 · 恢复浏览器语言检测与手动偏好 | STORE / feature | P0 | 完成 | ChatGPT / tsk_5ef8f47aca946698 | 无 |
 
 ## 任务详情与接续动作
 
@@ -507,3 +508,22 @@
 - implementation / passed：`components/admin/product-management.tsx`
 - implementation / passed：`lib/store/workspace-product-list.ts`
 - verification / passed：`docs/00-handoff/evidence/2026-09-19-unified-product-list.json`
+
+### LANG-01 · 恢复浏览器语言检测与手动偏好
+
+状态：完成；负责人：ChatGPT / tsk_5ef8f47aca946698；实施：complete_browser_verified；部署：pending_post_commit_verification。
+
+下一动作：核对本次GitHub提交与线上语言协商；后台尚未国际化的固定文案属于独立翻译范围，不宣称自动翻译。
+
+验收条件：
+- 自动模式不受旧一年期自动Cookie干扰
+- 明确路径优先，预取或页面读取不保存用户偏好
+- 工作台及编辑页切换保留路径、筛选及未保存字段
+- 中文/英文/移动及已有发布回归有真实结果
+
+计划文件（可能尚未创建）：`i18n/config.ts`、`i18n/server.ts`、`i18n/locale-provider.tsx`、`proxy.ts`、`components/language-switcher.tsx`、`app/layout.tsx`、`components/header.tsx`、`components/footer.tsx`
+
+证据：
+- verification / passed：`docs/00-handoff/evidence/2026-09-19-language-recovery.json`
+- implementation / passed：`i18n/config.ts`
+- implementation / passed：`components/language-switcher.tsx`

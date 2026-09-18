@@ -8,7 +8,7 @@ import { Logo } from "./logo";
 import { usePathname } from "next/navigation";
 import { MobileNav } from "./mobile-nav";
 import { LanguageSwitcher } from "./language-switcher";
-import { localeFromPathname } from "@/i18n/config";
+import { useLocale } from "@/i18n/locale-provider";
 import { getMessages } from "@/i18n/messages";
 import type { AppUser } from "@/lib/auth";
 import type { AuthProvider } from "@/lib/auth-config";
@@ -26,7 +26,7 @@ interface NavItem {
 
 export default function Header({ user, authProvider, isAdmin = false }: HeaderProps) {
   const pathname = usePathname();
-  const locale = localeFromPathname(pathname);
+  const { locale } = useLocale();
   const copy = getMessages(locale).common;
   const localized = pathname?.startsWith(`/${locale}`);
   const isDashboard = pathname?.startsWith("/dashboard");

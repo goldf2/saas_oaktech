@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "plan_version": "1.0.0",
-  "revision": 28,
-  "updated_at": "2026-09-19T05:39:40+08:00",
+  "revision": 30,
+  "updated_at": "2026-09-19T06:04:00+08:00",
   "project": "saas_oaktech",
   "source_commit": "54a42b33bc5fc3e9c42541fdd3bdd6fae4700bce",
   "current_next_task": "ADM-02",
@@ -990,6 +990,55 @@
       "deployment": "pending_post_commit_observation",
       "updated_at": "2026-09-19T05:39:40+08:00",
       "completed_at": "2026-09-19T05:39:40+08:00"
+    },
+    {
+      "id": "LANG-01",
+      "title": "恢复浏览器语言检测与手动偏好",
+      "kind": "feature",
+      "milestone": "STORE",
+      "priority": "P0",
+      "status": "done",
+      "owner": "ChatGPT / tsk_5ef8f47aca946698",
+      "depends_on": [],
+      "planned_files": [
+        "i18n/config.ts",
+        "i18n/server.ts",
+        "i18n/locale-provider.tsx",
+        "proxy.ts",
+        "components/language-switcher.tsx",
+        "app/layout.tsx",
+        "components/header.tsx",
+        "components/footer.tsx"
+      ],
+      "acceptance": [
+        "自动模式不受旧一年期自动Cookie干扰",
+        "明确路径优先，预取或页面读取不保存用户偏好",
+        "工作台及编辑页切换保留路径、筛选及未保存字段",
+        "中文/英文/移动及已有发布回归有真实结果"
+      ],
+      "next_action": "核对本次GitHub提交与线上语言协商；后台尚未国际化的固定文案属于独立翻译范围，不宣称自动翻译。",
+      "blockers": [],
+      "evidence": [
+        {
+          "path": "docs/00-handoff/evidence/2026-09-19-language-recovery.json",
+          "kind": "verification",
+          "result": "passed"
+        },
+        {
+          "path": "i18n/config.ts",
+          "kind": "implementation",
+          "result": "passed"
+        },
+        {
+          "path": "components/language-switcher.tsx",
+          "kind": "implementation",
+          "result": "passed"
+        }
+      ],
+      "implementation": "complete_browser_verified",
+      "deployment": "pending_post_commit_verification",
+      "updated_at": "2026-09-19T06:04:00+08:00",
+      "completed_at": "2026-09-19T06:04:00+08:00"
     }
   ]
 }

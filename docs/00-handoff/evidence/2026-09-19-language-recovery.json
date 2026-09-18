@@ -1,0 +1,64 @@
+{
+  "task": "LANG-01",
+  "verifiedAt": "2026-09-19T06:04:00+08:00",
+  "version": "0.1.35",
+  "baseCommit": "8bddf425786392272985d74484f60d2e158ae247",
+  "scope": "Language selection and existing bilingual shared UI; no production data/auth changes",
+  "unitTests": 165,
+  "unitStatus": "passed",
+  "typecheck": "passed",
+  "defaultTurbopackBuild": "passed",
+  "browserChecks": 52,
+  "languageChecks": [
+    "HTTP negotiation respects browser priorities and explicit preference; legacy cookie and opposite-language prefetch cannot change automatic language",
+    "Chinese first visit recovers from the old English cookie; server HTML and visible shared UI use the same language without persisting auto detection",
+    "manual English persists while explicit Chinese links remain Chinese; product slug, query and anchor survive switching",
+    "Auto resumes following browser requests; bare product catalog links negotiate instead of forcing English",
+    "workspace navigation uses the selected language on direct loads and client updates; selection stays on the current filtered dashboard",
+    "switching in the editor retains unsaved controlled inputs and never saves/publishes product data or software",
+    "390px and 320px pages expose a working compact language selector without header overflow"
+  ],
+  "regression": [
+    {
+      "suite": "workspace",
+      "exitCode": 0,
+      "passedChecks": 8
+    },
+    {
+      "suite": "publication",
+      "exitCode": 0,
+      "passedChecks": 6
+    },
+    {
+      "suite": "store",
+      "exitCode": 0,
+      "passedChecks": 13
+    },
+    {
+      "suite": "release",
+      "exitCode": 0,
+      "passedChecks": 9
+    },
+    {
+      "suite": "video",
+      "exitCode": 0,
+      "passedChecks": 6
+    },
+    {
+      "suite": "compact",
+      "exitCode": 0,
+      "passedChecks": 3
+    }
+  ],
+  "limitations": [
+    "Repairs language negotiation and translated shared UI; not a translation of every legacy admin form or remote identity-provider screen."
+  ],
+  "observations": [
+    "Old site returned /en for a zh-CN browser request carrying legacy oaktech-locale=en.",
+    "Manual and auto preferences are now distinct; automatic detection never writes a preference.",
+    "Incomplete internal Next RSC prefetch request timed out in early test; final HTTP prefetch uses valid HTML Purpose header; both headers remain exercised directly against proxy in unit tests.",
+    "Installed Chrome used after Puppeteer download cache error; no global browser configuration changed."
+  ],
+  "productionWrites": false,
+  "deployment": "pending post-commit verification"
+}
