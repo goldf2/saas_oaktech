@@ -1,5 +1,9 @@
 # 人员与AI接续单
 
+## 2026-09-19T05:35:49+08:00 · DASH-02单一商品列表
+
+最新工作树oaktech-one-product-list-20260919，基于4bc7e98/.33。已合并列表与角色安全的数据投影，旧library入口兼容转products，普通账号的筛选不能访问草稿。156项单元、类型、最终生产构建及45组浏览器通过；下一步先看本轮.local-verification/unified-products/deployment.json确认提交/部署实际状态，不用历史通过数或主目录旧HEAD冒充线上。详细说明docs/unified-product-list.md。
+
 ## 2026-09-18T23:12:21+08:00 · PUB-01 / DASH-01集成
 
 已完成工作台合并与独立发布，版本候选0.1.33，保留.32紧凑布局。先查看CURRENT_STATE和最新[验收证据](evidence/2026-09-18-unified-workspace-publishing.json)。管理员统一入口/dashboard；旧管理路径兼容。147测试、43浏览器检查和生产构建通过，生产账号/内容未改。提交与部署收据另外保存在.local-verification/integrated-workspace/deployment.json。

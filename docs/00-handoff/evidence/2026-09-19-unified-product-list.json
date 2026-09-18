@@ -1,0 +1,66 @@
+{
+  "checkedAt": "2026-09-19T05:39:40+08:00",
+  "task": "DASH-02",
+  "baseCommit": "4bc7e98dc3d5d68ec3c203bb40f39d6e905418d9",
+  "candidateVersion": "0.1.34",
+  "scope": "One product list for browsing, public download access and authorized management",
+  "unitTests": {
+    "passed": 156,
+    "failed": 0
+  },
+  "typecheck": "passed",
+  "defaultTurbopackBuild": "passed",
+  "browserSuites": [
+    {
+      "suite": "publication",
+      "exitCode": 0,
+      "checks": 6
+    },
+    {
+      "suite": "workspace",
+      "exitCode": 0,
+      "checks": 8
+    },
+    {
+      "suite": "release",
+      "exitCode": 0,
+      "checks": 9
+    },
+    {
+      "suite": "store",
+      "exitCode": 0,
+      "checks": 13
+    },
+    {
+      "suite": "compact",
+      "exitCode": 0,
+      "checks": 3
+    },
+    {
+      "suite": "video",
+      "exitCode": 0,
+      "checks": 6
+    }
+  ],
+  "browserChecks": 45,
+  "securityChecks": [
+    "public response does not contain private product, edit or release sentinels",
+    "public search and counts independent of draft data",
+    "URL view/state/admin flags cannot grant management access",
+    "server permissions on legacy administrative routes unchanged",
+    "public download link requires published software with installable artifacts",
+    "real public package GET matches bytes and draft package returns 404",
+    "ordinary user after admin session sees no private response state",
+    "browsing leaves complete isolated catalog byte-equivalent as JSON"
+  ],
+  "originalFilesPreserved": 19,
+  "productionWrites": false,
+  "productionRoleChanges": false,
+  "pushed": false,
+  "deployment": "to_verify_after_commit",
+  "limitations": [
+    "All browser mutation scenarios use temporary fixtures and isolated sessions; not a production account acceptance.",
+    "Native-signed release fixture and live video-provider playback were not repeated; their underlying implementation is unchanged.",
+    "Multi-platform current selection, local superadmin and GitHub synchronization are not changed."
+  ]
+}

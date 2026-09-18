@@ -6,7 +6,7 @@ const source = (name: string) => readFile(new URL(`../${name}`, import.meta.url)
 test('product list and create entry use one workspace rather than the flat public-edit form', async () => {
   const [list, create, overview] = await Promise.all([source('components/admin/product-management.tsx'),source('app/admin/products/new/page.tsx'),source('app/admin/software/page.tsx')]);
   assert.match(list,/product-management/);
-  assert.match(list,/editableProduct/);
+  assert.match(list,/managedWorkspaceItems/);
   assert.doesNotMatch(list,/href="\/admin\/releases"/);
   assert.match(create,/<ProductWorkspace/);
   assert.match(create,/initialProduct/);

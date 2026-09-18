@@ -2,7 +2,7 @@
 
 > 不要直接编辑本文件。修改TASKS.json后运行 `npm run handoff:render`。
 
-账本revision：25；更新时间：2026-09-18T23:12:21+08:00；计划版本：1.0.0。
+账本revision：28；更新时间：2026-09-19T05:39:40+08:00；计划版本：1.0.0。
 
 **权限主线任务完成：1/14。这是任务计数，不是代码完成百分比；PLAN-01文档不计入。**
 
@@ -37,6 +37,7 @@
 | STORE-03 · 商品发布页面紧凑布局 | STORE / feature | P1 | 完成 | ChatGPT / tsk_df0424b2b9310843 | STORE-02, VIDEO-01 |
 | PUB-01 · 商品资料与软件版本独立发布 | STORE / feature | P0 | 完成 | ChatGPT / tsk_73ee7c135620db1b | STORE-02, VIDEO-01 |
 | DASH-01 · Dashboard与商品管理统一工作台 | STORE / feature | P0 | 完成 | ChatGPT / tsk_b677b669147495db | 无 |
+| DASH-02 · 软件目录与商品管理合为单一商品列表 | STORE / feature | P0 | 完成 | ChatGPT / tsk_bc34f6eb218684af | DASH-01 |
 
 ## 任务详情与接续动作
 
@@ -487,3 +488,22 @@
 - verification / passed：`docs/00-handoff/evidence/2026-09-18-unified-workspace-publishing.json`
 - implementation / passed：`app/dashboard/page.tsx`
 - implementation / passed：`components/admin/product-management.tsx`
+
+### DASH-02 · 软件目录与商品管理合为单一商品列表
+
+状态：完成；负责人：ChatGPT / tsk_bc34f6eb218684af；实施：complete_shared_list_browser_verified；部署：pending_post_commit_observation。
+
+下一动作：提交后分别核对远端SHA、CI、health和真实会话只读页面；无生产商品/权限写入。部署收据记录在.local-verification/unified-products/deployment.json。
+
+验收条件：
+- 同一列表和卡片承载浏览/详情/下载及按管理员权限显示的编辑和软件版本操作
+- 普通用户仅查询/统计已公开商品与软件，不读取管理草稿或从URL参数提权
+- 旧view=library和后台列表书签归并保留筛选，账号与支持保留
+- 单元/浏览器/构建验证通过，旧独立发布、视频与上传不回退
+
+计划文件（可能尚未创建）：`app/dashboard/page.tsx`、`components/admin/product-management.tsx`、`lib/store/workspace-navigation.ts`、`lib/store/workspace-product-list.ts`、`lib/store/public-data.ts`
+
+证据：
+- implementation / passed：`components/admin/product-management.tsx`
+- implementation / passed：`lib/store/workspace-product-list.ts`
+- verification / passed：`docs/00-handoff/evidence/2026-09-19-unified-product-list.json`

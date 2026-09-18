@@ -4,6 +4,7 @@ import { getProductBySlug, PRODUCTS, type SoftwareProduct } from "@/config/produ
 import { getLegacyGitFinderRelease } from "@/config/gitfinder-release";
 import { selectPublishedRows } from "./policy";
 import { resolveProductIcon } from "./product-assets";
+import { publicWorkspaceItem, type WorkspaceProductItem } from "./workspace-product-list";
 import { readStoreCatalog } from "./file-catalog";
 import type {
   Locale,
@@ -188,4 +189,22 @@ export async function getPublishedProductReleases(
   }
   const rows = selectPublishedRows(catalog.releases.filter((row) => row.product_slug === productSlug) as ReleaseRow[]);
   return { releases: rows.map((row) => mapRelease(row, locale)), source: "catalog" };
+}
+
+// One snapshot for the merged public list. Never return management drafts,
+// draft release counts, storage paths or private artifact names to the renderer.
+export async function listPublicWorkspaceItems(locale: Locale): Promise<WorkspaceProductItem[]> {
+  const { catalog, persisted } = await readStoreCatalog();
+  const products = persisted
+    ? catalog.products.filter(product => product.visibility === "published").map(product => mapProduct(product as ProductRow, locale))
+    : PRODUCTS.map(fallbackProduct);
+  return products.sort((left, right) => Number(right.featured) - Number(left.featured)).map(product => {
+    if (persisted) return publicWorkspaceItem(product, catalog.releases.filter(release => release.product_slug === product.slug));
+    // Preserve the same explicit migration fallback as the existing public page.
+    const legacy = product.slug === "gitfinder-2" ? getLegacyGitFinderRelease(locale) : null;
+    return publicWorkspaceItem(product, legacy ? [{
+      status: legacy.status, is_current: legacy.isCurrent, published_at: legacy.publishedAt ?? null,
+      release_artifacts: legacy.artifacts.map(artifact => ({ package_kind: artifact.packageKind, file_name: artifact.fileName })),
+    }] : []);
+  });
 }

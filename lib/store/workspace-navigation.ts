@@ -1,9 +1,9 @@
 // Navigation only. Every privileged route still performs its own server-side authorization.
-export type WorkspaceView = "products" | "library" | "account";
-export function workspaceView(requested: unknown, administrator: boolean): WorkspaceView | "forbidden" {
-  if (requested === "products") return administrator ? "products" : "forbidden";
-  if (requested === "library" || requested === "account") return requested;
-  return administrator ? "products" : "library";
+export type WorkspaceView = "products" | "account";
+export function workspaceView(requested: unknown, _administrator: boolean): WorkspaceView {
+  // A view selects a page, not privileges. The shared list resolves authorization
+  // independently and ordinary users receive only its public projection.
+  return requested === "account" ? "account" : "products";
 }
 export function workspaceProductsHref(query: { q?: unknown; state?: unknown } = {}): string {
   const params = new URLSearchParams({ view: "products" });
@@ -13,8 +13,7 @@ export function workspaceProductsHref(query: { q?: unknown; state?: unknown } = 
 }
 export function workspaceSections(administrator: boolean) {
   return [
-    ...(administrator ? [{ view: "products" as const, label: "商品管理", href: workspaceProductsHref() }] : []),
-    { view: "library" as const, label: "软件目录", href: "/dashboard?view=library" },
+    { view: "products" as const, label: administrator ? "商品管理" : "商品目录", href: workspaceProductsHref() },
     { view: "account" as const, label: "账号与支持", href: "/dashboard?view=account" },
   ];
 }

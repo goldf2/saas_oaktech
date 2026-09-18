@@ -3,16 +3,16 @@ import test from 'node:test';
 import { readFileSync } from 'node:fs';
 import { workspaceView, workspaceSections, workspaceProductsHref } from '../lib/store/workspace-navigation.ts';
 
-test('one dashboard selects admin products or public library without treating an unknown query as a role', () => {
+test('one product view serves both roles and legacy library links without treating a view as a role', () => {
   assert.equal(workspaceView(undefined, true), 'products');
-  assert.equal(workspaceView(undefined, false), 'library');
-  assert.equal(workspaceView('products', false), 'forbidden');
+  assert.equal(workspaceView(undefined, false), 'products');
+  assert.equal(workspaceView('products', false), 'products');
   assert.equal(workspaceView('account', false), 'account');
-  for (const forged of ['admin', 'super_admin', ['products'], { admin: true }]) assert.equal(workspaceView(forged, false), 'library');
+  for (const forged of ['admin', 'super_admin', ['products'], { admin: true }]) assert.equal(workspaceView(forged, false), 'products');
 });
-test('ordinary workspace navigation has no administrative target', () => {
-  assert.deepEqual(workspaceSections(false).map(x => x.view), ['library', 'account']);
-  assert.deepEqual(workspaceSections(true).map(x => x.view), ['products', 'library', 'account']);
+test('both roles get one product tab plus account and no separate software-library tab', () => {
+  assert.deepEqual(workspaceSections(false).map(x => x.view), ['products', 'account']);
+  assert.deepEqual(workspaceSections(true).map(x => x.view), ['products', 'account']);
 });
 test('old product filters map only to the canonical local workspace', () => {
   assert.equal(workspaceProductsHref(), '/dashboard?view=products');
@@ -23,7 +23,8 @@ test('old product filters map only to the canonical local workspace', () => {
 });
 test('shared management component authorizes before reading private catalog and legacy routes still gate', () => {
   const shared = readFileSync(new URL('../components/admin/product-management.tsx', import.meta.url), 'utf8');
-  assert.ok(shared.indexOf('if (!(await getStoreAdmin()))') < shared.indexOf('readStoreCatalog(),'));
+  assert.ok(shared.indexOf('await getStoreAdmin()') < shared.indexOf('await readStoreCatalog()'));
+  assert.match(shared, /if \(administrator\)/); assert.match(shared, /else \{\s*items = await listPublicWorkspaceItems/);
   const route = readFileSync(new URL('../app/admin/products/page.tsx', import.meta.url), 'utf8');
   assert.match(route, /getStoreAdmin/); assert.match(route, /redirect\(workspaceProductsHref/);
 });
@@ -38,4 +39,10 @@ test('unified dashboard does not pretend static license counters are verified cu
   const source = readFileSync(new URL('../app/dashboard/page.tsx', import.meta.url), 'utf8');
   assert.match(source, /ProductManagement searchParams/); assert.match(source, /workspaceView/);
   assert.doesNotMatch(source, /Owned Products|Active Licenses|haven&apos;t purchased/);
+});
+
+test('legacy library requests canonicalize to the single list without a duplicate renderer', () => {
+  const source = readFileSync(new URL('../app/dashboard/page.tsx', import.meta.url), 'utf8');
+  assert.match(source, /query\.view === "library"\) redirect\(workspaceProductsHref\(query\)\)/);
+  assert.doesNotMatch(source, /function SoftwareLibrary|<SoftwareLibrary/);
 });

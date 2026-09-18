@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "plan_version": "1.0.0",
-  "revision": 25,
-  "updated_at": "2026-09-18T23:12:21+08:00",
+  "revision": 28,
+  "updated_at": "2026-09-19T05:39:40+08:00",
   "project": "saas_oaktech",
   "source_commit": "54a42b33bc5fc3e9c42541fdd3bdd6fae4700bce",
   "current_next_task": "ADM-02",
@@ -942,6 +942,54 @@
       "implementation": "complete_integrated_browser_verified",
       "deployment": "pending_post_commit_public_verification",
       "completed_at": "2026-09-18T23:12:21+08:00"
+    },
+    {
+      "id": "DASH-02",
+      "title": "软件目录与商品管理合为单一商品列表",
+      "kind": "feature",
+      "milestone": "STORE",
+      "priority": "P0",
+      "status": "done",
+      "owner": "ChatGPT / tsk_bc34f6eb218684af",
+      "depends_on": [
+        "DASH-01"
+      ],
+      "planned_files": [
+        "app/dashboard/page.tsx",
+        "components/admin/product-management.tsx",
+        "lib/store/workspace-navigation.ts",
+        "lib/store/workspace-product-list.ts",
+        "lib/store/public-data.ts"
+      ],
+      "acceptance": [
+        "同一列表和卡片承载浏览/详情/下载及按管理员权限显示的编辑和软件版本操作",
+        "普通用户仅查询/统计已公开商品与软件，不读取管理草稿或从URL参数提权",
+        "旧view=library和后台列表书签归并保留筛选，账号与支持保留",
+        "单元/浏览器/构建验证通过，旧独立发布、视频与上传不回退"
+      ],
+      "next_action": "提交后分别核对远端SHA、CI、health和真实会话只读页面；无生产商品/权限写入。部署收据记录在.local-verification/unified-products/deployment.json。",
+      "blockers": [],
+      "evidence": [
+        {
+          "path": "components/admin/product-management.tsx",
+          "kind": "implementation",
+          "result": "passed"
+        },
+        {
+          "path": "lib/store/workspace-product-list.ts",
+          "kind": "implementation",
+          "result": "passed"
+        },
+        {
+          "path": "docs/00-handoff/evidence/2026-09-19-unified-product-list.json",
+          "kind": "verification",
+          "result": "passed"
+        }
+      ],
+      "implementation": "complete_shared_list_browser_verified",
+      "deployment": "pending_post_commit_observation",
+      "updated_at": "2026-09-19T05:39:40+08:00",
+      "completed_at": "2026-09-19T05:39:40+08:00"
     }
   ]
 }

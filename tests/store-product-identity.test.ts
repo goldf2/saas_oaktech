@@ -20,7 +20,8 @@ test("Chanxu and Open Play keep separate product identities and actual artwork b
 
 test("Dashboard uses the published catalog instead of a hardcoded beta-only list", async () => {
   const dashboard = await source("app/dashboard/page.tsx");
-  assert.match(dashboard, /listPublicProducts/);
+  const list = await source("components/admin/product-management.tsx");
+  assert.match(list, /listPublicWorkspaceItems/);
   assert.doesNotMatch(dashboard, /PRODUCTS\.filter/);
   assert.match(dashboard, /ProductManagement searchParams/);
 });
