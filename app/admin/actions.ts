@@ -8,7 +8,10 @@ import { requireStoreAdmin } from "@/lib/store/admin";
 import { prepareUpdaterManifests, removeStoredFile } from "@/lib/store/storage";
 import type { AdminActionResult, AdminProductReleaseRow, AdminStoreProductRow, ProductStatus } from "@/lib/store/types";
 
+import { releaseErrorMessages } from "@/lib/store/release-errors";
+
 const actionMessages: Record<string, string> = {
+  ...releaseErrorMessages,
   STORE_ADMIN_FORBIDDEN: "没有管理权限，请重新登录管理员账户。",
   INVALID_PRODUCT_SLUG: "商品标识和分类只能使用小写字母、数字与连字符。",
   INVALID_PRODUCT_STATUS: "请选择有效的商品状态。",

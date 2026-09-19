@@ -2,13 +2,17 @@
 
 import { revalidatePath } from "next/cache";
 import { requireStoreAdmin } from "@/lib/store/admin";
-import { appendStoreAudit, readStoreCatalog } from "@/lib/store/file-catalog";
+import { appendStoreAudit, mutateStoreCatalog, readStoreCatalog } from "@/lib/store/file-catalog";
 import { productToken, publicationToken, releasePublicationToken, publishProductDraft, publishSoftwareReleases, saveProductDraft } from "@/lib/store/product-workspace";
 import type { AdminStoreProductRow, ProductEditorResult } from "@/lib/store/types";
 
 import { videoMessages, normalizeProductVideos } from "@/lib/store/product-videos";
 
+import { releaseErrorMessages } from "@/lib/store/release-errors";
+import { removeStoredFile } from "@/lib/store/storage";
+
 const messages: Record<string, string> = {
+  ...releaseErrorMessages,
   ...videoMessages,
   STORE_ADMIN_FORBIDDEN: "当前账号没有商品管理权限，请重新登录管理员账号。",
   STORE_PRODUCT_NOT_FOUND: "商品不存在，请返回商品列表。",
@@ -111,5 +115,26 @@ export async function publishSoftwareAction(form: FormData): Promise<ProductEdit
     const { catalog } = await readStoreCatalog();
     refresh(slug);
     return { ok: true, slug, releaseToken: releasePublicationToken(catalog, slug), warning };
+  } catch (error) { return failure(error); }
+}
+
+// Only a confirmed, unchanged draft file can be removed; published files are immutable.
+export async function removeDraftArtifactAction(form: FormData): Promise<ProductEditorResult> {
+  try {
+    const admin = await requireStoreAdmin();
+    const removed = await mutateStoreCatalog(catalog => {
+      const release = catalog.releases.find(r => r.id === text(form, "release_id"));
+      if (!release || release.status !== "draft") throw new Error("DRAFT_RELEASE_NOT_FOUND");
+      const artifact = release.release_artifacts.find(a => a.id === text(form, "artifact_id"));
+      if (!artifact || artifact.file_name !== text(form, "confirm_file") || artifact.sha512 !== text(form, "sha512")) throw new Error("DRAFT_ARTIFACT_CHANGED");
+      release.release_artifacts = release.release_artifacts.filter(a => a.id !== artifact.id);
+      return { artifact, slug: release.product_slug };
+    });
+    await removeStoredFile(removed.artifact.storage_path);
+    let warning: string | undefined;
+    try { await appendStoreAudit({ actorUserId: admin.id, actorEmail: admin.email, action: "store.artifact.removed", targetType: "release_artifact", targetId: removed.artifact.id, metadata: { fileName: removed.artifact.file_name } }); }
+    catch { warning = "草稿文件已移除，但审计写入异常，请检查存储。"; }
+    refresh(removed.slug);
+    return { ok: true, slug: removed.slug, warning };
   } catch (error) { return failure(error); }
 }

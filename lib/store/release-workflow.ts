@@ -1,3 +1,4 @@
+import { requiresUnifiedManifest } from "./unified-update-policy.ts";
 import { normalizeProductVideos, videoMessages } from "./product-videos.ts";
 import type { AdminProductReleaseRow, AdminStoreProductRow } from "./types";
 import { isSoftwareDownload } from "./download-visibility.ts";
@@ -19,8 +20,10 @@ export function artifactSlot(slot: UploadSlot): string {
   return [slot.platform, slot.architecture, slot.packageKind].map(x => x.trim().toLowerCase()).join("/");
 }
 export function requiredReleaseFiles(product: string, version: string): RequiredFile[] {
-  if (product !== "open-play") return [];
+  const unified: RequiredFile[] = requiresUnifiedManifest(product, version) ? [{ name: "updates.json", label: "统一签名更新清单", platform: "all", architecture: "universal", packageKind: "manifest" }] : [];
+  if (product !== "open-play") return unified;
   return [
+    ...unified,
     { name: `open-play-${version}-macos.zip`, label: "macOS 安装包", platform: "macos", architecture: "arm64", packageKind: "zip" },
     { name: `open-play-${version}-windows-x64.zip`, label: "Windows 安装包", platform: "windows", architecture: "x64", packageKind: "zip" },
     { name: "appcast.xml", label: "macOS 官网更新清单", platform: "macos", architecture: "arm64", packageKind: "manifest" },
@@ -29,6 +32,7 @@ export function requiredReleaseFiles(product: string, version: string): Required
 }
 // These are suggestions only. The operator confirms editable metadata before upload.
 export function suggestUploadSlot(name: string, product = "", version = ""): UploadSlot {
+  if (name === "updates.json") return { platform: "all", architecture: "universal", packageKind: "manifest" };
   const expected = requiredReleaseFiles(product, version).find(x => x.name === name);
   if (expected) return expected;
   const lower = name.toLowerCase();
@@ -56,11 +60,12 @@ export function releaseReadiness(release: AdminProductReleaseRow) {
   const required = requiredReleaseFiles(release.product_slug, release.version);
   if (![release.title_zh, release.title_en, release.notes_zh, release.notes_en].every(x => x?.trim())) blockers.push("版本标题或更新说明尚未保存完整。");
   if (required.length) {
-    if (release.channel !== "stable" || !/^\d+\.\d+\.\d+\.\d+$/.test(release.version)) blockers.push("open play 的签名版本需要 stable 渠道和四段版本号。");
+    if (release.product_slug === "open-play" && (release.channel !== "stable" || !/^\d+\.\d+\.\d+\.\d+$/.test(release.version))) blockers.push("open play 的签名版本需要 stable 渠道和四段版本号。");
     for (const expected of required) {
       if (!files.some(f => f.file_name === expected.name && f.platform === expected.platform && f.architecture === expected.architecture && f.package_kind === expected.packageKind)) blockers.push(`缺少 ${expected.label}：${expected.name}`);
     }
-  } else if (!files.some(a => isSoftwareDownload({ packageKind: a.package_kind, fileName: a.file_name }))) blockers.push("至少上传一个可下载的软件安装包，不能只有更新清单。");
+  }
+  if (!files.some(a => isSoftwareDownload({ packageKind: a.package_kind, fileName: a.file_name }))) blockers.push("至少上传一个可下载的软件安装包，不能只有更新清单。");
   const slots = new Set<string>(), names = new Set<string>();
   for (const a of files) {
     if (a.size_bytes <= 0 || !isSha512(a.sha512)) blockers.push(`${a.file_name} 缺少有效的大小或服务端校验记录，请刷新核对。`);

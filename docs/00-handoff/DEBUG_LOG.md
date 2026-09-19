@@ -93,3 +93,8 @@ LANG-01：旧自动Cookie与手动偏好混用造成中文请求跳英文；无�
 ## 2026-09-19 · STORE-04 目录排序导致水合不一致
 
 新目录在Node默认en-US、Chrome默认zh-CN时以不同次序排序中文和英文商品名。实际开发模式回溯指向ProductCatalog/ProductCard：服务器第二卡AI工具，浏览器为浏览器助手，触发React418。独立Node/Chrome排序也复现差异。已将排序显式绑定页面locale并以slug作稳定次序；不关闭/忽略水合告警。新测试持续记录URL与错误，待重新生产构建和完整回归。
+
+
+## 2026-09-20T04:45:37.621371+08:00 · IMPORT-02 / BUG-IMPORT-FEED
+
+用户反馈0.6.6.13四文件齐备却发布失败，来源goldf2/open-play-releases。确认0.1.43导入按canonical名称错误选择GitHub专用清单，官网应使用appcast-website.xml/windows-website.json原始字节；发布动作还吞掉OPEN_PLAY错误码。基于891df51，分支fix/open-play-website-import-20260920。下一步修复映射、明确错误与草稿单文件恢复入口，保留签名校验和生产数据。

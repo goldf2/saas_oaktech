@@ -2,11 +2,11 @@
 
 > 不要直接编辑本文件。修改TASKS.json后运行 `npm run handoff:render`。
 
-账本revision：49；更新时间：2026-09-20T04:31:15.413558+08:00；计划版本：1.0.0。
+账本revision：51；更新时间：2026-09-20T06:12:22+08:00；计划版本：1.0.0。
 
 **权限主线任务完成：1/14。这是任务计数，不是代码完成百分比；PLAN-01文档不计入。**
 
-生产超管状态：`not_implemented`；唯一下一任务：**ADM-02**。
+生产超管状态：`not_implemented`；唯一下一任务：**IMPORT-02**。
 
 | 任务 | 阶段/类型 | 优先级 | 状态 | 负责人 | 依赖 |
 | --- | --- | --- | --- | --- | --- |
@@ -48,6 +48,7 @@
 | LANG-02 · 全站中英文双语审计与补齐 | STORE / feature | P0 | 完成 | ChatGPT / tsk_80bc9a2cac97f92a | LANG-01, LAYOUT-03 |
 | LAYOUT-04 · 视频介绍与详细说明宽屏双栏 | STORE / feature | P1 | 完成 | ChatGPT / tsk_d960de4fd8c35c5d | LAYOUT-03, LANG-02 |
 | IMPORT-01 · GitHub优先的软件版本导入与链接补齐 | M4 / feature | P1 | 完成 | Codex / release-import-20260920 | 无 |
+| IMPORT-02 · 修复open play官网签名清单匹配与发布错误反馈 | M4 / feature | P0 | 进行中 | Codex | IMPORT-01 |
 
 ## 任务详情与接续动作
 
@@ -702,3 +703,19 @@
 - documentation / passed：`docs/release-import.md`
 - verification / passed：`docs/00-handoff/evidence/2026-09-20-release-import.json`
 - implementation / passed：`components/admin/remote-release-import.tsx`
+
+### IMPORT-02 · 修复open play官网签名清单匹配与发布错误反馈
+
+状态：进行中；负责人：Codex；实施：in_progress；部署：not_deployed。
+
+下一动作：完成官网清单导入修复、统一清单验签/公开路由并部署；随后管理员正式发布与匿名回读。
+
+验收条件：
+- GitHub官网清单映射为canonical文件名并保留原始签名字节
+- 发布签名失败给出明确错误，校验不弱化
+- 管理员可移除草稿单文件后重新导入，已发布文件不可移除
+- 真实0.6.6.13签名文件通过隔离完整发布验证
+
+计划文件（可能尚未创建）：`lib/store/github-assets.ts`、`lib/store/release-errors.ts`、`components/admin/remote-release-import.tsx`、`components/admin/release-file-list.tsx`、`app/admin/products/editor-actions.ts`
+
+证据：尚无该任务完成证据。

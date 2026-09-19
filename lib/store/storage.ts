@@ -9,6 +9,7 @@ import { pipeline } from "node:stream/promises";
 import { hashFile } from "./file-hash";
 import type { AdminProductReleaseRow } from "./types";
 import { selectUpdaterArtifacts } from "./release-contract";
+import { verifyUnifiedRelease } from "./unified-update-signatures";
 import { verifyOpenPlayRelease } from "./open-play-signatures";
 
 const MAX_UPLOAD_BYTES = 4 * 1024 * 1024 * 1024;
@@ -192,6 +193,7 @@ export async function prepareUpdaterManifests(release: AdminProductReleaseRow) {
   if (!release.release_artifacts.length) throw new Error("RELEASE_ARTIFACT_REQUIRED");
   await Promise.all(release.release_artifacts.map(verifyStoredArtifact));
 
+  await verifyUnifiedRelease(release, (artifact) => readFile(absoluteReleasePath(artifact.storage_path)), (artifact) => hashFile(absoluteReleasePath(artifact.storage_path), "sha256"));
   if (release.product_slug === "open-play") {
     await verifyOpenPlayRelease(release, (artifact) => readFile(absoluteReleasePath(artifact.storage_path)));
     return ["appcast.xml", "windows.json"].map((name) => releaseStoragePath("open-play", release.channel, release.version, name));

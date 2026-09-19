@@ -1,4 +1,5 @@
 import "server-only";
+import { unifiedUpdateIdentities } from "./unified-update-signatures";
 
 import { absoluteReleasePath } from "./storage";
 import { readStoreCatalog } from "./file-catalog";
@@ -54,4 +55,16 @@ export async function resolveOpenPlayDownload(name: string, isFeed: boolean): Pr
   return { absolutePath: absoluteReleasePath(artifact.storage_path), fileName: name,
     contentType: name === "appcast.xml" ? "application/xml; charset=utf-8" : name === "windows.json" ? "application/json; charset=utf-8" : "application/zip",
     immutable: !isFeed };
+}
+
+// One fixed endpoint per product resolves only a catalog-published signed artifact.
+export async function resolveUnifiedUpdate(product: string): Promise<DownloadDescriptor | null> {
+  const identity = unifiedUpdateIdentities[product]; if (!identity) return null;
+  const { catalog, persisted } = await readStoreCatalog(); if (!persisted) return null;
+  const releases = catalog.releases.filter(r => r.product_slug === product && r.channel === identity.channel && r.status === "published" && r.is_current);
+  if (releases.length !== 1) return null;
+  const release = releases[0], storage = `${product}/${release.channel}/${release.version}/updates.json`;
+  const matches = release.release_artifacts.filter(a => a.release_id === release.id && a.file_name === "updates.json" && a.storage_path === storage && a.public_path === `/releases/${storage}`);
+  if (matches.length !== 1) return null;
+  return { absolutePath: absoluteReleasePath(storage), fileName: "updates.json", contentType: "application/json; charset=utf-8", immutable: false };
 }

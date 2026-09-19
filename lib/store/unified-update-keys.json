@@ -1,0 +1,20 @@
+{
+  "open-play": {
+    "appId": "local.codex-auth-switcher",
+    "keyId": "open-play-windows-ed25519",
+    "publicKey": "o5qlvpnpAtkT5r8V/yID9J/O7jPyGzdyK/57lYcSeJQ=",
+    "channel": "stable"
+  },
+  "video-prompt-workbench": {
+    "appId": "com.local.video-prompt-workbench",
+    "keyId": "com.local.video-prompt-workbench-ed25519",
+    "publicKey": "1zWvD0jDg6PnG94tpiRKa0XsWgAHngapdpLCskstOhc=",
+    "channel": "stable"
+  },
+  "gitfinder-2": {
+    "appId": "com.gitfinder.app.v2",
+    "keyId": "com.gitfinder.app.v2-ed25519",
+    "publicKey": "h+tU1Mm/heiUUBdn71DNqEQfCoerbnkCtRpfI7L2kLE=",
+    "channel": "alpha"
+  }
+}

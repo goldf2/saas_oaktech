@@ -1,4 +1,5 @@
 "use client";
+import { releaseErrors } from "@/lib/store/release-errors";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -169,7 +170,7 @@ export function ProductWorkspace({ product = blankProduct(), editToken = "", pub
         for (const id of selected) form.append("release_id", id);
       } else form.set("publish_token", tokens.publish);
       const result = await (software ? publishSoftwareAction(form) : publishWorkspaceAction(form));
-      if (!result.ok) { setConfirmed(false); setError(zh ? ((result.error ?? "发布未完成") + " 请核对本次发布对象后重新确认。") : "Publication did not finish. Review the publication target and confirm again."); return; }
+      if (!result.ok) { setConfirmed(false); setError(zh ? ((result.error ?? "发布未完成") + " 请核对本次发布对象后重新确认。") : (releaseErrors[result.code ?? ""]?.[1] ?? "Publication did not finish. Review the publication target and confirm again.")); return; }
       // A software response must not advance the product edit token or overwrite
       // local copy. Otherwise an unrelated stale edit could be accepted later.
       if (software) { setSoftwareToken(result.releaseToken!); setSelected([]); }

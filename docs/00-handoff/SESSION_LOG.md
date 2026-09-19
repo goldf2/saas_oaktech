@@ -397,3 +397,12 @@ LANG-01完成：新增Auto/EN/中文，代理无偏好副作用，保留原页�
 ## 2026-09-20T04:31:15.413558+08:00 · IMPORT-01 / 0.1.43
 
 GitHub默认导入、HTTPS链接与本地补齐完成；192单元、类型、默认构建、6组导入和9组发布浏览器验证通过。范围、限制与验收见 `docs/00-handoff/evidence/2026-09-20-release-import.json` 和 `docs/release-import.md`。本轮独立分支 feat/release-import-20260920，未改生产商品或软件。当前尚待推送和公网核验，下一步提交并检查远端、CI与health；部署收据写.local-verification/0.1.43。
+
+
+## 2026-09-20T04:45:37.621371+08:00 · IMPORT-02 / BUG-IMPORT-FEED
+
+用户反馈0.6.6.13四文件齐备却发布失败，来源goldf2/open-play-releases。确认0.1.43导入按canonical名称错误选择GitHub专用清单，官网应使用appcast-website.xml/windows-website.json原始字节；发布动作还吞掉OPEN_PLAY错误码。基于891df51，分支fix/open-play-website-import-20260920。下一步修复映射、明确错误与草稿单文件恢复入口，保留签名校验和生产数据。
+
+## 2026-09-20T06:26:15+08:00 · IMPORT-02 0.1.44 验证
+
+200 项测试、typecheck、build 和 5 组隔离浏览器检查通过；独立公钥验证统一清单及实际包摘要。生产部署与实际软件发布待执行。证据：evidence/2026-09-20-unified-update-publication.json。

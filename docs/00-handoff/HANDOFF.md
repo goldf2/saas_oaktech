@@ -160,3 +160,8 @@ LANG-01本地验收完成：165单元/接口、52浏览器、默认构建通过�
 ## 2026-09-20T04:31:15.413558+08:00 · IMPORT-01 / 0.1.43
 
 GitHub默认导入、HTTPS链接与本地补齐完成；192单元、类型、默认构建、6组导入和9组发布浏览器验证通过。范围、限制与验收见 `docs/00-handoff/evidence/2026-09-20-release-import.json` 和 `docs/release-import.md`。本轮独立分支 feat/release-import-20260920，未改生产商品或软件。当前尚待推送和公网核验，下一步提交并检查远端、CI与health；部署收据写.local-verification/0.1.43。
+
+
+## 2026-09-20T04:45:37.621371+08:00 · IMPORT-02 / BUG-IMPORT-FEED
+
+用户反馈0.6.6.13四文件齐备却发布失败，来源goldf2/open-play-releases。确认0.1.43导入按canonical名称错误选择GitHub专用清单，官网应使用appcast-website.xml/windows-website.json原始字节；发布动作还吞掉OPEN_PLAY错误码。基于891df51，分支fix/open-play-website-import-20260920。下一步修复映射、明确错误与草稿单文件恢复入口，保留签名校验和生产数据。

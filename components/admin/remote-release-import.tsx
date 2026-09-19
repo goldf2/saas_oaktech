@@ -5,10 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLocale } from "@/i18n/locale-provider";
 import { ReleaseFlowContext, useReleaseActivity } from "./release-flow-context";
+import { githubArtifactName } from "@/lib/store/github-assets";
+import { releaseErrors } from "@/lib/store/release-errors";
 import { ArtifactUpload } from "./artifact-upload";
 import { suggestUploadSlot, requiredReleaseFiles, uploadConflict, type UploadSlot, type ArtifactRow } from "@/lib/store/release-workflow";
 export type GithubRelease = { source: string; version: string; channel: string; title: string; notes: string; assets: { name: string; url: string; size: number }[] };
-type Item = UploadSlot & { name: string; url: string; selected: boolean; state: string };
+type Item = UploadSlot & { name: string; sourceName?: string; url: string; selected: boolean; state: string };
 export function RemoteReleaseImport({ productSlug, version, releaseId, artifacts = [], disabled, channel, onRelease }: { productSlug: string; version: string; releaseId?: string; artifacts?: ArtifactRow[]; disabled: boolean; channel?: string; onRelease?: (release: GithubRelease) => void }) {
   const { locale } = useLocale(), zh = locale === "zh", router = useRouter(), params = useSearchParams();
   const { operationBusy } = useContext(ReleaseFlowContext);
@@ -28,7 +30,7 @@ export function RemoteReleaseImport({ productSlug, version, releaseId, artifacts
     setChosen(release.source);
     if (releaseId && (release.version !== version || release.channel !== channel)) return;
     onRelease?.(release);
-    setItems(release.assets.map(a => { const slot = suggestUploadSlot(a.name, productSlug, release.version); return { ...slot, name: a.name, url: a.url, selected: Boolean(releaseId && requiredReleaseFiles(productSlug, release.version).some(f => f.name === a.name) && !uploadConflict(a.name, slot, artifacts)), state: "" }; }));
+    setItems(release.assets.flatMap(a => { const name = githubArtifactName(productSlug, a.name); if (!name) return []; const slot = suggestUploadSlot(name, productSlug, release.version); return [{ ...slot, name, sourceName: a.name, url: a.url, selected: Boolean(releaseId && requiredReleaseFiles(productSlug, release.version).some(f => f.name === name) && !uploadConflict(name, slot, artifacts)), state: "" }]; }));
     setMessage(releaseId ? (zh ? "已读取版本。勾选需要的附件，缺失文件可通过链接或本地上传补齐。" : "Release loaded. Select assets; missing files can be added by URL or local upload.") : "");
   }
   async function inspect() {
@@ -50,7 +52,8 @@ export function RemoteReleaseImport({ productSlug, version, releaseId, artifacts
   function addUrl() {
     try {
       const parsed = new URL(url); if (parsed.protocol !== "https:") throw new Error();
-      const name = decodeURIComponent(parsed.pathname.split("/").pop() ?? "");
+      const sourceName = decodeURIComponent(parsed.pathname.split("/").pop() ?? "");
+      const name = productSlug === "open-play" && /-website\.(xml|json)$/.test(sourceName) ? githubArtifactName(productSlug, sourceName) : sourceName;
       if (!name) throw new Error();
       setItems(old => [...old, { ...suggestUploadSlot(name, productSlug, version), name, url: parsed.href, selected: true, state: "" }]); setUrl(""); setMessage("");
     } catch { setMessage(zh ? "请输入 HTTPS 文件直链。" : "Enter a direct HTTPS file URL."); }
@@ -62,7 +65,7 @@ export function RemoteReleaseImport({ productSlug, version, releaseId, artifacts
       HTTPS_PUBLIC_URL_REQUIRED: ["请使用 HTTPS 文件直链。", "Use a direct HTTPS file URL."],
       ARTIFACT_SLOT_ALREADY_EXISTS: ["文件或平台位置已存在，请刷新核对。", "The file or platform slot already exists. Refresh to review."],
     };
-    return messages[code]?.[zh ? 0 : 1] ?? code;
+    return (messages[code] ?? releaseErrors[code])?.[zh ? 0 : 1] ?? code;
   }
   function patch(index: number, data: Partial<Item>) { setItems(old => old.map((item, i) => i === index ? { ...item, ...data } : item)); }
   async function importFiles() {
@@ -88,7 +91,7 @@ export function RemoteReleaseImport({ productSlug, version, releaseId, artifacts
     {mode === "url" && (releaseId ? <div className="space-y-2"><label className="block text-sm">{zh ? "文件下载直链" : "Direct file URL"}<Input data-testid="remote-file-url" value={url} disabled={locked} placeholder="https://…/package.zip" onChange={e => setUrl(e.target.value)} /></label><Button type="button" variant="outline" disabled={locked || !url.trim()} data-testid="add-remote-url" onClick={addUrl}>{zh ? "添加到导入列表" : "Add to import list"}</Button></div> : <p className="text-sm text-muted-foreground">{zh ? "先填写并保存下方版本资料，再添加文件链接。" : "Save the release details below, then add file URLs."}</p>)}
     {releaseId && <div hidden={mode !== "local"}><ArtifactUpload releaseId={releaseId} productSlug={productSlug} version={version} artifacts={artifacts} disabled={disabled || operationBusy} /></div>}
     {mode === "local" && !releaseId && <p className="text-sm text-muted-foreground">{zh ? "先填写并保存下方版本资料，再选择本地文件。" : "Save the release details below, then choose local files."}</p>}
-    {mode !== "local" && items.length > 0 && <div className="mt-3 space-y-2"><details open={Boolean(releaseId)}><summary className="cursor-pointer text-sm">{zh ? `可导入附件（${items.length}）` : `Available assets (${items.length})`}</summary><div className="max-h-72 space-y-2 overflow-y-auto">{items.map((item, index) => <div key={`${item.url}-${index}`} className="min-w-0 rounded-md border p-2" data-remote-file={item.name}><label className="flex items-start gap-2 text-sm">{releaseId && <input type="checkbox" className="mt-1" disabled={locked || item.state === "done"} checked={item.selected} onChange={e => patch(index, { selected: e.target.checked })} />}<span className="break-all">{item.name}</span></label>{releaseId && item.selected && <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3">{([['platform', zh ? '平台' : 'Platform'], ['architecture', zh ? '架构' : 'Architecture'], ['packageKind', zh ? '包类型' : 'Package type']] as const).map(([key, label]) => <label key={key} className="min-w-0 text-xs">{label}<Input className="mt-1 h-8" value={item[key]} disabled={locked || item.state === "done"} onChange={e => patch(index, { [key]: e.target.value })} /></label>)}</div>}<p className="mt-1 break-words text-xs text-muted-foreground">{item.state === "done" ? (zh ? "已导入，待发布" : "Imported, not published") : item.state === "loading" ? (zh ? "服务器正在下载…" : "Server downloading…") : errorText(item.state)}</p></div>)}</div></details>{releaseId ? <Button type="button" data-testid="import-remote-files" disabled={locked || !items.some(i => i.selected && i.state !== "done")} onClick={() => void importFiles()}>{zh ? "导入选中文件" : "Import selected files"}</Button> : <p className="text-sm text-muted-foreground">{zh ? "资料已自动填入下方；保存版本后即可确认导入附件。" : "Details are filled below. Save the release, then confirm which assets to import."}</p>}</div>}
+    {mode !== "local" && items.length > 0 && <div className="mt-3 space-y-2"><details open={Boolean(releaseId)}><summary className="cursor-pointer text-sm">{zh ? `可导入附件（${items.length}）` : `Available assets (${items.length})`}</summary><div className="max-h-72 space-y-2 overflow-y-auto">{items.map((item, index) => <div key={`${item.url}-${index}`} className="min-w-0 rounded-md border p-2" data-remote-file={item.name}><label className="flex items-start gap-2 text-sm">{releaseId && <input type="checkbox" className="mt-1" disabled={locked || item.state === "done"} checked={item.selected} onChange={e => patch(index, { selected: e.target.checked })} />}<span className="break-all">{item.name}{item.sourceName && item.sourceName !== item.name && <span className="block text-xs text-muted-foreground">{zh ? "官网签名清单来源：" : "Signed website feed: "}{item.sourceName}</span>}</span></label>{releaseId && item.selected && <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3">{([['platform', zh ? '平台' : 'Platform'], ['architecture', zh ? '架构' : 'Architecture'], ['packageKind', zh ? '包类型' : 'Package type']] as const).map(([key, label]) => <label key={key} className="min-w-0 text-xs">{label}<Input className="mt-1 h-8" value={item[key]} disabled={locked || item.state === "done"} onChange={e => patch(index, { [key]: e.target.value })} /></label>)}</div>}<p className="mt-1 break-words text-xs text-muted-foreground">{item.state === "done" ? (zh ? "已导入，待发布" : "Imported, not published") : item.state === "loading" ? (zh ? "服务器正在下载…" : "Server downloading…") : errorText(item.state)}</p></div>)}</div></details>{releaseId ? <Button type="button" data-testid="import-remote-files" disabled={locked || !items.some(i => i.selected && i.state !== "done")} onClick={() => void importFiles()}>{zh ? "导入选中文件" : "Import selected files"}</Button> : <p className="text-sm text-muted-foreground">{zh ? "资料已自动填入下方；保存版本后即可确认导入附件。" : "Details are filled below. Save the release, then confirm which assets to import."}</p>}</div>}
     {message && <p role="status" className="mt-3 break-words text-sm">{message}</p>}
     <p className="mt-3 text-xs text-muted-foreground">{zh ? "文件导入到商城后保存为草稿，检查完成后再确认发布。" : "Files are stored in the store as a draft. Review them before confirming publication."}</p>
   </section>;

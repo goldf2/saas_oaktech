@@ -19,6 +19,8 @@ export async function POST(request: NextRequest) {
       || ![platform, architecture, packageKind].every(x => typeof x === "string" && /^[a-z0-9][a-z0-9_-]{0,31}$/.test(x))) throw new Error("INVALID_IMPORT_METADATA");
     const release = (await readStoreCatalog()).catalog.releases.find(r => r.id === releaseId);
     if (!release || release.status !== "draft") throw new Error("DRAFT_RELEASE_NOT_FOUND");
+    const source = new URL(url);
+    if (release.product_slug === "open-play" && source.hostname === "github.com" && /^\/goldf2\/open-play-releases\/releases\/download\/[^/]+\/(appcast.xml|windows.json)$/.test(source.pathname)) throw new Error("OPEN_PLAY_WEBSITE_FEED_REQUIRED");
     const slot = { platform, architecture, packageKind };
     if (uploadConflict(fileName, slot, release.release_artifacts)) throw new Error("ARTIFACT_SLOT_ALREADY_EXISTS");
     const stream = await downloadRemote(url, request.signal);

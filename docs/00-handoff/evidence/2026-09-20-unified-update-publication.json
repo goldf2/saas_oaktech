@@ -1,0 +1,32 @@
+{
+  "version": "0.1.44",
+  "time": "2026-09-20T06:26:15+08:00",
+  "tests": 200,
+  "typecheck": "passed",
+  "production_build": "passed",
+  "browser": {
+    "version": "0.1.44",
+    "checks": [
+      "real GitHub-specific feeds reproduce metadata mismatch and show the correct website replacement; draft remains private",
+      "remove only the two incorrect draft feeds while preserving both original packages",
+      "live GitHub website feeds map to canonical names without changing signed bytes; packages are not downloaded again",
+      "real v0.6.6.13 pinned signatures pass full publication and four public endpoints serve original bytes in isolated storage",
+      "published files offer no draft removal and mobile layout stays within viewport"
+    ],
+    "screenshots": [
+      "wrong-github-feed-explained.png",
+      "website-feed-mapping.png",
+      "published-mobile.png"
+    ],
+    "foreignRequests": [],
+    "scope": "isolated browser/server only; synthetic test session; no production writes or real accounts",
+    "status": "passed",
+    "browserExit": {
+      "code": null,
+      "signal": null
+    },
+    "pageErrors": [],
+    "uploadRequestCount": 4
+  },
+  "production_publication": "not_started"
+}

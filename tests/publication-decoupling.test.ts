@@ -136,3 +136,35 @@ test('one invalid package prevents the whole selected software set from publishi
   await assert.rejects(() => service.publishSoftwareReleases(p.slug, service.releasePublicationToken(before,p.slug), [good.id,bad.id]), /ARTIFACT_/);
   assert.deepEqual(await catalog(), before);
 });
+
+test('draft file removal requires administrator, exact identity and keeps other files', async () => {
+  const r = await release(); const a = r.release_artifacts[0];
+  const form = new FormData(); form.set('release_id',r.id);form.set('artifact_id',a.id);form.set('confirm_file',a.file_name);form.set('sha512',a.sha512);
+  globals.__workspaceTestAdmin=false;
+  assert.equal((await actions.removeDraftArtifactAction(form)).code,'STORE_ADMIN_FORBIDDEN');
+  globals.__workspaceTestAdmin=true;
+  form.set('sha512','stale');assert.equal((await actions.removeDraftArtifactAction(form)).code,'DRAFT_ARTIFACT_CHANGED');
+  form.set('sha512',a.sha512);assert.equal((await actions.removeDraftArtifactAction(form)).ok,true);
+  assert.equal((await catalog()).releases.find(x=>x.id===r.id)?.release_artifacts.length,0);
+  const {access}=await import('node:fs/promises'); await assert.rejects(access(path.join(root,a.storage_path)));
+});
+test('published files cannot be removed through the draft recovery action', async () => {
+  const r=await release(),a=r.release_artifacts[0];
+  await store.mutateStoreCatalog(c=>{c.releases.find(x=>x.id===r.id)!.status='published';});
+  const before=await catalog();const f=new FormData();f.set('release_id',r.id);f.set('artifact_id',a.id);f.set('confirm_file',a.file_name);f.set('sha512',a.sha512);
+  assert.equal((await actions.removeDraftArtifactAction(f)).code,'DRAFT_RELEASE_NOT_FOUND');
+  assert.deepEqual(await catalog(),before);
+});
+test('unsigned Open Play feed errors reach the action caller and do not publish', async () => {
+  const r=await release('0.6.6.13');
+  r.product_slug='open-play';r.release_artifacts=[];
+  for(const name of ['appcast.xml','windows.json','open-play-0.6.6.13-macos.zip','open-play-0.6.6.13-windows-x64.zip']) {
+    const bytes=Buffer.from('unsigned-fixture');const relative='open-play/stable/0.6.6.13/'+name;
+    await mkdir(path.dirname(path.join(root,relative)),{recursive:true});await writeFile(path.join(root,relative),bytes);
+    r.release_artifacts.push({id:name,release_id:r.id,file_name:name,storage_path:relative,public_path:'/releases/'+relative,size_bytes:bytes.length,sha512:createHash('sha512').update(bytes).digest('hex'),platform:'macos',architecture:'arm64',package_kind:name.endsWith('.zip')?'zip':'manifest',content_type:'application/octet-stream'});
+  }
+  await store.mutateStoreCatalog(c=>{c.releases=c.releases.map(x=>x.id===r.id?r:x);});
+  const before=await catalog();const f=new FormData();f.set('slug','open-play');f.set('confirm','on');f.set('release_token',service.releasePublicationToken(before,'open-play'));f.append('release_id',r.id);
+  const result=await actions.publishSoftwareAction(f);assert.equal(result.code,'OPEN_PLAY_UNSIGNED_FEED');assert.match(result.error!,/appcast-website.xml/);
+  assert.deepEqual(await catalog(),before);
+});
