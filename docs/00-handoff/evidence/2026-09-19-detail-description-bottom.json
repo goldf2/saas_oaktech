@@ -1,0 +1,36 @@
+{
+  "task": "LAYOUT-02",
+  "version": "0.1.40",
+  "base_commit": "1e0cbb7b6d8814a6e1db7eeb19bb5f0d8fe15177",
+  "environment": "isolated worktree, loopback synthetic admin; no production writes",
+  "change": [
+    "move description_zh after image/video editing",
+    "move description_en to same bottom description section",
+    "top editor keeps basic metadata and short tagline only"
+  ],
+  "verification": {
+    "typecheck": "passed",
+    "unit_tests": {
+      "count": 183,
+      "status": "passed"
+    },
+    "production_build": "passed after replacing a temporary cross-worktree node_modules symlink with local npm ci",
+    "browser": {
+      "editor_layout": {
+        "checks": 7,
+        "status": "passed"
+      },
+      "decoupled_publication": {
+        "checks": 6,
+        "status": "passed"
+      },
+      "app_storefront": {
+        "checks": 11,
+        "status": "passed"
+      },
+      "total_checks": 24
+    }
+  },
+  "production_data_modified": false,
+  "note": "First build attempt failed because Turbopack rejects a node_modules symlink pointing outside the worktree root; local dependencies were installed and the clean build then passed."
+}

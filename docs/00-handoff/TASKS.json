@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "plan_version": "1.0.0",
-  "revision": 42,
-  "updated_at": "2026-09-19T10:56:05.191107+08:00",
+  "revision": 43,
+  "updated_at": "2026-09-19T13:48:52+08:00",
   "project": "saas_oaktech",
   "source_commit": "54a42b33bc5fc3e9c42541fdd3bdd6fae4700bce",
   "current_next_task": "ADM-02",
@@ -1218,6 +1218,47 @@
       "next_action": "推送后单独核验公网中英文桌面和手机导航；不修改生产商品。",
       "updated_at": "2026-09-19T10:56:05.191107+08:00",
       "completed_at": "2026-09-19T10:56:05.191107+08:00"
+    },
+    {
+      "id": "LAYOUT-02",
+      "title": "详细说明编辑区下移并对齐公开页顺序",
+      "kind": "feature",
+      "milestone": "STORE",
+      "priority": "P1",
+      "status": "done",
+      "owner": "ChatGPT / tsk_84e2581eae05aa75",
+      "depends_on": [
+        "LAYOUT-01",
+        "STORE-04"
+      ],
+      "planned_files": [
+        "components/admin/product-details-editor.tsx",
+        "scripts/verify-product-editor-layout.mjs",
+        "docs/product-editor-layout.md"
+      ],
+      "acceptance": [
+        "中英文详细说明在截图和视频之后、保存发布之前编辑",
+        "顶部基本资料不再重复长文本，公开页与编辑页顺序更一致",
+        "保存、预览、独立发布、移动端回归通过且不写生产数据"
+      ],
+      "evidence": [
+        {
+          "path": "components/admin/product-details-editor.tsx",
+          "kind": "implementation",
+          "result": "passed"
+        },
+        {
+          "path": "docs/00-handoff/evidence/2026-09-19-detail-description-bottom.json",
+          "kind": "verification",
+          "result": "passed"
+        }
+      ],
+      "implementation": "complete_browser_verified",
+      "deployment": "pending_post_commit_verification",
+      "blockers": [],
+      "next_action": "提交推送后读取远端SHA、CI与公网管理员资源；不修改或自动发布生产商品。",
+      "updated_at": "2026-09-19T13:48:52+08:00",
+      "completed_at": "2026-09-19T13:48:52+08:00"
     }
   ]
 }

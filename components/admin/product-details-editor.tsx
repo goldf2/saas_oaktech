@@ -33,20 +33,19 @@ export function ProductDetailsEditor({ value, disabled, existing, update, onUplo
   return <div className="space-y-4" data-testid="product-details-layout">
     <div data-testid="product-details-columns" className="grid items-start gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(300px,1fr)]">
       <section className="min-w-0 rounded-xl border bg-background p-4 sm:p-5" data-testid="product-copy-panel">
-        <h2 className="text-base font-semibold">商品介绍</h2>
-        <p className="mb-4 mt-1 text-xs text-muted-foreground">这里编辑商品页内容；保存为草稿，确认发布后才对外更新。</p>
+        <h2 className="text-base font-semibold">基本资料</h2>
+        <p className="mb-4 mt-1 text-xs text-muted-foreground">编辑名称、类别、一句话简介和支持平台；详细说明在页面底部单独编辑。</p>
         <fieldset disabled={disabled} className="grid min-w-0 gap-4 sm:grid-cols-2">
           <label className="text-sm font-medium">商品名称<Input name="name_zh" className="mt-1.5 h-10" required value={value.name_zh} onChange={e => update("name_zh", e.target.value)} placeholder="例如：我的软件" /></label>
           <label className="text-sm font-medium">地址标识<Input name="slug" className="mt-1.5 h-10" required readOnly={existing} value={value.slug} onChange={e => update("slug", e.target.value)} placeholder="my-software" /><span className="mt-1 block text-xs font-normal text-muted-foreground">用于商品网址，创建后固定。</span></label>
           <label className="text-sm font-medium">商品类别<select name="category_slug" className="mt-1.5 h-10 w-full rounded-md border bg-background px-3" value={value.category_slug} onChange={e => update("category_slug", e.target.value)}>{!categories.some(([id]) => id === value.category_slug) && <option value={value.category_slug}>{categoryLabel(value.category_slug)}（已有类别）</option>}{categories.map(([id, name]) => <option key={id} value={id}>{name}</option>)}</select></label>
           <label className="text-sm font-medium">展示标签<select name="status" className="mt-1.5 h-10 w-full rounded-md border bg-background px-3" value={value.status} onChange={e => update("status", e.target.value as AdminStoreProductRow["status"])}><option value="beta">测试版</option><option value="released">正式版</option><option value="coming-soon">即将推出</option></select><span className="mt-1 block text-xs font-normal text-muted-foreground">这是商品标签，不是本次发布状态。</span></label>
           <label className="text-sm font-medium sm:col-span-2">一句话简介<Input name="tagline_zh" className="mt-1.5 h-10" value={value.tagline_zh} onChange={e => update("tagline_zh", e.target.value)} /></label>
-          <label className="text-sm font-medium sm:col-span-2">详细说明<Textarea name="description_zh" rows={6} className="mt-1.5 min-h-36 resize-y leading-relaxed" value={value.description_zh} onChange={e => update("description_zh", e.target.value)} placeholder="介绍用途、主要功能和使用方法。支持换行，不执行 HTML。" /></label>
           <div className="sm:col-span-2"><PlatformPicker value={value.supported_platforms} disabled={disabled} onChange={next => update("supported_platforms", next)} /></div>
           <label className="flex min-h-10 items-center gap-2 self-end text-sm"><input name="featured" className="h-4 w-4 accent-primary" type="checkbox" checked={value.featured} onChange={e => update("featured", e.target.checked)} />首页推荐</label>
           <details className="border-t pt-3 sm:col-span-2" data-testid="product-english-fields">
             <summary className="cursor-pointer text-sm font-medium">英文资料 <span className="font-normal text-muted-foreground">· 可选，留空时使用中文</span></summary>
-            <div className="mt-3 grid gap-3"><label className="text-sm">English name<Input name="name_en" className="mt-1" value={value.name_en} onChange={e => update("name_en", e.target.value)} /></label><label className="text-sm">English tagline<Input name="tagline_en" className="mt-1" value={value.tagline_en} onChange={e => update("tagline_en", e.target.value)} /></label><label className="text-sm">English description<Textarea name="description_en" rows={4} className="mt-1" value={value.description_en} onChange={e => update("description_en", e.target.value)} /></label></div>
+            <div className="mt-3 grid gap-3"><label className="text-sm">English name<Input name="name_en" className="mt-1" value={value.name_en} onChange={e => update("name_en", e.target.value)} /></label><label className="text-sm">English tagline<Input name="tagline_en" className="mt-1" value={value.tagline_en} onChange={e => update("tagline_en", e.target.value)} /></label><p className="text-xs text-muted-foreground">英文详细说明与中文详细说明一起放在页面底部，便于按公开商品页顺序编辑。</p></div>
           </details>
         </fieldset>
       </section>
@@ -78,6 +77,16 @@ export function ProductDetailsEditor({ value, disabled, existing, update, onUplo
       </aside>
     </div>
     <ProductVideoEditor videos={value.videos ?? []} disabled={disabled} canUpload={existing} onChange={videos => update("videos", videos)} onUploadPoster={(file, id) => onUpload(file, `video:${id}`)} />
+    <section data-testid="product-description-panel" className="rounded-xl border bg-background p-4 sm:p-5">
+      <div className="mb-4"><h2 className="text-base font-semibold">详细说明</h2><p className="mt-1 text-xs text-muted-foreground">对应公开商品页的“关于此软件”，放在截图和视频之后编辑，便于按最终展示顺序检查内容。</p></div>
+      <fieldset disabled={disabled} className="space-y-4">
+        <label className="block text-sm font-medium">中文详细说明<Textarea name="description_zh" rows={8} className="mt-1.5 min-h-48 resize-y leading-relaxed" value={value.description_zh} onChange={e => update("description_zh", e.target.value)} placeholder="介绍用途、主要功能和使用方法。支持换行，不执行 HTML。" /></label>
+        <details className="border-t pt-3" data-testid="product-english-description">
+          <summary className="cursor-pointer text-sm font-medium">English description <span className="font-normal text-muted-foreground">· 可选，留空时使用中文</span></summary>
+          <label className="mt-3 block text-sm"><span className="sr-only">English description</span><Textarea name="description_en" rows={6} className="min-h-36 resize-y leading-relaxed" value={value.description_en} onChange={e => update("description_en", e.target.value)} placeholder="Describe the product, main features and usage." /></label>
+        </details>
+      </fieldset>
+    </section>
     <div data-testid="product-details-footer" className="flex flex-wrap items-center justify-between gap-3 rounded-lg border bg-muted/20 p-3">
       <p className="text-sm text-muted-foreground">保存草稿不会改变线上内容；发布商品资料无需安装包。</p>
       <div className="flex flex-wrap gap-2"><Button type="button" variant="outline" data-save-product-footer disabled={disabled} onClick={onSave}>保存草稿</Button><Button type="button" data-prepare-product-footer disabled={disabled} onClick={onPreparePublication}>发布商品资料</Button></div>

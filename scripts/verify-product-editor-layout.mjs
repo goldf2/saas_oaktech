@@ -50,6 +50,23 @@ try {
   assert.notEqual(await page.$eval('[data-video-title]', el => el.getAttribute('aria-invalid')), 'true');
   assert.match(await page.$eval('[data-video-title-help]', el => el.textContent), /留空不影响发布/);
   assert.match(await page.$eval('[data-testid="product-state-line"]', el => el.textContent), /线上介绍：已公开.*草稿已保存，待发布/);
+  const editorOrder = await page.evaluate(() => {
+    const video = document.querySelector('[data-testid="product-video-editor"]');
+    const description = document.querySelector('[data-testid="product-description-panel"]');
+    const footer = document.querySelector('[data-testid="product-details-footer"]');
+    const follows = (first, second) => Boolean(first.compareDocumentPosition(second) & Node.DOCUMENT_POSITION_FOLLOWING);
+    return {
+      chineseDescriptionInTopPanel: Boolean(document.querySelector('[data-testid="product-copy-panel"] textarea[name="description_zh"]')),
+      englishDescriptionInTopPanel: Boolean(document.querySelector('[data-testid="product-english-fields"] textarea[name="description_en"]')),
+      videoBeforeDescription: follows(video, description),
+      descriptionBeforeFooter: follows(description, footer),
+      descriptionTop: description.getBoundingClientRect().top + scrollY,
+      videoBottom: video.getBoundingClientRect().bottom + scrollY,
+    };
+  });
+  assert.equal(editorOrder.chineseDescriptionInTopPanel, false); assert.equal(editorOrder.englishDescriptionInTopPanel, false);
+  assert.equal(editorOrder.videoBeforeDescription, true); assert.equal(editorOrder.descriptionBeforeFooter, true); assert.ok(editorOrder.descriptionTop >= editorOrder.videoBottom - 1);
+  pass('detailed Chinese and English descriptions are edited after screenshots/video and immediately before publication actions');
   assert.doesNotMatch(await (await request(base + '/zh/products/open-play')).text(), /video-screenshot|新写的中文介绍/);
   pass('the actual screenshot condition is explicit: valid link plus optional empty title is a saved draft, not published content');
   for (const width of [1440, 1024, 390, 320]) {

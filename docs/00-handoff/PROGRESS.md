@@ -2,7 +2,7 @@
 
 > 不要直接编辑本文件。修改TASKS.json后运行 `npm run handoff:render`。
 
-账本revision：42；更新时间：2026-09-19T10:56:05.191107+08:00；计划版本：1.0.0。
+账本revision：43；更新时间：2026-09-19T13:48:52+08:00；计划版本：1.0.0。
 
 **权限主线任务完成：1/14。这是任务计数，不是代码完成百分比；PLAN-01文档不计入。**
 
@@ -43,6 +43,7 @@
 | LAYOUT-01 · 商品编辑整页重排与发布操作清晰化 | STORE / feature | P0 | 完成 | ChatGPT / tsk_5c35347895781361 | 无 |
 | STORE-04 · 应用商店式展示与平台预置多选 | STORE / feature | P0 | 完成 | ChatGPT / tsk_eaf097a0ba893bd8 | PUB-02, LAYOUT-01 |
 | NAV-01 · 顶部导航移除浏览器扩展入口 | STORE / feature | P1 | 完成 | ChatGPT / tsk_16b3992d2fda7393 | STORE-04 |
+| LAYOUT-02 · 详细说明编辑区下移并对齐公开页顺序 | STORE / feature | P1 | 完成 | ChatGPT / tsk_84e2581eae05aa75 | LAYOUT-01, STORE-04 |
 
 ## 任务详情与接续动作
 
@@ -605,3 +606,20 @@
 证据：
 - implementation / passed：`components/header.tsx`
 - verification / passed：`docs/00-handoff/evidence/2026-09-19-navigation.json`
+
+### LAYOUT-02 · 详细说明编辑区下移并对齐公开页顺序
+
+状态：完成；负责人：ChatGPT / tsk_84e2581eae05aa75；实施：complete_browser_verified；部署：pending_post_commit_verification。
+
+下一动作：提交推送后读取远端SHA、CI与公网管理员资源；不修改或自动发布生产商品。
+
+验收条件：
+- 中英文详细说明在截图和视频之后、保存发布之前编辑
+- 顶部基本资料不再重复长文本，公开页与编辑页顺序更一致
+- 保存、预览、独立发布、移动端回归通过且不写生产数据
+
+计划文件（可能尚未创建）：`components/admin/product-details-editor.tsx`、`scripts/verify-product-editor-layout.mjs`、`docs/product-editor-layout.md`
+
+证据：
+- implementation / passed：`components/admin/product-details-editor.tsx`
+- verification / passed：`docs/00-handoff/evidence/2026-09-19-detail-description-bottom.json`
