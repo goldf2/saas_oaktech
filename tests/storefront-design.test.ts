@@ -77,3 +77,12 @@ test("browser language detection chooses a supported locale and keeps explicit p
   assert.doesNotMatch(proxy, /response\.cookies\.set/);
   assert.match(proxy, /matcher:\s*\["\/", "\/en", "\/en\/products\/:path\*", "\/zh", "\/zh\/products\/:path\*"/);
 });
+
+
+test("primary navigation is shared by desktop and mobile without a platform shortcut", async () => {
+  const header = await source("../components/header.tsx");
+  assert.doesNotMatch(header, /copy\.browserExtensions|platform=Browser/);
+  assert.match(header, /label: copy\.products/);
+  assert.match(header, /label: copy\.support/);
+  assert.match(header, /<MobileNav items=\{navItems\}/);
+});

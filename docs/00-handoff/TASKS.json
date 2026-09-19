@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "plan_version": "1.0.0",
-  "revision": 40,
-  "updated_at": "2026-09-19T08:19:10.491931+08:00",
+  "revision": 42,
+  "updated_at": "2026-09-19T10:56:05.191107+08:00",
   "project": "saas_oaktech",
   "source_commit": "54a42b33bc5fc3e9c42541fdd3bdd6fae4700bce",
   "current_next_task": "ADM-02",
@@ -1178,6 +1178,46 @@
       "deployment": "pending_post_commit_verification",
       "completed_at": "2026-09-19T08:19:10.491931+08:00",
       "updated_at": "2026-09-19T08:19:10.491931+08:00"
+    },
+    {
+      "id": "NAV-01",
+      "title": "顶部导航移除浏览器扩展入口",
+      "kind": "feature",
+      "milestone": "STORE",
+      "priority": "P1",
+      "status": "done",
+      "owner": "ChatGPT / tsk_16b3992d2fda7393",
+      "depends_on": [
+        "STORE-04"
+      ],
+      "planned_files": [
+        "components/header.tsx",
+        "tests/storefront-design.test.ts",
+        "scripts/verify-app-storefront.mjs"
+      ],
+      "acceptance": [
+        "中英文桌面和手机公共主菜单仅含产品与支持",
+        "目录平台筛选与账号功能不变",
+        "本轮测试、源码推送、实际部署分别核验"
+      ],
+      "evidence": [
+        {
+          "path": "components/header.tsx",
+          "kind": "implementation",
+          "result": "passed"
+        },
+        {
+          "path": "docs/00-handoff/evidence/2026-09-19-navigation.json",
+          "kind": "verification",
+          "result": "passed"
+        }
+      ],
+      "implementation": "complete_browser_verified",
+      "deployment": "pending_post_commit_verification",
+      "blockers": [],
+      "next_action": "推送后单独核验公网中英文桌面和手机导航；不修改生产商品。",
+      "updated_at": "2026-09-19T10:56:05.191107+08:00",
+      "completed_at": "2026-09-19T10:56:05.191107+08:00"
     }
   ]
 }

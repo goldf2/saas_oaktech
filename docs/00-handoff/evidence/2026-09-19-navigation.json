@@ -1,0 +1,24 @@
+{
+  "task": "NAV-01",
+  "version": "0.1.39",
+  "base_commit": "1c8aa1886c3952c63a9c56a1317f9bbaf74702c8",
+  "verified_at": "2026-09-19T10:56:05.191107+08:00",
+  "unit_tests_passed": 183,
+  "typecheck": "passed",
+  "build": "passed",
+  "browser_checks": [
+    "zh desktop and mobile show only Products and Support, retaining the account entry",
+    "en desktop and mobile show only Products and Support, retaining the account entry",
+    "live catalog filters search, use categories and platform independently, with no private-product leak",
+    "compact app overview, screenshots and auto-loaded video display without inventing downloads or ratings",
+    "screenshot gallery opens, supports arrow-key navigation, closes with Escape and remains separate from downloads",
+    "public detail retains readable typography and no horizontal page overflow at 320, 390, 768 and 1440 pixels",
+    "dark appearance and localized English product information use the same renderer",
+    "predefined multiselect saves and reloads while preserving unknown legacy platforms and isolating the public record",
+    "shared mobile preview and explicit product publish expose chosen platforms and title-free video without software packages",
+    "platform edits survive tab switches without saving or changing published compatibility; mobile picker wraps without overflow",
+    "new category routes and mobile catalog work with real public records and no client runtime errors"
+  ],
+  "scope": "Disposable local server and browser; production data unchanged",
+  "deployment": "not_yet_verified"
+}

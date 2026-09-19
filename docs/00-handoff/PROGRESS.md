@@ -2,7 +2,7 @@
 
 > 不要直接编辑本文件。修改TASKS.json后运行 `npm run handoff:render`。
 
-账本revision：40；更新时间：2026-09-19T08:19:10.491931+08:00；计划版本：1.0.0。
+账本revision：42；更新时间：2026-09-19T10:56:05.191107+08:00；计划版本：1.0.0。
 
 **权限主线任务完成：1/14。这是任务计数，不是代码完成百分比；PLAN-01文档不计入。**
 
@@ -42,6 +42,7 @@
 | PUB-02 · 商品图文视频发布可发现性与结果核验 | STORE / feature | P0 | 完成 | ChatGPT / tsk_d66259b906c7a92b | PUB-01 |
 | LAYOUT-01 · 商品编辑整页重排与发布操作清晰化 | STORE / feature | P0 | 完成 | ChatGPT / tsk_5c35347895781361 | 无 |
 | STORE-04 · 应用商店式展示与平台预置多选 | STORE / feature | P0 | 完成 | ChatGPT / tsk_eaf097a0ba893bd8 | PUB-02, LAYOUT-01 |
+| NAV-01 · 顶部导航移除浏览器扩展入口 | STORE / feature | P1 | 完成 | ChatGPT / tsk_16b3992d2fda7393 | STORE-04 |
 
 ## 任务详情与接续动作
 
@@ -587,3 +588,20 @@
 - implementation / passed：`components/database-product-page.tsx`
 - implementation / passed：`components/admin/platform-picker.tsx`
 - verification / passed：`docs/00-handoff/evidence/2026-09-19-app-storefront.json`
+
+### NAV-01 · 顶部导航移除浏览器扩展入口
+
+状态：完成；负责人：ChatGPT / tsk_16b3992d2fda7393；实施：complete_browser_verified；部署：pending_post_commit_verification。
+
+下一动作：推送后单独核验公网中英文桌面和手机导航；不修改生产商品。
+
+验收条件：
+- 中英文桌面和手机公共主菜单仅含产品与支持
+- 目录平台筛选与账号功能不变
+- 本轮测试、源码推送、实际部署分别核验
+
+计划文件（可能尚未创建）：`components/header.tsx`、`tests/storefront-design.test.ts`、`scripts/verify-app-storefront.mjs`
+
+证据：
+- implementation / passed：`components/header.tsx`
+- verification / passed：`docs/00-handoff/evidence/2026-09-19-navigation.json`

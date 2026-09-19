@@ -34,6 +34,23 @@ try{
   server=spawn(process.execPath,['node_modules/next/dist/bin/next',process.env.APP_STOREFRONT_DEV==='1'?'dev':'start','-H','127.0.0.1','-p',String(port)],{cwd:root,env,stdio:['ignore','pipe','pipe']});for(const stream of [server.stdout,server.stderr])stream.on('data',b=>logs=(logs+b).slice(-20000));
   let ready=false;for(let i=0;i<100;i++){if(server.exitCode!==null)throw new Error(logs);if((await request(base+'/api/health').catch(()=>null))?.ok){ready=true;break;}await new Promise(r=>setTimeout(r,200));}assert.ok(ready);
   const chrome='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';browser=await puppeteer.launch({headless:true,...(existsSync(chrome)?{executablePath:chrome}:{}),args:['--disable-background-networking']});page=await browser.newPage();page.setDefaultTimeout(process.env.APP_STOREFRONT_DEV==='1'?60000:25000);page.on('pageerror',e=>{errors.push(e.message);(report.diagnostics??=[]).push({url:page.url(),stage:report.stage,message:e.message,stack:e.stack});console.error('PAGE_ERROR '+JSON.stringify(report.diagnostics.at(-1)));});page.on('dialog',d=>d.accept());await page.emulateMediaFeatures([{name:'prefers-color-scheme',value:'light'}]);await page.setRequestInterception(true);page.on('request',r=>{const u=new URL(r.url());if(u.origin===base||/^(data|blob):/.test(u.protocol))return r.continue();if(['player.bilibili.com','www.youtube-nocookie.com'].includes(u.hostname))return r.respond({status:200,contentType:'text/html',body:'<!doctype html><title>Isolated video player</title><p>Test fixture, not a live video.</p>'});return r.abort();});
+  // Both desktop and mobile consume the same primary navigation list.
+  // Browser extensions remain a catalog filter, never a top-level item.
+  for (const [locale, labels] of [['zh', ['产品', '支持']], ['en', ['Products', 'Support']]]) {
+    await page.setViewport({ width: 1440, height: 960 });
+    await goto('/' + locale);
+    assert.deepEqual(await page.$$eval('header nav a', nodes => nodes.map(node => node.textContent.trim())), labels);
+    assert.deepEqual(await page.$$eval('header nav a', nodes => nodes.map(node => node.getAttribute('href'))), ['/' + locale, '/support']);
+    await page.setViewport({ width: 390, height: 844 });
+    await click('[data-testid="mobile-menu-trigger"]');
+    await page.waitForSelector('[role="dialog"] nav', { visible: true });
+    assert.deepEqual(await page.$$eval('[role="dialog"] nav a', nodes => nodes.map(node => node.textContent.trim())), labels);
+    assert.ok(await page.$('[role="dialog"] a[href="/sign-in"]'));
+    await page.keyboard.press('Escape');
+    await page.waitForSelector('[role="dialog"]', { hidden: true });
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
+    pass(locale + ' desktop and mobile show only Products and Support, retaining the account entry');
+  }
   await page.setViewport({width:1440,height:960});await goto('/zh');assert.equal((await page.$$('[data-catalog-product]')).length,3);assert.doesNotMatch(await page.$eval('main',e=>e.textContent),/PRIVATE_SENTINEL/);await shot('catalog-desktop');
   await fill('input[type="search"]','浏览器');await page.waitForFunction(()=>document.querySelectorAll('[data-catalog-product]').length===1);await click('.app-catalog-search button');await page.waitForFunction(()=>location.search.includes('q='));await goto('/zh?platform=Browser%20Extension');assert.equal((await page.$$('[data-catalog-product]')).length,1);await goto('/zh');await click('[data-category-filter="modeling-software"]');await page.waitForFunction(()=>document.querySelectorAll('[data-catalog-product]').length===1);assert.ok(await page.$('[data-catalog-product="design-tool"]'));pass('live catalog filters search, use categories and platform independently, with no private-product leak');
   await goto('/zh/products/design-tool');assert.equal((await page.$$('[data-screenshot]')).length,3);assert.equal(await page.$('[data-video-load]'),null);assert.ok(await page.$('iframe[data-video-autoload="true"]'));assert.equal(await page.$('a[download]'),null);assert.equal(await page.$('.app-get-button'),null);assert.match(await page.$eval('.app-get-unavailable',e=>e.textContent),/暂无下载/);pass('compact app overview, screenshots and auto-loaded video display without inventing downloads or ratings');
