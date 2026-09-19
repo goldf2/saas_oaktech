@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "plan_version": "1.0.0",
-  "revision": 43,
-  "updated_at": "2026-09-19T13:48:52+08:00",
+  "revision": 44,
+  "updated_at": "2026-09-19T14:37:24+08:00",
   "project": "saas_oaktech",
   "source_commit": "54a42b33bc5fc3e9c42541fdd3bdd6fae4700bce",
   "current_next_task": "ADM-02",
@@ -1259,6 +1259,48 @@
       "next_action": "提交推送后读取远端SHA、CI与公网管理员资源；不修改或自动发布生产商品。",
       "updated_at": "2026-09-19T13:48:52+08:00",
       "completed_at": "2026-09-19T13:48:52+08:00"
+    },
+    {
+      "id": "LAYOUT-03",
+      "title": "商品资料页紧凑化",
+      "kind": "feature",
+      "milestone": "STORE",
+      "priority": "P1",
+      "status": "done",
+      "owner": "ChatGPT / tsk_0fff6b6fcbdf9e43",
+      "depends_on": [
+        "LAYOUT-02"
+      ],
+      "planned_files": [
+        "components/admin/product-details-editor.tsx",
+        "components/admin/platform-picker.tsx",
+        "components/admin/product-video-editor.tsx",
+        "scripts/verify-product-editor-layout.mjs"
+      ],
+      "acceptance": [
+        "基本资料、平台选择和商品图片区明显降低垂直占用，同时保留14px输入文字与可点击控件",
+        "1440px截图区使用三列紧凑缩略图，1024及手机保持两列且无横向溢出",
+        "保存、上传、视频、预览和商品独立发布回归通过",
+        "仅提交本轮范围并推送main，生产商品数据不修改"
+      ],
+      "evidence": [
+        {
+          "path": "docs/00-handoff/evidence/2026-09-19-compact-product-editor.json",
+          "kind": "verification",
+          "result": "passed"
+        },
+        {
+          "path": "components/admin/product-details-editor.tsx",
+          "kind": "implementation",
+          "result": "passed"
+        }
+      ],
+      "implementation": "complete_browser_verified",
+      "deployment": "pending_post_commit_verification",
+      "blockers": [],
+      "next_action": "推送后读取远端main和CI；用户仅要求GitHub提交，本任务不替用户发布生产商品资料。",
+      "updated_at": "2026-09-19T14:37:24+08:00",
+      "completed_at": "2026-09-19T14:37:24+08:00"
     }
   ]
 }

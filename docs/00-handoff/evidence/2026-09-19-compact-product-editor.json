@@ -1,0 +1,90 @@
+{
+  "task": "LAYOUT-03",
+  "version": "0.1.41",
+  "base_commit": "d971cfcecd6b40a0b8182bf76000f4f7777470d7",
+  "scope": "Compact product editor density; no production writes",
+  "changed_files": [
+    "components/admin/product-details-editor.tsx",
+    "components/admin/platform-picker.tsx",
+    "components/admin/product-video-editor.tsx",
+    "scripts/verify-product-editor-layout.mjs"
+  ],
+  "compactness": {
+    "baseline_0_1_40": {
+      "desktop_1440": {
+        "basic_height": 664.5,
+        "media_height": 636.484375,
+        "total_details_height": 1571.5
+      },
+      "desktop_1024": {
+        "basic_height": 664.5,
+        "media_height": 655.984375,
+        "total_details_height": 1571.5
+      }
+    },
+    "candidate_0_1_41": {
+      "desktop_1440": {
+        "basic_height": 533.5,
+        "media_height": 505.484375,
+        "total_details_height": 1372.5,
+        "platform_chip_height": 36,
+        "screenshot_columns": 3
+      },
+      "desktop_1024": {
+        "basic_height": 575.5,
+        "media_height": 505.484375,
+        "total_details_height": 1414.5,
+        "platform_chip_height": 36,
+        "screenshot_columns": 2
+      },
+      "mobile_390": {
+        "overflow": false,
+        "basic_height": 761.5,
+        "media_height": 505.484375
+      },
+      "mobile_320": {
+        "overflow": false,
+        "basic_height": 819.5,
+        "media_height": 491.75
+      }
+    },
+    "reductions": {
+      "desktop_1440": {
+        "basic_percent": 19.7,
+        "media_percent": 20.6,
+        "total_percent": 12.7
+      },
+      "desktop_1024": {
+        "basic_percent": 13.4,
+        "media_percent": 22.9,
+        "total_percent": 10
+      }
+    }
+  },
+  "verification": {
+    "unit_tests": {
+      "count": 183,
+      "status": "passed"
+    },
+    "typecheck": "passed",
+    "production_build": "passed",
+    "editor_browser": {
+      "checks": 7,
+      "status": "passed"
+    },
+    "decoupled_publication_browser": {
+      "checks": 6,
+      "status": "passed"
+    },
+    "app_store_browser": {
+      "checks": 11,
+      "status": "passed"
+    }
+  },
+  "productionWrites": false,
+  "notes": [
+    "Input text remains 14px; platform chips are 36px high.",
+    "1440px screenshot editor uses three compact columns; 1024px and smaller use two.",
+    "Detailed description remains after image/video editing and before save/publish."
+  ]
+}
