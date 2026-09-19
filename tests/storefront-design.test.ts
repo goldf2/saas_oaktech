@@ -31,7 +31,8 @@ test("home pages render the live catalog through one reusable storefront", async
   const localizedHome = await source("../app/[locale]/page.tsx");
   const storefront = await source("../components/storefront-home.tsx");
 
-  assert.match(rootHome, /listPublicProducts\("en"\)/);
+  assert.match(rootHome, /getRequestLanguage\(\)/);
+  assert.match(rootHome, /listPublicProducts\(locale\)/);
   assert.match(localizedHome, /listPublicProducts\(locale\)/);
   assert.match(rootHome, /<StorefrontHome/);
   assert.match(localizedHome, /<StorefrontHome/);

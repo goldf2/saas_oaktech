@@ -1,3 +1,5 @@
+import type { Locale } from "./types";
+
 // Navigation only. Every privileged route still performs its own server-side authorization.
 export type WorkspaceView = "products" | "account";
 export function workspaceView(requested: unknown, _administrator: boolean): WorkspaceView {
@@ -11,9 +13,10 @@ export function workspaceProductsHref(query: { q?: unknown; state?: unknown } = 
   if (typeof query.state === "string" && ["all", "published", "draft"].includes(query.state)) params.set("state", query.state);
   return `/dashboard?${params}`;
 }
-export function workspaceSections(administrator: boolean) {
+export function workspaceSections(administrator: boolean, locale: Locale = "zh") {
+  const zh = locale === "zh";
   return [
-    { view: "products" as const, label: administrator ? "商品管理" : "商品目录", href: workspaceProductsHref() },
-    { view: "account" as const, label: "账号与支持", href: "/dashboard?view=account" },
+    { view: "products" as const, label: administrator ? (zh ? "商品管理" : "Product management") : (zh ? "商品目录" : "Product catalog"), href: workspaceProductsHref() },
+    { view: "account" as const, label: zh ? "账号与支持" : "Account & support", href: "/dashboard?view=account" },
   ];
 }

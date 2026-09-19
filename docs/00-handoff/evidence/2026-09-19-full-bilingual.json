@@ -1,0 +1,52 @@
+{
+  "task": "LANG-02",
+  "version": "0.1.42",
+  "base_commit": "29a867b8fa77f356687d3f8b51617b245cf9f0ea",
+  "scope": "Full-site Chinese/English page audit and bilingual UI completion",
+  "static_audit": {
+    "app_pages": 27,
+    "policy": "Every visible page must resolve request locale/current locale; only explicit redirects/aliases may omit page copy.",
+    "tests": 5,
+    "status": "passed"
+  },
+  "browser": {
+    "full_bilingual": {
+      "status": "passed",
+      "checks": 5,
+      "neutral_route_instances": 20,
+      "category_route_instances": 2,
+      "manual_switch": true,
+      "dashboard_bilingual": true,
+      "admin_editor_bilingual": true,
+      "page_errors": 0
+    },
+    "regressions": {
+      "language_checks": 7,
+      "workspace_checks": 8,
+      "editor_checks": 7,
+      "publication_checks": 6,
+      "storefront_checks": 11,
+      "status": "passed"
+    }
+  },
+  "verification": {
+    "unit_tests": {
+      "count": 188,
+      "status": "passed"
+    },
+    "typecheck": "passed",
+    "production_build": "passed"
+  },
+  "implementation": [
+    "Neutral public pages now use getRequestLanguage instead of pinned English.",
+    "Auth, about/support/legal, dashboard/account, product install/privacy/support and root metadata have Chinese/English copy.",
+    "Product administration, version editing, upload and publication surfaces use current locale.",
+    "Legacy product-form component remains unmounted compatibility code; no route renders it.",
+    "Language switching on neutral routes refreshes in place and preserves route/query semantics."
+  ],
+  "productionWrites": false,
+  "limitations": [
+    "Remote identity-provider pages are outside this application and are not translated here.",
+    "Product-authored content can intentionally contain Chinese or English independently; bilingual UI does not overwrite product content."
+  ]
+}

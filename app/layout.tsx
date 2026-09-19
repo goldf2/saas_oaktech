@@ -8,28 +8,24 @@ import { getRequestLanguage } from "@/i18n/server";
 import { LocaleProvider } from "@/i18n/locale-provider";
 import "./globals.css";
 import "./storefront.css";
+import type { Metadata } from "next";
 
 const baseUrl = process.env.BASE_URL
   ? `${process.env.BASE_URL}`
   : "http://localhost:3000";
 
-export const metadata = {
-  metadataBase: new URL(baseUrl),
-  title: "OakTech - Independent Software Store",
-  description: "Practical browser extensions, desktop apps, and developer tools with clear release status and direct support.",
-  keywords: "OakTech, software store, browser extensions, desktop apps, developer tools, X Tweet Extractor",
-  openGraph: {
-    title: "OakTech - Independent Software Store",
-    description: "Practical browser extensions, desktop apps, and developer tools with clear release status and direct support.",
-    type: "website",
-    url: baseUrl,
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "OakTech - Independent Software Store",
-    description: "Practical browser extensions, desktop apps, and developer tools.",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { locale } = await getRequestLanguage();
+  const zh = locale === "zh";
+  const title = zh ? "OakTech - 独立软件商店" : "OakTech - Independent Software Store";
+  const description = zh ? "实用的浏览器扩展、桌面应用和开发者工具，清楚展示发布状态并提供直接支持。" : "Practical browser extensions, desktop apps, and developer tools with clear release status and direct support.";
+  return {
+    metadataBase: new URL(baseUrl), title, description,
+    keywords: zh ? "OakTech, 软件商店, 浏览器扩展, 桌面应用, 开发者工具, X 推文提取器" : "OakTech, software store, browser extensions, desktop apps, developer tools, X Tweet Extractor",
+    openGraph: { title, description, type: "website", url: baseUrl },
+    twitter: { card: "summary_large_image", title, description },
+  };
+}
 
 export default async function RootLayout({
   children,

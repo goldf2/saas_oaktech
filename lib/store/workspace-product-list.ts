@@ -3,7 +3,7 @@
 import { selectPublishedRows } from "./policy.ts";
 import { isSoftwareDownload } from "./download-visibility.ts";
 import { resolveProductIcon } from "./product-assets.ts";
-import type { AdminProductReleaseRow, AdminStoreProductRow, ProductDraft, ProductStatus, StoreProduct } from "./types";
+import type { AdminProductReleaseRow, AdminStoreProductRow, Locale, ProductDraft, ProductStatus, StoreProduct } from "./types";
 
 export type WorkspaceProductItem = {
   slug: string;
@@ -41,7 +41,7 @@ export function publicWorkspaceItem(product: StoreProduct, releases: ReleaseMeta
 
 export function managedWorkspaceItems(catalog: {
   products: AdminStoreProductRow[]; releases: AdminProductReleaseRow[]; productDrafts?: Record<string, ProductDraft>;
-}): WorkspaceProductItem[] {
+}, locale: Locale = "zh"): WorkspaceProductItem[] {
   return catalog.products.map(product => {
     const draft = catalog.productDrafts?.[product.slug];
     const working = draft?.product ?? product;
@@ -49,15 +49,15 @@ export function managedWorkspaceItems(catalog: {
     const published = product.visibility === "published";
     const summary = releaseOverview(releases);
     return {
-      slug: product.slug, name: working.name_zh || working.name_en || product.slug,
-      tagline: working.tagline_zh || working.tagline_en, iconUrl: resolveProductIcon(product.slug, working.icon_url),
+      slug: product.slug, name: (locale === "zh" ? working.name_zh || working.name_en : working.name_en || working.name_zh) || product.slug,
+      tagline: locale === "zh" ? working.tagline_zh || working.tagline_en : working.tagline_en || working.tagline_zh, iconUrl: resolveProductIcon(product.slug, working.icon_url),
       status: working.status, published, ...summary, downloadable: published && summary.downloadable,
       searchText: [product.slug, working.name_zh, working.name_en, working.tagline_zh,
         product.name_zh, product.name_en].join(" ").toLowerCase(),
       management: {
         pendingProduct: Boolean(draft) || !published, totalVersions: releases.length,
         draftVersions: releases.filter(release => release.status === "draft").length,
-        publishedName: published ? product.name_zh || product.name_en : null,
+        publishedName: published ? (locale === "zh" ? product.name_zh || product.name_en : product.name_en || product.name_zh) : null,
       },
     };
   });

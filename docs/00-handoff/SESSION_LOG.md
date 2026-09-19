@@ -374,3 +374,16 @@ PUB-01与ec93734紧凑UI完成合并，并按用户新增要求加入DASH-01统�
 ## 2026-09-19T06:04:00+08:00 · LANG-01
 
 LANG-01完成：新增Auto/EN/中文，代理无偏好副作用，保留原页和未保存内容；本轮无生产数据写入。
+
+## 2026-09-19T15:34:53+08:00 · LANG-02 · 全站中英文双语审计与补齐
+
+- 基线：29a867b / 0.1.41；独立工作树 oaktech-bilingual-20260919，未覆盖其他工作区。
+- 发现：公开无前缀旧路由固定英文，Dashboard/后台固定中文；共享Header/Footer已有语言上下文但页面主体不完整。
+- 实现：新增集中页面文案与配置产品辅助本地化；认证、法律、支持、Dashboard、产品工具页和商品后台关键组件全部接入当前locale。
+- 验证：27页静态审计、5项双语防回退测试、188项完整测试、typecheck、默认Turbopack生产构建；真实Chromium双语矩阵和language/workspace/editor/publication/storefront专项全部通过。
+- 安全边界：浏览器测试使用loopback临时catalog与合成管理员会话；productionWrites=false；没有发布真实商品/软件或修改生产权限。
+- 下一步：仅提交本任务文件并推送main，再独立读取远端SHA、CI和公网版本。
+
+## 2026-09-19T15:52:00+08:00 · LAYOUT-04
+
+视频介绍与详细说明在宽屏改为左右并排，1024px及以下继续堆叠；1440px页面主体高度再减少约26.4%。编辑/双语/独立发布回归及生产构建通过，无生产写入。证据：evidence/2026-09-19-video-description-two-column.json。

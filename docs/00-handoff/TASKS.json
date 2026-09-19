@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "plan_version": "1.0.0",
-  "revision": 44,
-  "updated_at": "2026-09-19T14:37:24+08:00",
+  "revision": 47,
+  "updated_at": "2026-09-19T15:52:00+08:00",
   "project": "saas_oaktech",
   "source_commit": "54a42b33bc5fc3e9c42541fdd3bdd6fae4700bce",
   "current_next_task": "ADM-02",
@@ -1301,6 +1301,101 @@
       "next_action": "推送后读取远端main和CI；用户仅要求GitHub提交，本任务不替用户发布生产商品资料。",
       "updated_at": "2026-09-19T14:37:24+08:00",
       "completed_at": "2026-09-19T14:37:24+08:00"
+    },
+    {
+      "id": "LANG-02",
+      "title": "全站中英文双语审计与补齐",
+      "kind": "feature",
+      "milestone": "STORE",
+      "priority": "P0",
+      "status": "done",
+      "owner": "ChatGPT / tsk_80bc9a2cac97f92a",
+      "depends_on": [
+        "LANG-01",
+        "LAYOUT-03"
+      ],
+      "planned_files": [
+        "i18n/page-copy.ts",
+        "app/**/*page.tsx",
+        "components/admin/*.tsx",
+        "tests/full-bilingual-pages.test.ts",
+        "scripts/verify-full-bilingual.mjs"
+      ],
+      "acceptance": [
+        "全部可访问页面使用请求语言或显式locale，不再由无前缀旧路由固定英文或中文",
+        "认证、关于/支持/法律、工作台、商品管理、版本上传与发布控件均可中英切换",
+        "无locale前缀页面手动切换原地刷新并保留路径/查询，目录与商品路由继续使用显式/en、/zh目标",
+        "静态全页面审计、真实Chromium中英矩阵、既有语言/工作台/编辑/发布/商城回归、类型与生产构建通过且不写生产数据"
+      ],
+      "evidence": [
+        {
+          "path": "i18n/page-copy.ts",
+          "kind": "implementation",
+          "result": "passed"
+        },
+        {
+          "path": "docs/00-handoff/evidence/2026-09-19-full-bilingual.json",
+          "kind": "verification",
+          "result": "passed"
+        },
+        {
+          "path": "tests/full-bilingual-pages.test.ts",
+          "kind": "verification",
+          "result": "passed"
+        },
+        {
+          "path": "scripts/verify-full-bilingual.mjs",
+          "kind": "verification",
+          "result": "passed"
+        }
+      ],
+      "implementation": "complete_browser_verified",
+      "deployment": "pending_post_commit_verification",
+      "blockers": [],
+      "next_action": "提交并推送0.1.42后读取远端main、CI和公网版本；不修改或自动发布生产商品、软件与权限。",
+      "updated_at": "2026-09-19T15:35:18+08:00",
+      "completed_at": "2026-09-19T15:35:18+08:00"
+    },
+    {
+      "id": "LAYOUT-04",
+      "title": "视频介绍与详细说明宽屏双栏",
+      "kind": "feature",
+      "milestone": "STORE",
+      "priority": "P1",
+      "status": "done",
+      "owner": "ChatGPT / tsk_d960de4fd8c35c5d",
+      "depends_on": [
+        "LAYOUT-03",
+        "LANG-02"
+      ],
+      "planned_files": [
+        "components/admin/product-details-editor.tsx",
+        "scripts/verify-product-editor-layout.mjs"
+      ],
+      "acceptance": [
+        "1280px及以上视频介绍和详细说明左右并排且顶部对齐",
+        "1024px及以下保持上下排列，320/390px无横向溢出",
+        "详细说明仍位于媒体编辑之后并在保存发布操作之前，字段与双语逻辑不变",
+        "编辑布局、双语、发布及生产构建回归通过"
+      ],
+      "evidence": [
+        {
+          "path": "components/admin/product-details-editor.tsx",
+          "kind": "implementation",
+          "result": "passed"
+        },
+        {
+          "path": "docs/00-handoff/evidence/2026-09-19-video-description-two-column.json",
+          "kind": "verification",
+          "result": "passed"
+        }
+      ],
+      "implementation": "complete_browser_verified",
+      "deployment": "pending_post_commit_verification",
+      "blockers": [],
+      "next_action": "与LANG-02的0.1.42提交一并推送main并核验远端SHA/CI/公网版本；不写生产商品数据。",
+      "updated_at": "2026-09-19T15:52:00+08:00",
+      "completed_at": "2026-09-19T15:52:00+08:00"
     }
   ]
 }

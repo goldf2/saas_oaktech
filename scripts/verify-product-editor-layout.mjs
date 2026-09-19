@@ -60,24 +60,32 @@ try {
       englishDescriptionInTopPanel: Boolean(document.querySelector('[data-testid="product-english-fields"] textarea[name="description_en"]')),
       videoBeforeDescription: follows(video, description),
       descriptionBeforeFooter: follows(description, footer),
-      descriptionTop: description.getBoundingClientRect().top + scrollY,
+      videoTop: video.getBoundingClientRect().top + scrollY,
+      videoLeft: video.getBoundingClientRect().left,
       videoBottom: video.getBoundingClientRect().bottom + scrollY,
+      descriptionTop: description.getBoundingClientRect().top + scrollY,
+      descriptionLeft: description.getBoundingClientRect().left,
+      descriptionBottom: description.getBoundingClientRect().bottom + scrollY,
+      footerTop: footer.getBoundingClientRect().top + scrollY,
     };
   });
   assert.equal(editorOrder.chineseDescriptionInTopPanel, false); assert.equal(editorOrder.englishDescriptionInTopPanel, false);
-  assert.equal(editorOrder.videoBeforeDescription, true); assert.equal(editorOrder.descriptionBeforeFooter, true); assert.ok(editorOrder.descriptionTop >= editorOrder.videoBottom - 1);
-  pass('detailed Chinese and English descriptions are edited after screenshots/video and immediately before publication actions');
+  assert.equal(editorOrder.videoBeforeDescription, true); assert.equal(editorOrder.descriptionBeforeFooter, true);
+  assert.ok(Math.abs(editorOrder.videoTop - editorOrder.descriptionTop) < 2); assert.ok(editorOrder.descriptionLeft > editorOrder.videoLeft); assert.ok(editorOrder.footerTop >= Math.max(editorOrder.videoBottom, editorOrder.descriptionBottom) - 1);
+  pass('detailed Chinese and English descriptions stay after media in DOM order, align beside video on wide desktop, and remain before publication actions');
   assert.doesNotMatch(await (await request(base + '/zh/products/open-play')).text(), /video-screenshot|新写的中文介绍/);
   pass('the actual screenshot condition is explicit: valid link plus optional empty title is a saved draft, not published content');
   for (const width of [1440, 1024, 390, 320]) {
     await page.setViewport({ width, height: 960 });
-    const metrics = await page.evaluate(() => { const rect = selector => { const r = document.querySelector(selector).getBoundingClientRect(); return { top: r.top + scrollY, left: r.left, width: r.width, bottom: r.bottom + scrollY }; }; const screenshotGrid = document.querySelector('[aria-label="编辑产品截图"] > div'); const platform = document.querySelector('[data-platform-option]')?.closest('label'); return { width: innerWidth, overflow: document.documentElement.scrollWidth > innerWidth + 1, copy: rect('[data-testid="product-copy-panel"]'), media: rect('[data-testid="product-media-panel"]'), details: rect('[data-testid="product-details-layout"]'), inputFontSize: getComputedStyle(document.querySelector('input[name="name_zh"]')).fontSize, platformOptionHeight: platform?.getBoundingClientRect().height ?? 0, screenshotColumns: screenshotGrid ? getComputedStyle(screenshotGrid).gridTemplateColumns.split(' ').filter(Boolean).length : 0 }; });
+    const metrics = await page.evaluate(() => { const rect = selector => { const r = document.querySelector(selector).getBoundingClientRect(); return { top: r.top + scrollY, left: r.left, width: r.width, bottom: r.bottom + scrollY }; }; const screenshotGrid = document.querySelector('[aria-label="编辑产品截图"] > div'); const platform = document.querySelector('[data-platform-option]')?.closest('label'); return { width: innerWidth, overflow: document.documentElement.scrollWidth > innerWidth + 1, copy: rect('[data-testid="product-copy-panel"]'), media: rect('[data-testid="product-media-panel"]'), video: rect('[data-testid="product-video-editor"]'), description: rect('[data-testid="product-description-panel"]'), footer: rect('[data-testid="product-details-footer"]'), details: rect('[data-testid="product-details-layout"]'), inputFontSize: getComputedStyle(document.querySelector('input[name="name_zh"]')).fontSize, platformOptionHeight: platform?.getBoundingClientRect().height ?? 0, screenshotColumns: screenshotGrid ? getComputedStyle(screenshotGrid).gridTemplateColumns.split(' ').filter(Boolean).length : 0 }; });
     assert.equal(metrics.overflow, false); assert.ok(parseFloat(metrics.inputFontSize) >= 14); assert.ok(metrics.platformOptionHeight >= 32 && metrics.platformOptionHeight <= 38);
     if (width >= 1024) { assert.ok(Math.abs(metrics.copy.top - metrics.media.top) < 2); assert.ok(metrics.media.left > metrics.copy.left); assert.ok(metrics.copy.bottom - metrics.copy.top <= 600); assert.ok(metrics.media.bottom - metrics.media.top <= 520); } else assert.ok(metrics.media.top >= metrics.copy.bottom - 1);
+    if (width >= 1280) { assert.ok(Math.abs(metrics.video.top - metrics.description.top) < 2); assert.ok(metrics.description.left > metrics.video.left); } else assert.ok(metrics.description.top >= metrics.video.bottom - 1);
+    assert.ok(metrics.footer.top >= Math.max(metrics.video.bottom, metrics.description.bottom) - 1);
     if (width === 1440) assert.ok(metrics.screenshotColumns >= 3); else assert.ok(metrics.screenshotColumns >= 2);
     report.layout.push(metrics); await shot('editor-' + width);
   }
-  pass('desktop uses two clear columns, phone stacks them, readable fields and 320/390/1024/1440px layouts have no horizontal overflow');
+  pass('desktop keeps the primary editor columns and uses a wide-screen video/description row; 1024px and phones stack safely with no horizontal overflow');
   await page.setViewport({ width: 1440, height: 960 }); await page.$eval('[data-prepare-product-footer]', el => el.scrollIntoView({ block: 'center' }));
   assert.ok(await page.$eval('[data-testid="product-action-bar"]', el => { const r = el.getBoundingClientRect(); return r.top >= 55 && r.bottom < innerHeight; }));
   await click('[data-prepare-product-footer]'); await page.waitForSelector('[data-publication-scope="product"]', { visible: true });

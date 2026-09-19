@@ -1,0 +1,60 @@
+{
+  "task": "LAYOUT-04",
+  "version": "0.1.42",
+  "base_commit": "29a867b8fa77f356687d3f8b51617b245cf9f0ea",
+  "scope": "Responsive side-by-side video introduction and detailed description in product editor",
+  "layout": {
+    "desktop_1440": {
+      "video": {
+        "left": 96,
+        "top": 838.5,
+        "width": 692.15625,
+        "bottom": 1224.5
+      },
+      "description": {
+        "left": 800.15625,
+        "top": 838.5,
+        "width": 543.84375,
+        "bottom": 1189.5
+      },
+      "details_height": 1009.5,
+      "previous_details_height": 1372.5,
+      "vertical_reduction_percent": 26.4
+    },
+    "desktop_1024": {
+      "stacked": true,
+      "details_height": 1414.5
+    },
+    "mobile_390": {
+      "stacked": true,
+      "overflow": false
+    },
+    "mobile_320": {
+      "stacked": true,
+      "overflow": false
+    }
+  },
+  "verification": {
+    "typecheck": "passed",
+    "production_build": "passed",
+    "editor_browser": {
+      "checks": 7,
+      "status": "passed"
+    },
+    "bilingual_browser": {
+      "checks": 5,
+      "status": "passed"
+    },
+    "publication_browser": {
+      "checks": 6,
+      "status": "passed"
+    }
+  },
+  "productionWrites": false,
+  "notes": [
+    "At 1280px and above, video and detailed description use a responsive two-column row with top alignment.",
+    "At 1024px and below, the two sections stack in DOM order.",
+    "Detailed description remains after media in DOM order and before save/publish actions.",
+    "No product data, releases, accounts, or permissions were changed."
+  ]
+}

@@ -2,7 +2,7 @@
 
 > 不要直接编辑本文件。修改TASKS.json后运行 `npm run handoff:render`。
 
-账本revision：44；更新时间：2026-09-19T14:37:24+08:00；计划版本：1.0.0。
+账本revision：47；更新时间：2026-09-19T15:52:00+08:00；计划版本：1.0.0。
 
 **权限主线任务完成：1/14。这是任务计数，不是代码完成百分比；PLAN-01文档不计入。**
 
@@ -45,6 +45,8 @@
 | NAV-01 · 顶部导航移除浏览器扩展入口 | STORE / feature | P1 | 完成 | ChatGPT / tsk_16b3992d2fda7393 | STORE-04 |
 | LAYOUT-02 · 详细说明编辑区下移并对齐公开页顺序 | STORE / feature | P1 | 完成 | ChatGPT / tsk_84e2581eae05aa75 | LAYOUT-01, STORE-04 |
 | LAYOUT-03 · 商品资料页紧凑化 | STORE / feature | P1 | 完成 | ChatGPT / tsk_0fff6b6fcbdf9e43 | LAYOUT-02 |
+| LANG-02 · 全站中英文双语审计与补齐 | STORE / feature | P0 | 完成 | ChatGPT / tsk_80bc9a2cac97f92a | LANG-01, LAYOUT-03 |
+| LAYOUT-04 · 视频介绍与详细说明宽屏双栏 | STORE / feature | P1 | 完成 | ChatGPT / tsk_d960de4fd8c35c5d | LAYOUT-03, LANG-02 |
 
 ## 任务详情与接续动作
 
@@ -642,3 +644,41 @@
 证据：
 - verification / passed：`docs/00-handoff/evidence/2026-09-19-compact-product-editor.json`
 - implementation / passed：`components/admin/product-details-editor.tsx`
+
+### LANG-02 · 全站中英文双语审计与补齐
+
+状态：完成；负责人：ChatGPT / tsk_80bc9a2cac97f92a；实施：complete_browser_verified；部署：pending_post_commit_verification。
+
+下一动作：提交并推送0.1.42后读取远端main、CI和公网版本；不修改或自动发布生产商品、软件与权限。
+
+验收条件：
+- 全部可访问页面使用请求语言或显式locale，不再由无前缀旧路由固定英文或中文
+- 认证、关于/支持/法律、工作台、商品管理、版本上传与发布控件均可中英切换
+- 无locale前缀页面手动切换原地刷新并保留路径/查询，目录与商品路由继续使用显式/en、/zh目标
+- 静态全页面审计、真实Chromium中英矩阵、既有语言/工作台/编辑/发布/商城回归、类型与生产构建通过且不写生产数据
+
+计划文件（可能尚未创建）：`i18n/page-copy.ts`、`app/**/*page.tsx`、`components/admin/*.tsx`、`tests/full-bilingual-pages.test.ts`、`scripts/verify-full-bilingual.mjs`
+
+证据：
+- implementation / passed：`i18n/page-copy.ts`
+- verification / passed：`docs/00-handoff/evidence/2026-09-19-full-bilingual.json`
+- verification / passed：`tests/full-bilingual-pages.test.ts`
+- verification / passed：`scripts/verify-full-bilingual.mjs`
+
+### LAYOUT-04 · 视频介绍与详细说明宽屏双栏
+
+状态：完成；负责人：ChatGPT / tsk_d960de4fd8c35c5d；实施：complete_browser_verified；部署：pending_post_commit_verification。
+
+下一动作：与LANG-02的0.1.42提交一并推送main并核验远端SHA/CI/公网版本；不写生产商品数据。
+
+验收条件：
+- 1280px及以上视频介绍和详细说明左右并排且顶部对齐
+- 1024px及以下保持上下排列，320/390px无横向溢出
+- 详细说明仍位于媒体编辑之后并在保存发布操作之前，字段与双语逻辑不变
+- 编辑布局、双语、发布及生产构建回归通过
+
+计划文件（可能尚未创建）：`components/admin/product-details-editor.tsx`、`scripts/verify-product-editor-layout.mjs`
+
+证据：
+- implementation / passed：`components/admin/product-details-editor.tsx`
+- verification / passed：`docs/00-handoff/evidence/2026-09-19-video-description-two-column.json`
