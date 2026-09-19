@@ -2,7 +2,7 @@
 
 > 不要直接编辑本文件。修改TASKS.json后运行 `npm run handoff:render`。
 
-账本revision：47；更新时间：2026-09-19T15:52:00+08:00；计划版本：1.0.0。
+账本revision：49；更新时间：2026-09-20T04:31:15.413558+08:00；计划版本：1.0.0。
 
 **权限主线任务完成：1/14。这是任务计数，不是代码完成百分比；PLAN-01文档不计入。**
 
@@ -47,6 +47,7 @@
 | LAYOUT-03 · 商品资料页紧凑化 | STORE / feature | P1 | 完成 | ChatGPT / tsk_0fff6b6fcbdf9e43 | LAYOUT-02 |
 | LANG-02 · 全站中英文双语审计与补齐 | STORE / feature | P0 | 完成 | ChatGPT / tsk_80bc9a2cac97f92a | LANG-01, LAYOUT-03 |
 | LAYOUT-04 · 视频介绍与详细说明宽屏双栏 | STORE / feature | P1 | 完成 | ChatGPT / tsk_d960de4fd8c35c5d | LAYOUT-03, LANG-02 |
+| IMPORT-01 · GitHub优先的软件版本导入与链接补齐 | M4 / feature | P1 | 完成 | Codex / release-import-20260920 | 无 |
 
 ## 任务详情与接续动作
 
@@ -682,3 +683,22 @@
 证据：
 - implementation / passed：`components/admin/product-details-editor.tsx`
 - verification / passed：`docs/00-handoff/evidence/2026-09-19-video-description-two-column.json`
+
+### IMPORT-01 · GitHub优先的软件版本导入与链接补齐
+
+状态：完成；负责人：Codex / release-import-20260920；实施：complete_browser_verified；部署：pending_post_commit_verification。
+
+下一动作：提交推送0.1.43后核对CI及公网health；不自动发布生产软件草稿
+
+验收条件：
+- 公开GitHub Release读取资料与附件并下载到商城草稿
+- HTTPS链接与本地上传可补齐同版本文件
+- 远程拉取拒绝内网与非HTTPS目标，保留鉴权、不可覆盖与最终发布校验
+- 双语桌面手机界面、自动填充、实际文件导入与回归通过
+
+计划文件（可能尚未创建）：`components/admin/remote-release-import.tsx`、`lib/store/remote-download.ts`、`app/api/admin/releases/remote/route.ts`、`app/api/admin/releases/github/route.ts`
+
+证据：
+- documentation / passed：`docs/release-import.md`
+- verification / passed：`docs/00-handoff/evidence/2026-09-20-release-import.json`
+- implementation / passed：`components/admin/remote-release-import.tsx`

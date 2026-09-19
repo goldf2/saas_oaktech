@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "plan_version": "1.0.0",
-  "revision": 47,
-  "updated_at": "2026-09-19T15:52:00+08:00",
+  "revision": 49,
+  "updated_at": "2026-09-20T04:31:15.413558+08:00",
   "project": "saas_oaktech",
   "source_commit": "54a42b33bc5fc3e9c42541fdd3bdd6fae4700bce",
   "current_next_task": "ADM-02",
@@ -1396,6 +1396,51 @@
       "next_action": "与LANG-02的0.1.42提交一并推送main并核验远端SHA/CI/公网版本；不写生产商品数据。",
       "updated_at": "2026-09-19T15:52:00+08:00",
       "completed_at": "2026-09-19T15:52:00+08:00"
+    },
+    {
+      "id": "IMPORT-01",
+      "title": "GitHub优先的软件版本导入与链接补齐",
+      "kind": "feature",
+      "milestone": "M4",
+      "priority": "P1",
+      "status": "done",
+      "owner": "Codex / release-import-20260920",
+      "depends_on": [],
+      "planned_files": [
+        "components/admin/remote-release-import.tsx",
+        "lib/store/remote-download.ts",
+        "app/api/admin/releases/remote/route.ts",
+        "app/api/admin/releases/github/route.ts"
+      ],
+      "acceptance": [
+        "公开GitHub Release读取资料与附件并下载到商城草稿",
+        "HTTPS链接与本地上传可补齐同版本文件",
+        "远程拉取拒绝内网与非HTTPS目标，保留鉴权、不可覆盖与最终发布校验",
+        "双语桌面手机界面、自动填充、实际文件导入与回归通过"
+      ],
+      "next_action": "提交推送0.1.43后核对CI及公网health；不自动发布生产软件草稿",
+      "blockers": [],
+      "evidence": [
+        {
+          "path": "docs/release-import.md",
+          "kind": "documentation",
+          "result": "passed"
+        },
+        {
+          "path": "docs/00-handoff/evidence/2026-09-20-release-import.json",
+          "kind": "verification",
+          "result": "passed"
+        },
+        {
+          "path": "components/admin/remote-release-import.tsx",
+          "kind": "implementation",
+          "result": "passed"
+        }
+      ],
+      "implementation": "complete_browser_verified",
+      "deployment": "pending_post_commit_verification",
+      "updated_at": "2026-09-20T04:31:15.413558+08:00",
+      "completed_at": "2026-09-20T04:31:15.413558+08:00"
     }
   ]
 }

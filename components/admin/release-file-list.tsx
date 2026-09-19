@@ -22,8 +22,8 @@ export function ReleaseFileList({ release }: { release: AdminProductReleaseRow }
     {rows.map(row => <li key={row.key} data-artifact-row={row.artifact?.id} className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)] items-start gap-x-2 gap-y-1 py-2 sm:grid-cols-[auto_minmax(0,1fr)_auto]">
       {row.artifact ? <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-label={zh ? "文件已接收" : "File received"} /> : <Circle className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" aria-label={zh ? "待上传" : "Upload required"} />}
       <div className="min-w-0">
-        <p className="break-all text-sm font-medium">{row.name}</p>
-        <p className="mt-0.5 break-words text-xs text-muted-foreground">{label(row.label)} · {row.platform}/{row.architecture} · {row.kind}{row.artifact ? ` · ${formatBytes(row.artifact.size_bytes)}` : (zh ? " · 待上传" : " · upload required")}</p>
+        <p className="break-all text-sm font-medium">{!row.artifact && <span className="mr-2 text-amber-700">{zh ? "缺少" : "Missing"}</span>}{row.name}</p>
+        <p className="mt-0.5 break-words text-xs text-muted-foreground">{label(row.label)} · {row.platform}/{row.architecture} · {row.kind}{row.artifact ? ` · ${formatBytes(row.artifact.size_bytes)}` : (zh ? " · 预期文件名" : " · expected filename")}</p>
       </div>
       <div className="col-start-2 flex min-w-0 flex-wrap items-start gap-x-3 gap-y-1 text-xs sm:col-start-3 sm:max-w-xs">
         {row.artifact && <details className="min-w-0"><summary className="cursor-pointer py-1 text-muted-foreground">SHA-512</summary><code className="block max-w-xs break-all py-1 text-xs">{row.artifact.sha512}</code></details>}

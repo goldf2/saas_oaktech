@@ -1,0 +1,36 @@
+{
+  "task": "IMPORT-01",
+  "version": "0.1.43",
+  "time": "2026-09-20T04:31:15.413558+08:00",
+  "base_commit": "b80ecd3",
+  "unit_tests": 192,
+  "typecheck": "passed",
+  "build": "npm run build passed",
+  "import_browser": [
+    "remote and GitHub endpoints deny anonymous requests",
+    "live public GitHub release populates version, title, notes and assets",
+    "GitHub asset is downloaded by server, stored unchanged with matching hash, and stays draft",
+    "HTTPS direct link stores a second file; internal addresses and duplicate slots are rejected",
+    "local upload supplements remote files in the same draft",
+    "mobile layout fits viewport, source switching retains local queue, and English import controls render"
+  ],
+  "release_regression": [
+    "upload step is visible before save, version input is not a false default, and product visibility is distinct from software publication",
+    "English defaults are explicit; independent English fields are visible when required",
+    "missing product artwork blocks confirmation early; real local media upload and draft save satisfy the unchanged server prerequisites",
+    "Chinese-only version saves with deliberate bilingual fallback, stays in product context, and missing artifacts prevent software publication",
+    "saving an existing version normalizes surrounding whitespace without leaving the upload step falsely locked",
+    "interrupted upload becomes uncertain with no automatic retry and preserves the selected file for reconciliation",
+    "manual retry after reconciliation uploads 8+1 MiB with exact server-confirmed chunks",
+    "server validation errors preserve inputs; switching/editing product tabs does not unmount unsaved version data",
+    "keyboard tabs and independently scoped confirmation reject each stream own unsaved edits"
+  ],
+  "visual_review": [
+    "1440px source and file import",
+    "390px without horizontal overflow"
+  ],
+  "network_observation": "One earlier real GitHub download timed out; explicit UI retry succeeded. Latest complete run passed.",
+  "scope": "Temporary catalog and synthetic test session only. No production products, accounts or releases modified.",
+  "signed_publication": "Original signature checks preserved; actual Open Play signed publication not executed.",
+  "deployment": "pending_push_and_public_verification"
+}

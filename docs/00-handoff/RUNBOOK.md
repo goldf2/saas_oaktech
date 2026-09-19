@@ -83,3 +83,7 @@ curl --silent --show-error --max-time 15 -o /dev/null -w '%{http_code}\n' https:
 ## 商品工作台（0.1.28）
 
 `npm run test:store-ui`现执行新版商品列表→新建→图文/版本→预览发布→重启检查的隔离浏览器流程；不是旧表单脚本，也不登录生产账号。公网可用后只读查看/admin/products与/admin/products/<slug>，不要公开虚构测试商品。操作和兼容范围见[工作台说明](PRODUCT_WORKSPACE_HANDOFF.md)。
+
+## 软件版本导入（0.1.43）
+
+商品 → 软件版本 → 导入 / 新建软件版本，默认 GitHub Release；输入公开仓库或 Release 链接读取资料，再保存和导入附件。HTTPS 直链和本地文件可以补齐同一草稿。具体边界及验证命令见 [版本导入](../release-import.md)。不需要新增生产秘密变量。

@@ -150,3 +150,13 @@ ADM-02：先核对主工作区的未提交管理员草稿与pg依赖调整，不
 ## 2026-09-19T06:04:00+08:00 · LANG-01
 
 LANG-01本地验收完成：165单元/接口、52浏览器、默认构建通过。语言优先级与边界见docs/language-recovery.md，发布后核对新旧Cookie兼容和公网重定向。
+
+
+## 2026-09-20T04:16:10.060295+08:00 · IMPORT-01
+
+用户确认优化版本发布：GitHub优先，HTTPS链接和本地上传补齐；导入为草稿，确认后发布。基于远端b80ecd3/0.1.42，独立工作区 /Volumes/project/临时文件/oaktech-release-import-20260920，保留主目录未提交工作。当前实现与验证待完成；下一步新增远程下载接口与来源选择界面。
+
+
+## 2026-09-20T04:31:15.413558+08:00 · IMPORT-01 / 0.1.43
+
+GitHub默认导入、HTTPS链接与本地补齐完成；192单元、类型、默认构建、6组导入和9组发布浏览器验证通过。范围、限制与验收见 `docs/00-handoff/evidence/2026-09-20-release-import.json` 和 `docs/release-import.md`。本轮独立分支 feat/release-import-20260920，未改生产商品或软件。当前尚待推送和公网核验，下一步提交并检查远端、CI与health；部署收据写.local-verification/0.1.43。

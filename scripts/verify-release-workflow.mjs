@@ -38,6 +38,8 @@ async function createVersion(slug, version, title = '启动检查与发光提醒
   await page.click(form + ' button[type="submit"]');
   await page.waitForFunction(() => location.search.includes('saved=1') && location.search.includes('release='));
   const release = (await catalog()).releases.find(r => r.product_slug === slug && r.version === version);
+  await page.waitForSelector(`#release-${release.id}[open] [data-testid="remote-release-import"]`);
+  await page.$$eval(`#release-${release.id} [role="group"] button`, buttons => buttons.find(b => b.textContent === "本地上传").click());
   await page.waitForSelector(`#release-${release.id}[open] [data-testid="artifact-upload"]`); return release;
 }
 async function switchTab(tab) {
@@ -73,7 +75,8 @@ try {
   });
   await browser.setCookie({ name: 'next-auth.session-token', value: await encode({ secret, token: { sub: subject, casdoorSubject: subject, casdoorIssuer: issuer }, maxAge: 3600 }), domain: '127.0.0.1', path: '/', httpOnly: true, sameSite: 'Lax' });
   await page.goto(base + '/admin/products/open-play?tab=versions', { waitUntil: 'networkidle0' });
-  assert.ok(await page.$('[data-testid="upload-awaiting-release"]')); assert.equal(await page.$eval('[data-testid="upload-awaiting-release"] button', b => b.disabled), true);
+  assert.ok(await page.$('[data-testid="remote-release-import"]'));
+  assert.equal(await page.$eval('[data-testid="github-inspect"]', b => b.disabled), true);
   assert.equal(await page.$eval('[data-testid="new-product-release"] input[name="version"]', x => x.value), '');
   assert.match(await page.$eval('[data-testid="product-state-line"]', p => p.textContent), /线上介绍：已公开/);
   assert.match(await page.$eval('[data-testid="product-workspace"]', p => p.textContent), /软件：尚无已发布版本/);
@@ -102,6 +105,7 @@ try {
   assert.ok(await page.$('[data-testid="software-only-notice"]')); await switchTab('versions');
   pass('Chinese-only version saves with deliberate bilingual fallback, stays in product context, and missing artifacts prevent software publication');
   const savedForm = `#release-${r.id} [data-testid="release-details-form"]`;
+  await page.$eval(savedForm, f => { f.closest('details').open = true; });
   await fill(savedForm + ' input[name="title_zh"]', '  更新后的版本标题  ');
   await page.click(savedForm + ' button[type="submit"]');
   await page.waitForSelector(`#release-${r.id} input[name="file"]`);
