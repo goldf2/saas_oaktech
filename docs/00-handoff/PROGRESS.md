@@ -2,7 +2,7 @@
 
 > 不要直接编辑本文件。修改TASKS.json后运行 `npm run handoff:render`。
 
-账本revision：38；更新时间：2026-09-19T07:48:34+08:00；计划版本：1.0.0。
+账本revision：40；更新时间：2026-09-19T08:19:10.491931+08:00；计划版本：1.0.0。
 
 **权限主线任务完成：1/14。这是任务计数，不是代码完成百分比；PLAN-01文档不计入。**
 
@@ -41,6 +41,7 @@
 | LANG-01 · 恢复浏览器语言检测与手动偏好 | STORE / feature | P0 | 完成 | ChatGPT / tsk_5ef8f47aca946698 | 无 |
 | PUB-02 · 商品图文视频发布可发现性与结果核验 | STORE / feature | P0 | 完成 | ChatGPT / tsk_d66259b906c7a92b | PUB-01 |
 | LAYOUT-01 · 商品编辑整页重排与发布操作清晰化 | STORE / feature | P0 | 完成 | ChatGPT / tsk_5c35347895781361 | 无 |
+| STORE-04 · 应用商店式展示与平台预置多选 | STORE / feature | P0 | 完成 | ChatGPT / tsk_eaf097a0ba893bd8 | PUB-02, LAYOUT-01 |
 
 ## 任务详情与接续动作
 
@@ -567,3 +568,22 @@
 证据：
 - verification / passed：`docs/00-handoff/evidence/2026-09-19-product-editor-layout.json`
 - implementation / passed：`components/admin/product-details-editor.tsx`
+
+### STORE-04 · 应用商店式展示与平台预置多选
+
+状态：完成；负责人：ChatGPT / tsk_eaf097a0ba893bd8；实施：complete_browser_verified；部署：pending_post_commit_verification。
+
+下一动作：提交推送后分别读取远端SHA、CI和公网页面；不公开用户草稿
+
+验收条件：
+- 按官方商店信息层级展示真实商品，不虚构评分价格下载量
+- 平台预置多选、类别分离、历史值保留
+- 响应式与中英文、预览发布、下载及权限回归通过
+- 独立记录代码/测试/推送/公网，生产内容不变
+
+计划文件（可能尚未创建）：`components/database-product-page.tsx`、`components/storefront-home.tsx`、`components/admin/platform-picker.tsx`、`docs/storefront-app-store-design.md`
+
+证据：
+- implementation / passed：`components/database-product-page.tsx`
+- implementation / passed：`components/admin/platform-picker.tsx`
+- verification / passed：`docs/00-handoff/evidence/2026-09-19-app-storefront.json`

@@ -14,7 +14,7 @@ export default async function NewProductPage({ searchParams }: { searchParams: P
   // Pass a stable server-created value. The client editor must not recreate its
   // initial object on every keystroke when this is a new, blank product.
   const initialProduct: AdminStoreProductRow = template ?? {
-    id: "", slug: "", category_slug: "desktop-apps", status: "beta", visibility: "draft",
+    id: "", slug: "", category_slug: "utility-tools", status: "beta", visibility: "draft",
     name_zh: "", name_en: "", tagline_zh: "", tagline_en: "",
     description_zh: "", description_en: "", icon_url: "", hero_image_url: "",
     gallery_urls: [], supported_platforms: [], featured: false,

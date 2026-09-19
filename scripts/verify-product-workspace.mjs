@@ -252,5 +252,5 @@ try {
   await browser?.close().catch(()=>{});await stop();await rm(temporary,{recursive:true,force:true});
   await writeFile(path.join(output,'result.json'),JSON.stringify(report,null,2)+'\n');
   if(report.status==='failed')await writeFile(path.join(output,'server.log'),serverLog);
-  console.log(JSON.stringify({...report,output},null,2));
+  process.stdout.write(JSON.stringify({...report,output},null,2)+'\n',()=>process.exit(report.status==='passed'?0:1));
 }

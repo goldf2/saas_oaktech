@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "plan_version": "1.0.0",
-  "revision": 38,
-  "updated_at": "2026-09-19T07:48:34+08:00",
+  "revision": 40,
+  "updated_at": "2026-09-19T08:19:10.491931+08:00",
   "project": "saas_oaktech",
   "source_commit": "54a42b33bc5fc3e9c42541fdd3bdd6fae4700bce",
   "current_next_task": "ADM-02",
@@ -1130,6 +1130,54 @@
       "deployment": "pending_post_commit_verification",
       "updated_at": "2026-09-19T07:00:12+08:00",
       "completed_at": "2026-09-19T07:00:12+08:00"
+    },
+    {
+      "id": "STORE-04",
+      "title": "应用商店式展示与平台预置多选",
+      "kind": "feature",
+      "priority": "P0",
+      "status": "done",
+      "owner": "ChatGPT / tsk_eaf097a0ba893bd8",
+      "depends_on": [
+        "PUB-02",
+        "LAYOUT-01"
+      ],
+      "evidence": [
+        {
+          "path": "components/database-product-page.tsx",
+          "kind": "implementation",
+          "result": "passed"
+        },
+        {
+          "path": "components/admin/platform-picker.tsx",
+          "kind": "implementation",
+          "result": "passed"
+        },
+        {
+          "path": "docs/00-handoff/evidence/2026-09-19-app-storefront.json",
+          "kind": "verification",
+          "result": "passed"
+        }
+      ],
+      "next_action": "提交推送后分别读取远端SHA、CI和公网页面；不公开用户草稿",
+      "milestone": "STORE",
+      "planned_files": [
+        "components/database-product-page.tsx",
+        "components/storefront-home.tsx",
+        "components/admin/platform-picker.tsx",
+        "docs/storefront-app-store-design.md"
+      ],
+      "acceptance": [
+        "按官方商店信息层级展示真实商品，不虚构评分价格下载量",
+        "平台预置多选、类别分离、历史值保留",
+        "响应式与中英文、预览发布、下载及权限回归通过",
+        "独立记录代码/测试/推送/公网，生产内容不变"
+      ],
+      "blockers": [],
+      "implementation": "complete_browser_verified",
+      "deployment": "pending_post_commit_verification",
+      "completed_at": "2026-09-19T08:19:10.491931+08:00",
+      "updated_at": "2026-09-19T08:19:10.491931+08:00"
     }
   ]
 }

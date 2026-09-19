@@ -33,7 +33,7 @@ export default function Header({ user, authProvider, isAdmin = false }: HeaderPr
 
   const mainNavItems: NavItem[] = [
     { label: copy.products, href: localized ? `/${locale}` : "/products" },
-    { label: copy.browserExtensions, href: "/categories/browser-extensions" },
+    { label: copy.browserExtensions, href: `/${locale}?platform=Browser%20Extension#collection` },
     { label: copy.support, href: "/support" },
   ];
 

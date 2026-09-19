@@ -1,115 +1,61 @@
-import { isSoftwareDownload } from "@/lib/store/download-visibility";
-import Image from "next/image";
-import { ProductVideos } from "@/components/product-videos";
-import Link from "next/link";
-import { ArrowRight, Download, Monitor } from "lucide-react";
-import { StoreDownloadCard } from "@/components/store-download-card";
-import { localePath } from "@/i18n/config";
-import type { Locale, ProductRelease, StoreProduct } from "@/lib/store/types";
+import Link from 'next/link';
+import { ArrowLeft, ArrowUpRight, Download, PackageOpen, Monitor } from 'lucide-react';
+import { ProductVideos } from '@/components/product-videos';
+import { ProductGallery } from '@/components/product-gallery';
+import { StoreDownloadCard } from '@/components/store-download-card';
+import { isSoftwareDownload } from '@/lib/store/download-visibility';
+import { categoryLabel, platformLabel } from '@/lib/store/presentation';
+import { localePath } from '@/i18n/config';
+import type { Locale, ProductRelease, StoreProduct } from '@/lib/store/types';
 
-const labels = {
-  en: {
-    beta: "Beta",
-    released: "Released",
-    comingSoon: "Coming soon",
-    downloads: "Downloads",
-    downloadTitle: "Get the current release.",
-    downloadDescription: "Choose the package that matches your platform. Only verified artifacts from the published release appear here.",
-    releaseHistory: "Release history",
-    currentVersion: "Current version",
-    platforms: "Supported platforms",
-    unavailable: "No verified download is available yet.",
-  },
-  zh: {
-    beta: "测试版",
-    released: "已发布",
-    comingSoon: "即将推出",
-    downloads: "软件下载",
-    downloadTitle: "获取当前公开版本。",
-    downloadDescription: "请选择与你的平台匹配的安装包。这里仅显示正式版本中已完成校验的文件。",
-    releaseHistory: "发布历史",
-    currentVersion: "当前版本",
-    platforms: "支持平台",
-    unavailable: "目前还没有可用的已验证下载。",
-  },
-} as const;
-
-export function DatabaseProductPage({ product, releases, locale, preview = false }: {
-  product: StoreProduct;
-  releases: ProductRelease[];
-  locale: Locale;
-  preview?: boolean;
-}) {
-  const copy = labels[locale];
-  const current = preview ? releases[0] : releases.find((release) => release.isCurrent) ?? releases[0];
+export function DatabaseProductPage({ product, releases, locale, preview = false }: { product: StoreProduct; releases: ProductRelease[]; locale: Locale; preview?: boolean }) {
+  const zh = locale === 'zh';
+  const published = releases.filter(r => r.status === 'published');
+  const current = preview ? releases[0] : published.find(r => r.isCurrent) ?? published[0];
   const downloads = preview ? [] : current?.artifacts.filter(isSoftwareDownload) ?? [];
-  const status = preview ? (locale === "zh" ? "草稿预览" : "Draft preview") : product.status === "released" ? copy.released : product.status === "beta" ? copy.beta : copy.comingSoon;
+  const stage = { beta: zh ? '测试版' : 'Beta', released: zh ? '正式版' : 'Released', 'coming-soon': zh ? '即将推出' : 'Coming soon' }[product.status];
+  const status = preview ? zh ? '草稿预览' : 'Draft preview' : stage;
   const releaseHref = localePath(locale, `/products/${product.slug}/releases`);
-
-  return (
-    <div className={preview ? "storefront product-preview-surface" : "storefront"}>
-      <section className="py-12 sm:py-16 lg:py-24">
-        <div className="store-shell product-detail-grid grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
-          <div>
-            <div className="flex flex-wrap items-center gap-3">
-              {product.iconUrl ? <Image unoptimized={preview || product.iconUrl.startsWith("/media/") || product.iconUrl.startsWith("https://")} src={product.iconUrl} alt="" width={72} height={72} priority className="h-[72px] w-[72px] rounded-[1.35rem] bg-white object-cover shadow-md" /> : <span className="flex h-[72px] w-[72px] items-center justify-center rounded-2xl border border-dashed text-xs">{locale === "zh" ? "待上传图标" : "Add icon"}</span>}
-              <span className="store-chip">{product.categorySlug.replaceAll("-", " ")}</span>
-              <span className="store-chip">{status}</span>
-            </div>
-            <h1 className="store-title mt-7">{product.name}</h1>
-            <p className="store-lede mt-6 max-w-xl">{product.tagline}</p>
-            <p className="mt-4 max-w-xl whitespace-pre-wrap break-words leading-7 text-[hsl(var(--store-secondary))]">{product.description}</p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              {downloads.length > 0 && (
-                <a href="#downloads" className="store-primary-action">
-                  {copy.downloads}
-                  <Download className="h-4 w-4" aria-hidden="true" />
-                </a>
-              )}
-              {!preview && <Link href={releaseHref} className="store-secondary-action">
-                {copy.releaseHistory}
-                <ArrowRight className="h-4 w-4" aria-hidden="true" />
-              </Link>}
-            </div>
-            <dl className="mt-8 grid max-w-xl grid-cols-2 gap-3">
-              <div className="store-glass rounded-2xl p-4">
-                <dt className="text-xs text-[hsl(var(--store-secondary))]">{copy.currentVersion}</dt>
-                <dd className="mt-1 font-semibold">{current?.version ?? "—"}</dd>
-              </div>
-              <div className="store-glass rounded-2xl p-4">
-                <dt className="text-xs text-[hsl(var(--store-secondary))]">{copy.platforms}</dt>
-                <dd className="mt-1 truncate font-semibold">{product.supportedPlatforms.join(" · ") || "—"}</dd>
-              </div>
-            </dl>
-          </div>
-          <div className="store-surface overflow-hidden p-2 sm:p-3">
-            {product.heroImageUrl ? <Image unoptimized={preview || product.heroImageUrl.startsWith("/media/") || product.heroImageUrl.startsWith("https://")} src={product.heroImageUrl} alt={`${product.name} interface preview`} width={1440} height={900} priority className="h-auto w-full rounded-[1.25rem]" /> : <div className="flex min-h-56 items-center justify-center rounded-xl border border-dashed text-sm">{locale === "zh" ? "上传商品封面后在这里预览" : "Upload a cover to preview it here"}</div>}
-          </div>
+  const images = Array.from(new Set((product.galleryUrls?.length ? product.galleryUrls : product.heroImageUrl && product.heroImageUrl !== product.iconUrl ? [product.heroImageUrl] : []).filter(Boolean)));
+  const date = current?.publishedAt && Number.isFinite(Date.parse(current.publishedAt)) ? new Date(current.publishedAt).toLocaleDateString(zh ? 'zh-CN' : 'en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' }) : null;
+  return <div className={`storefront app-storefront ${preview ? 'product-preview-surface' : ''}`} data-testid="app-store-product">
+    <div className="store-shell app-product-shell">
+      {!preview && <Link className="app-breadcrumb" href={localePath(locale)}><ArrowLeft className="h-4 w-4" />{zh ? '全部软件' : 'All apps'}</Link>}
+      <section className="app-product-head" aria-label={zh ? '商品概览' : 'App overview'}>
+        <div className="app-product-identity">
+          {product.iconUrl ? <img src={product.iconUrl} alt="" className="app-product-icon" /> : <span className="app-product-icon flex items-center justify-center"><PackageOpen className="h-12 w-12 text-muted-foreground" /></span>}
+          <div className="min-w-0"><p className="app-category-label">{categoryLabel(product.categorySlug, locale)}</p><h1 className="app-product-title">{product.name}</h1><p className="app-product-subtitle">{product.tagline}</p><span className="app-stage-badge">{status}</span></div>
+        </div>
+        <div className="app-get-area">
+          {downloads.length ? <a href="#downloads" className="app-get-button"><Download className="h-4 w-4" />{zh ? '获取软件' : 'Get the app'}</a> : <span className="app-get-unavailable"><PackageOpen className="h-4 w-4" />{preview ? zh ? '预览中不可下载' : 'Downloads disabled in preview' : zh ? '暂无下载' : 'Not available yet'}</span>}
+          <p>{downloads.length ? zh ? `${downloads.length} 个可下载安装包` : `${downloads.length} downloadable packages` : zh ? '可以先了解商品介绍' : 'Explore the app below'}</p>
         </div>
       </section>
-
-      <ProductVideos videos={product.videos} locale={locale} />
-      {(product.galleryUrls?.length ?? 0) > 0 && <section className="store-shell pb-12" aria-label={locale === "zh" ? "产品截图" : "Screenshots"}>
-        <h2 className="mb-5 text-2xl font-semibold">{locale === "zh" ? "产品截图" : "Screenshots"}</h2>
-        <div className="product-gallery-grid grid gap-5 sm:grid-cols-2">{product.galleryUrls!.map((url, index) => <Image key={`${url}-${index}`} unoptimized={preview || url.startsWith("/media/") || url.startsWith("https://")} src={url} alt={`${product.name} · ${index + 1}`} width={1280} height={800} className="h-auto w-full rounded-xl border object-contain" />)}</div>
-      </section>}
-      <section id="downloads" className="scroll-mt-24 border-t border-[hsl(var(--store-line)/0.7)] bg-[hsl(var(--store-surface)/0.55)] py-16 sm:py-20">
-        <div className="store-shell">
-          <p className="store-eyebrow">{copy.downloads}</p>
-          <h2 className="store-section-title mt-3">{copy.downloadTitle}</h2>
-          <p className="mt-4 max-w-2xl leading-7 text-[hsl(var(--store-secondary))]">{copy.downloadDescription}</p>
-          {downloads.length > 0 ? (
-            <div className="mt-9 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-              {downloads.map((artifact) => <StoreDownloadCard key={artifact.id} artifact={artifact} locale={locale} />)}
-            </div>
-          ) : (
-            <div className="store-surface mt-9 p-10 text-center">
-              <Monitor className="mx-auto h-7 w-7 text-[hsl(var(--store-secondary))]" aria-hidden="true" />
-              <p className="mt-4 text-[hsl(var(--store-secondary))]">{preview ? (locale === "zh" ? "预览中的草稿安装包未公开，最终校验发布后才提供下载。" : "Draft packages are not downloadable in preview. Publish verified files to enable downloads.") : copy.unavailable}</p>
-            </div>
-          )}
+      <dl className="app-facts-strip">
+        <div><dt>{zh ? '商品类别' : 'Category'}</dt><dd>{categoryLabel(product.categorySlug, locale)}</dd></div>
+        <div><dt>{zh ? '支持平台' : 'Platforms'}</dt><dd className="flex flex-wrap gap-x-3 gap-y-1">{product.supportedPlatforms.length ? product.supportedPlatforms.map((p, i) => <span key={`${p}-${i}`}>{platformLabel(p, locale)}</span>) : '—'}</dd></div>
+        <div><dt>{zh ? '最新版本' : 'Latest version'}</dt><dd>{current?.version ?? (zh ? '尚未发布' : 'Not released')}</dd></div>
+      </dl>
+      <div className="product-detail-grid app-product-body">
+        <div className="app-product-main">
+          <ProductGallery images={images} name={product.name} locale={locale} />
+          <div className="app-product-videos"><ProductVideos videos={product.videos} locale={locale} /></div>
+          <section className="app-section" id="about-app"><div className="app-section-heading"><h2>{zh ? '关于此软件' : 'About this app'}</h2></div>
+            <div className="app-about-copy">{product.description ? <><p>{product.description.slice(0, 800)}</p>{product.description.length > 800 && <details className="mt-3"><summary className="cursor-pointer font-medium text-primary">{zh ? '展开全部介绍' : 'Read more'}</summary><p className="mt-3">{product.description.slice(800)}</p></details>}</> : <p className="text-muted-foreground">{zh ? '商品介绍即将补充。' : 'More details will be added soon.'}</p>}</div>
+          </section>
+          {current && <section className="app-section" data-testid="app-whats-new"><div className="app-section-heading"><h2>{zh ? '版本更新' : 'What’s new'}</h2>{!preview && <Link href={releaseHref} className="app-text-link">{zh ? '版本历史' : 'Version history'}<ArrowUpRight className="h-4 w-4" /></Link>}</div><p className="mb-3 text-sm text-muted-foreground">{current.version}{date ? ` · ${date}` : ''}</p><p className="whitespace-pre-wrap break-words text-sm leading-7">{current.notes || current.title}</p></section>}
+          <section id="downloads" className="app-section scroll-mt-24" data-testid="app-downloads"><div className="app-section-heading"><h2>{zh ? '下载与安装' : 'Downloads'}</h2></div>
+            {downloads.length ? <><p className="mb-4 text-sm text-muted-foreground">{zh ? '选择与你的系统和处理器匹配的安装包。' : 'Choose the package for your system and processor.'}</p><div className="app-download-grid">{downloads.map(a => <StoreDownloadCard key={a.id} artifact={a} locale={locale} compact />)}</div></> : <div className="app-download-empty"><Monitor className="h-6 w-6 shrink-0 text-muted-foreground" /><p>{preview ? zh ? '草稿安装包不会在预览中提供下载。' : 'Draft packages are not downloadable in preview.' : zh ? '软件包尚未发布。商品介绍与软件版本分别发布，请稍后再来查看。' : 'No software package has been released yet. App information and packages are published separately.'}</p></div>}
+          </section>
         </div>
-      </section>
+        <aside className="app-info-sidebar"><section className="app-info-box"><h2>{zh ? '软件信息' : 'App information'}</h2><dl>
+          <div><dt>{zh ? '类别' : 'Category'}</dt><dd>{categoryLabel(product.categorySlug, locale)}</dd></div>
+          <div><dt>{zh ? '产品阶段' : 'Stage'}</dt><dd>{stage}</dd></div>
+          <div><dt>{zh ? '兼容平台' : 'Compatibility'}</dt><dd className="flex flex-wrap gap-1.5">{product.supportedPlatforms.map((p, i) => <span className="app-platform-tag" key={`${p}-${i}`}>{platformLabel(p, locale)}</span>)}</dd></div>
+          {current && <div><dt>{zh ? '版本' : 'Version'}</dt><dd>{current.version}</dd></div>}
+          {date && <div><dt>{zh ? '更新日期' : 'Updated'}</dt><dd>{date}</dd></div>}
+        </dl></section>{!preview && <div className="app-support-links"><Link href="/support">{zh ? '帮助与支持' : 'Help & support'}<ArrowUpRight className="h-4 w-4" /></Link><Link href={releaseHref}>{zh ? '查看发布历史' : 'Release history'}<ArrowUpRight className="h-4 w-4" /></Link></div>}</aside>
+      </div>
     </div>
-  );
+  </div>;
 }

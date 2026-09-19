@@ -1,0 +1,107 @@
+{
+  "version": "0.1.38",
+  "baseCommit": "2a25a66",
+  "verifiedAt": "2026-09-19T08:19:10.491931+08:00",
+  "unitTestsPassed": 182,
+  "browserChecksPassed": 78,
+  "browserSuites": [
+    {
+      "suite": "app-store",
+      "exitCode": 0,
+      "status": "passed",
+      "checks": 9
+    },
+    {
+      "suite": "store",
+      "exitCode": 0,
+      "status": "passed",
+      "checks": 13
+    },
+    {
+      "suite": "publication",
+      "exitCode": 0,
+      "status": "passed",
+      "checks": 6
+    },
+    {
+      "suite": "video",
+      "exitCode": 0,
+      "status": "passed",
+      "checks": 6
+    },
+    {
+      "suite": "workspace",
+      "exitCode": 0,
+      "status": "passed",
+      "checks": 8
+    },
+    {
+      "suite": "release",
+      "exitCode": 0,
+      "status": "passed",
+      "checks": 9
+    },
+    {
+      "suite": "language",
+      "exitCode": 0,
+      "status": "passed",
+      "checks": 7
+    },
+    {
+      "suite": "compact",
+      "exitCode": 0,
+      "status": "passed",
+      "checks": 3
+    },
+    {
+      "suite": "editor",
+      "exitCode": 0,
+      "status": "passed",
+      "checks": 6
+    },
+    {
+      "suite": "clarity",
+      "exitCode": 0,
+      "status": "passed",
+      "checks": 5
+    },
+    {
+      "suite": "link",
+      "exitCode": 0,
+      "status": "passed",
+      "checks": 6
+    }
+  ],
+  "typecheck": "passed",
+  "productionBuild": "passed",
+  "scope": "Disposable loopback servers, synthetic local identities; production products/software/roles unchanged",
+  "references": [
+    "https://developer.apple.com/app-store/product-page/",
+    "https://play.google.com/store/apps/details?id=notion.id&hl=en",
+    "https://apps.apple.com/cn/iphone/today"
+  ],
+  "changes": [
+    "App-style catalog and product overview with real download availability",
+    "Horizontal screenshot gallery with modal, Escape and arrow navigation",
+    "Predefined platform multiselect and unknown legacy preservation",
+    "Use-based categories separate from platform compatibility",
+    "Explicit locale collation fixes Node en-US / browser zh-CN hydration divergence"
+  ],
+  "verificationDetails": [
+    "Chinese and English, light/dark, 320/390/768/1440px",
+    "Platform draft save/reload/publish; no releases required for metadata publication",
+    "No redundant product checkbox; optional video titles; automatic iframe loading without autoplay",
+    "Existing upload, signatures/authorization unit checks, video, release and language browser regressions preserved"
+  ],
+  "initialFailures": [
+    "Initial custom browser waited on networkidle amid Next prefetch; now waits for complete document and visible content",
+    "Real React418 reproduced in dev: implicit localeCompare sorted Chinese/English cards differently on server vs browser; fixed with explicit page locale, final browser has zero errors"
+  ],
+  "visualReview": [
+    "Google Play actual product page and Apple Today captured and inspected",
+    "Public detail mobile/desktop and platform picker screenshots visually inspected",
+    "Featured artwork now uses object-contain instead of clipping"
+  ],
+  "productionDeployment": "pending post-commit verification",
+  "productionDataWrites": false
+}

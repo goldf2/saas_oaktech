@@ -7,6 +7,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { getRequestLanguage } from "@/i18n/server";
 import { LocaleProvider } from "@/i18n/locale-provider";
 import "./globals.css";
+import "./storefront.css";
 
 const baseUrl = process.env.BASE_URL
   ? `${process.env.BASE_URL}`

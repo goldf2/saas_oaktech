@@ -180,3 +180,7 @@ Docker运行非root，授权库/私有安装标识不与 `/releases/**` 公开�
 - [NextAuth v4 callbacks](https://next-auth.js.org/configuration/callbacks)：对照本项目锁定版本验证会话回调。
 
 待确认但不阻止编写本计划：授权数据库的实际部署落点/网络；实际部署触发通道；真实超管账号的MFA与重认证能力；旧管理员清单迁移范围。以上分别由ADM-01、OPS-01、ADM-13与ADM-10处理，不向用户索取明文密码或登录Cookie。
+
+## 2026-09-19 用户追加：STORE-04 商店展示与平台多选
+
+用户明确追加视觉与平台多选范围，本轮在独立工作树实现；不改变上面的权限路线。具体布局、官方参考、数据边界及验收条件见[应用商店式展示方案](../storefront-app-store-design.md)。

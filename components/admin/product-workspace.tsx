@@ -23,7 +23,7 @@ const imageErrors: Record<string, string> = {
   STORE_ADMIN_FORBIDDEN: "当前账号没有上传权限，请重新登录。",
 };
 function blankProduct(): AdminStoreProductRow {
-  return { id: "", slug: "", category_slug: "desktop-apps", status: "beta", visibility: "draft", name_zh: "", name_en: "", tagline_zh: "", tagline_en: "", description_zh: "", description_en: "", icon_url: "", hero_image_url: "", gallery_urls: [], supported_platforms: [], featured: false };
+  return { id: "", slug: "", category_slug: "utility-tools", status: "beta", visibility: "draft", name_zh: "", name_en: "", tagline_zh: "", tagline_en: "", description_zh: "", description_en: "", icon_url: "", hero_image_url: "", gallery_urls: [], supported_platforms: [], featured: false };
 }
 function previewProduct(p: AdminStoreProductRow, locale: Locale): StoreProduct {
   const local = (en: string, zh: string) => locale === "en" ? en || zh : zh;

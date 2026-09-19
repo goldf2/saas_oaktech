@@ -1,169 +1,32 @@
 "use client";
+import { useEffect, useMemo, useState } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { Search, X } from 'lucide-react';
+import { ProductCard } from '@/components/product-card';
+import { categoryLabel, platformKey, platformLabel, matchesPlatform, PLATFORM_PRESETS } from '@/lib/store/presentation';
+import type { ProductCategory, SoftwareProduct } from '@/config/products';
+import type { Locale } from '@/lib/store/types';
 
-import { useMemo } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Search, SlidersHorizontal, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { ProductCard } from "@/components/product-card";
-import {
-  PRODUCT_STATUS_LABELS,
-  type ProductCategory,
-  type SoftwareProduct,
-} from "@/config/products";
-import type { Locale } from "@/lib/store/types";
-
-type CatalogProps = {
-  products: SoftwareProduct[];
-  categories: ProductCategory[];
-  showCategoryFilter?: boolean;
-  locale?: Locale;
-};
-
-const STATUS_VALUES = ["beta", "released", "coming-soon"] as const;
-
-function isStatus(value: string | null): value is SoftwareProduct["status"] {
-  return STATUS_VALUES.some((status) => status === value);
-}
-
-export function ProductCatalog({
-  products,
-  categories,
-  showCategoryFilter = true,
-  locale,
-}: CatalogProps) {
-  const pathname = usePathname();
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const query = searchParams.get("q") ?? "";
-  const category = searchParams.get("category") ?? "all";
-  const status = searchParams.get("status");
-  const platform = searchParams.get("platform") ?? "all";
-  const sort = searchParams.get("sort") === "name" ? "name" : "featured";
-  const platforms = useMemo(
-    () => Array.from(new Set(products.flatMap((product) => product.platforms))).sort(),
-    [products],
-  );
-  const availableCategories = useMemo(
-    () => categories.filter((item) => products.some((product) => product.categorySlug === item.slug)),
-    [categories, products],
-  );
-  const filteredProducts = useMemo(() => {
-    const normalizedQuery = query.trim().toLowerCase();
-    return products
-      .filter((product) => {
-        const matchesQuery = !normalizedQuery || [product.name, product.tagline, product.description]
-          .join(" ")
-          .toLowerCase()
-          .includes(normalizedQuery);
-        const matchesCategory = !showCategoryFilter || category === "all" || product.categorySlug === category;
-        const matchesStatus = !isStatus(status) || product.status === status;
-        const matchesPlatform = platform === "all" || product.platforms.includes(platform);
-        return matchesQuery && matchesCategory && matchesStatus && matchesPlatform;
-      })
-      .sort((left, right) => {
-        if (sort === "name") return left.name.localeCompare(right.name);
-        return Number(right.featured) - Number(left.featured) || left.name.localeCompare(right.name);
-      });
-  }, [category, platform, products, query, showCategoryFilter, sort, status]);
-
-  function updateParam(name: string, value: string) {
-    const params = new URLSearchParams(searchParams.toString());
-    if (!value || value === "all" || (name === "sort" && value === "featured")) {
-      params.delete(name);
-    } else {
-      params.set(name, value);
-    }
-    const next = params.toString();
-    router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
-  }
-
-  function resetFilters() {
-    router.replace(pathname, { scroll: false });
-  }
-
-  const hasFilters = Boolean(query || (showCategoryFilter && category !== "all") || status || platform !== "all" || sort !== "featured");
-
-  return (
-    <div>
-      <div className="store-glass rounded-[1.5rem] p-4">
-        <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_180px_180px_180px_150px_auto]">
-          <label className="relative block">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              value={query}
-              onChange={(event) => updateParam("q", event.target.value)}
-              placeholder="Search products"
-              className="h-11 rounded-full border-[hsl(var(--store-line))] bg-[hsl(var(--store-surface))] pl-9"
-            />
-          </label>
-          {showCategoryFilter && (
-            <select
-              value={category}
-              onChange={(event) => updateParam("category", event.target.value)}
-              aria-label="Filter by category"
-              className="h-11 w-full rounded-full border border-[hsl(var(--store-line))] bg-[hsl(var(--store-surface))] px-3 text-sm"
-            >
-              <option value="all">All categories</option>
-              {availableCategories.map((item) => <option key={item.slug} value={item.slug}>{item.name}</option>)}
-            </select>
-          )}
-          <select
-            value={status ?? "all"}
-            onChange={(event) => updateParam("status", event.target.value)}
-            aria-label="Filter by release status"
-            className="h-11 w-full rounded-full border border-[hsl(var(--store-line))] bg-[hsl(var(--store-surface))] px-3 text-sm"
-          >
-            <option value="all">All statuses</option>
-            {STATUS_VALUES.filter((value) => products.some((product) => product.status === value)).map((value) => (
-              <option key={value} value={value}>{PRODUCT_STATUS_LABELS[value]}</option>
-            ))}
-          </select>
-          <select
-            value={platform}
-            onChange={(event) => updateParam("platform", event.target.value)}
-            aria-label="Filter by platform"
-            className="h-11 w-full rounded-full border border-[hsl(var(--store-line))] bg-[hsl(var(--store-surface))] px-3 text-sm"
-          >
-            <option value="all">All platforms</option>
-            {platforms.map((item) => <option key={item} value={item}>{item}</option>)}
-          </select>
-          <select
-            value={sort}
-            onChange={(event) => updateParam("sort", event.target.value)}
-            aria-label="Sort products"
-            className="h-11 w-full rounded-full border border-[hsl(var(--store-line))] bg-[hsl(var(--store-surface))] px-3 text-sm"
-          >
-            <option value="featured">Featured first</option>
-            <option value="name">Name</option>
-          </select>
-          {hasFilters ? (
-            <Button type="button" variant="ghost" onClick={resetFilters} className="h-11 justify-start rounded-full lg:justify-center">
-              <X className="mr-2 h-4 w-4" />
-              Clear
-            </Button>
-          ) : (
-            <div className="hidden lg:block" />
-          )}
-        </div>
-      </div>
-
-      <div className="flex items-center justify-between py-6 text-sm">
-        <span className="font-medium">{filteredProducts.length} {filteredProducts.length === 1 ? "product" : "products"}</span>
-        <span className="flex items-center gap-2 text-muted-foreground"><SlidersHorizontal className="h-4 w-4" /> Filters update this link</span>
-      </div>
-
-      {filteredProducts.length > 0 ? (
-        <div className="grid gap-6 lg:grid-cols-2">
-          {filteredProducts.map((product) => <ProductCard key={product.slug} product={product} locale={locale} />)}
-        </div>
-      ) : (
-        <div className="store-surface py-16 text-center">
-          <h2 className="text-xl font-semibold">No products match these filters.</h2>
-          <p className="mt-2 text-sm text-muted-foreground">Try another search term or clear the active filters.</p>
-          <Button type="button" variant="outline" className="mt-6 rounded-full" onClick={resetFilters}>Clear filters</Button>
-        </div>
-      )}
+type CatalogProps = { products: SoftwareProduct[]; categories?: ProductCategory[]; showCategoryFilter?: boolean; locale?: Locale };
+export function ProductCatalog({ products, showCategoryFilter = true, locale = 'en' }: CatalogProps) {
+  const pathname = usePathname(), router = useRouter(), params = useSearchParams(), zh = locale === 'zh';
+  const urlQuery = params.get('q') ?? '', category = params.get('category') ?? 'all', platform = params.get('platform') ?? 'all', status = params.get('status') ?? 'all', sort = params.get('sort') ?? 'featured';
+  const [query, setQuery] = useState(urlQuery);
+  useEffect(() => setQuery(urlQuery), [urlQuery]);
+  const categories = useMemo(() => Array.from(new Set(products.map(p => p.categorySlug))), [products]);
+  const platforms = useMemo(() => Array.from(new Set([...PLATFORM_PRESETS.filter(p => products.some(item => matchesPlatform(item.platforms, p.value))).map(p => p.value), ...products.flatMap(p => p.platforms.map(platformKey))])), [products]);
+  const filtered = useMemo(() => products.filter(p => (!query.trim() || `${p.name} ${p.tagline} ${p.description}`.toLowerCase().includes(query.trim().toLowerCase())) && (!showCategoryFilter || category === 'all' || p.categorySlug === category) && matchesPlatform(p.platforms, platform) && (status === 'all' || !['beta','released','coming-soon'].includes(status) || p.status === status)).sort((a, b) => (sort === 'name' ? 0 : Number(b.featured) - Number(a.featured)) || a.name.localeCompare(b.name, locale === 'zh' ? 'zh-CN' : 'en') || a.slug.localeCompare(b.slug, 'en')), [products, query, category, showCategoryFilter, platform, status, sort, locale]);
+  function update(key: string, value: string) { const next = new URLSearchParams(params.toString()); if (query.trim()) next.set('q', query.trim()); else next.delete('q'); if (!value || value === 'all' || key === 'sort' && value === 'featured') next.delete(key); else next.set(key, value); router.replace(`${pathname}${next.size ? '?' + next.toString() : ''}#collection`, { scroll: false }); }
+  function reset() { setQuery(''); router.replace(pathname + '#collection', { scroll: false }); }
+  const hasFilters = query || category !== 'all' || platform !== 'all' || status !== 'all' || sort !== 'featured';
+  return <div data-testid="app-catalog">
+    <div className="app-catalog-toolbar">
+      <form className="app-catalog-search" onSubmit={e => { e.preventDefault(); update('q', query.trim()); }}><Search className="h-4 w-4 shrink-0 text-muted-foreground" /><input type="search" aria-label={zh ? '搜索软件' : 'Search apps'} placeholder={zh ? '搜索软件名称或功能' : 'Search apps or features'} value={query} maxLength={200} onChange={e => setQuery(e.target.value)} /><button type="submit">{zh ? '搜索' : 'Search'}</button></form>
+      <div className="flex min-w-0 flex-wrap gap-2"><select className="app-filter-select" value={platform} onChange={e => update('platform', e.target.value)} aria-label={zh ? '筛选平台' : 'Filter by platform'}><option value="all">{zh ? '全部平台' : 'All platforms'}</option>{!platforms.includes(platform) && platform !== 'all' && <option value={platform}>{platformLabel(platform, locale)}</option>}{platforms.map(p => <option key={p} value={p}>{platformLabel(p, locale)}</option>)}</select>
+      <select className="app-filter-select" value={status} onChange={e => update('status', e.target.value)} aria-label={zh ? '筛选产品阶段' : 'Filter by release status'}><option value="all">{zh ? '全部阶段' : 'All stages'}</option><option value="released">{zh ? '正式版' : 'Released'}</option><option value="beta">{zh ? '测试版' : 'Beta'}</option><option value="coming-soon">{zh ? '即将推出' : 'Coming soon'}</option></select></div>
     </div>
-  );
+    {showCategoryFilter && <div className="app-category-tabs" role="group" aria-label={zh ? '软件类别' : 'App categories'}>{['all', ...categories].map(c => <button type="button" key={c} aria-pressed={category === c} data-category-filter={c} onClick={() => update('category', c)}>{c === 'all' ? zh ? '全部软件' : 'All apps' : categoryLabel(c, locale)}</button>)}</div>}
+    <div className="mb-4 mt-5 flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground"><p aria-live="polite">{filtered.length} {zh ? '款软件' : filtered.length === 1 ? 'app' : 'apps'}</p><div className="flex items-center gap-3">{hasFilters && <button type="button" onClick={reset} className="inline-flex items-center gap-1 text-primary"><X className="h-3.5 w-3.5" />{zh ? '清除筛选' : 'Clear filters'}</button>}<select aria-label={zh ? '软件排序' : 'Sort products'} value={sort} onChange={e => update('sort', e.target.value)} className="bg-transparent py-1"><option value="featured">{zh ? '推荐优先' : 'Featured first'}</option><option value="name">{zh ? '按名称' : 'By name'}</option></select></div></div>
+    {filtered.length ? <div className="app-catalog-grid">{filtered.map(p => <ProductCard key={p.slug} product={p} locale={locale} />)}</div> : <div className="app-catalog-empty"><Search className="mx-auto h-7 w-7 text-muted-foreground" /><h3 className="mt-4 font-semibold">{zh ? '没有找到匹配的软件' : 'No apps match your search'}</h3><p className="mt-2 text-sm text-muted-foreground">{zh ? '试试其他关键词，或清除筛选条件。' : 'Try another keyword or clear the filters.'}</p><button type="button" onClick={reset} className="mt-5 font-medium text-primary">{zh ? '查看全部软件' : 'View all apps'}</button></div>}
+  </div>;
 }

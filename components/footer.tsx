@@ -17,7 +17,7 @@ export function Footer() {
   const footerLinks = [
     { title: copy.browse, links: [
       { label: copy.allProducts, href: localized ? `/${locale}` : "/products" },
-      { label: copy.browserExtensions, href: "/categories/browser-extensions" },
+      { label: copy.browserExtensions, href: `/${locale}?platform=Browser%20Extension#collection` },
       { label: copy.xTweetExtractor, href: localePath(locale, "/products/x-tweet-extractor") },
       { label: "GitFinder 2", href: localePath(locale, "/products/gitfinder-2") },
     ] },

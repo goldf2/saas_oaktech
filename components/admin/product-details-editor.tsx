@@ -4,11 +4,13 @@ import { ImagePlus, Plus, Upload, ArrowUp, ArrowDown, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { PlatformPicker } from "./platform-picker";
+import { PRODUCT_CATEGORY_PRESETS, categoryLabel } from "@/lib/store/presentation";
 import { ProductVideoEditor } from "./product-video-editor";
 import type { AdminStoreProductRow } from "@/lib/store/types";
 
 export type ProductMediaField = "icon_url" | "hero_image_url" | "gallery_urls" | `video:${string}`;
-const categories = [["desktop-apps", "桌面应用"], ["browser-extensions", "浏览器扩展"], ["trading-tools", "交易研究工具"], ["developer-tools", "开发工具"], ["ai-tools", "AI工具"], ["productivity-tools", "效率工具"]];
+const categories = PRODUCT_CATEGORY_PRESETS.map(p => [p.value, p.zh]);
 type UpdateProduct = <K extends keyof AdminStoreProductRow>(field: K, next: AdminStoreProductRow[K]) => void;
 
 export function ProductDetailsEditor({ value, disabled, existing, update, onUpload, onMoveScreenshot, onSave, onPreparePublication }: {
@@ -36,11 +38,11 @@ export function ProductDetailsEditor({ value, disabled, existing, update, onUplo
         <fieldset disabled={disabled} className="grid min-w-0 gap-4 sm:grid-cols-2">
           <label className="text-sm font-medium">商品名称<Input name="name_zh" className="mt-1.5 h-10" required value={value.name_zh} onChange={e => update("name_zh", e.target.value)} placeholder="例如：我的软件" /></label>
           <label className="text-sm font-medium">地址标识<Input name="slug" className="mt-1.5 h-10" required readOnly={existing} value={value.slug} onChange={e => update("slug", e.target.value)} placeholder="my-software" /><span className="mt-1 block text-xs font-normal text-muted-foreground">用于商品网址，创建后固定。</span></label>
-          <label className="text-sm font-medium">商品类别<select name="category_slug" className="mt-1.5 h-10 w-full rounded-md border bg-background px-3" value={value.category_slug} onChange={e => update("category_slug", e.target.value)}>{categories.map(([id, name]) => <option key={id} value={id}>{name}</option>)}</select></label>
+          <label className="text-sm font-medium">商品类别<select name="category_slug" className="mt-1.5 h-10 w-full rounded-md border bg-background px-3" value={value.category_slug} onChange={e => update("category_slug", e.target.value)}>{!categories.some(([id]) => id === value.category_slug) && <option value={value.category_slug}>{categoryLabel(value.category_slug)}（已有类别）</option>}{categories.map(([id, name]) => <option key={id} value={id}>{name}</option>)}</select></label>
           <label className="text-sm font-medium">展示标签<select name="status" className="mt-1.5 h-10 w-full rounded-md border bg-background px-3" value={value.status} onChange={e => update("status", e.target.value as AdminStoreProductRow["status"])}><option value="beta">测试版</option><option value="released">正式版</option><option value="coming-soon">即将推出</option></select><span className="mt-1 block text-xs font-normal text-muted-foreground">这是商品标签，不是本次发布状态。</span></label>
           <label className="text-sm font-medium sm:col-span-2">一句话简介<Input name="tagline_zh" className="mt-1.5 h-10" value={value.tagline_zh} onChange={e => update("tagline_zh", e.target.value)} /></label>
           <label className="text-sm font-medium sm:col-span-2">详细说明<Textarea name="description_zh" rows={6} className="mt-1.5 min-h-36 resize-y leading-relaxed" value={value.description_zh} onChange={e => update("description_zh", e.target.value)} placeholder="介绍用途、主要功能和使用方法。支持换行，不执行 HTML。" /></label>
-          <label className="text-sm font-medium">支持平台<Input name="supported_platforms" className="mt-1.5 h-10" value={value.supported_platforms.join(", ")} onChange={e => update("supported_platforms", e.target.value.split(",").map(v => v.trim()))} placeholder="macOS, Windows" /></label>
+          <div className="sm:col-span-2"><PlatformPicker value={value.supported_platforms} disabled={disabled} onChange={next => update("supported_platforms", next)} /></div>
           <label className="flex min-h-10 items-center gap-2 self-end text-sm"><input name="featured" className="h-4 w-4 accent-primary" type="checkbox" checked={value.featured} onChange={e => update("featured", e.target.checked)} />首页推荐</label>
           <details className="border-t pt-3 sm:col-span-2" data-testid="product-english-fields">
             <summary className="cursor-pointer text-sm font-medium">英文资料 <span className="font-normal text-muted-foreground">· 可选，留空时使用中文</span></summary>

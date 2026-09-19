@@ -1,4 +1,5 @@
 import { Download, Laptop, ShieldCheck } from "lucide-react";
+import { platformLabel } from "@/lib/store/presentation";
 import { cn } from "@/lib/utils";
 import type { Locale, ReleaseArtifact } from "@/lib/store/types";
 
@@ -37,6 +38,7 @@ export function StoreDownloadCard({
   compact?: boolean;
 }) {
   const labels = copy[locale];
+  const platform = platformLabel(artifact.platform, locale);
   const size = `${(artifact.sizeBytes / 1024 / 1024).toFixed(1)} MB`;
   const checksum = artifact.sha512 ? `${artifact.sha512.slice(0, 12)}…` : "—";
 
@@ -49,7 +51,7 @@ export function StoreDownloadCard({
         <span className="store-chip">{size}</span>
       </div>
       <p className="mt-5 text-xs font-semibold text-[hsl(var(--store-secondary))]">{labels.architecture} · {artifact.architecture}</p>
-      <h3 className="mt-1 text-xl font-semibold tracking-[-0.025em]">{artifact.platform}</h3>
+      <h3 className="mt-1 text-xl font-semibold tracking-[-0.025em]">{platform}</h3>
       <p className="mt-2 text-sm text-[hsl(var(--store-secondary))]">{labels.file} · {formatPackageKind(artifact.packageKind)}</p>
       <p className="mb-5 mt-4 flex items-center gap-2 text-xs text-[hsl(var(--store-secondary))]">
         <ShieldCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
@@ -59,9 +61,9 @@ export function StoreDownloadCard({
         href={artifact.publicPath}
         download={artifact.fileName}
         className="store-download-action"
-        aria-label={`${labels.download} ${artifact.platform}, ${artifact.architecture}, ${size}`}
+        aria-label={`${labels.download} ${platform}, ${artifact.architecture}, ${size}`}
       >
-        {labels.download} {artifact.platform}
+        {labels.download} {platform}
         <Download className="h-4 w-4" aria-hidden="true" />
       </a>
     </article>

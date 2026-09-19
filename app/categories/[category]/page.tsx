@@ -1,56 +1,18 @@
-import { notFound } from "next/navigation";
-import Link from "next/link";
-import { ArrowLeft, PackageOpen } from "lucide-react";
-import { ProductCatalog } from "@/components/product-catalog";
-import {
-  PRODUCT_CATEGORIES,
-  getCategoryBySlug,
-} from "@/config/products";
-import { listPublicProducts, storeProductToSoftwareProduct } from "@/lib/store/public-data";
-
-export const dynamic = "force-dynamic";
-
-export function generateStaticParams() {
-  return PRODUCT_CATEGORIES.filter((category) => category.availability === "available").map(
-    (category) => ({ category: category.slug }),
-  );
-}
-
-export default async function CategoryPage({
-  params,
-}: {
-  params: Promise<{ category: string }>;
-}) {
-  const { category: slug } = await params;
-  const category = getCategoryBySlug(slug);
-
-  if (!category || category.availability !== "available") notFound();
-
-  const { products: catalogProducts } = await listPublicProducts("en");
-  const products = catalogProducts
-    .filter((product) => product.categorySlug === slug)
-    .map(storeProductToSoftwareProduct);
-
-  return (
-    <div className="container px-4 py-12 md:py-18">
-      <Link href="/products" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
-        <ArrowLeft className="h-4 w-4" />
-        All products
-      </Link>
-      <div className="mt-8 max-w-2xl">
-        <h1 className="text-4xl font-bold tracking-normal md:text-5xl">{category.name}</h1>
-        <p className="mt-4 text-lg leading-8 text-muted-foreground">{category.description}</p>
-      </div>
-      {products.length > 0 ? (
-        <div className="mt-10">
-          <ProductCatalog products={products} categories={[category]} showCategoryFilter={false} locale="en" />
-        </div>
-      ) : (
-        <div className="mt-10 border-y py-16 text-center">
-          <PackageOpen className="mx-auto h-8 w-8 text-muted-foreground" />
-          <p className="mt-4 text-muted-foreground">Products in this category are still in development.</p>
-        </div>
-      )}
-    </div>
-  );
+import { notFound } from 'next/navigation';
+import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
+import { ProductCatalog } from '@/components/product-catalog';
+import { listPublicProducts, storeProductToSoftwareProduct } from '@/lib/store/public-data';
+import { categoryLabel, PRODUCT_CATEGORY_PRESETS } from '@/lib/store/presentation';
+import { getRequestLanguage } from '@/i18n/server';
+import { localePath } from '@/i18n/config';
+export const dynamic = 'force-dynamic';
+export default async function CategoryPage({ params }: { params: Promise<{ category: string }> }) {
+  const { category } = await params;
+  if (!/^[a-z0-9][a-z0-9-]{0,79}$/.test(category)) notFound();
+  const { locale } = await getRequestLanguage();
+  const { products } = await listPublicProducts(locale);
+  const items = products.filter(p => p.categorySlug === category);
+  if (!items.length && !PRODUCT_CATEGORY_PRESETS.some(p => p.value === category) && !['desktop-apps','browser-extensions'].includes(category)) notFound();
+  return <div className="storefront app-storefront"><div className="store-shell py-8"><Link href={localePath(locale)} className="app-breadcrumb"><ArrowLeft className="h-4 w-4" />{locale === 'zh' ? '全部软件' : 'All apps'}</Link><h1 className="mb-6 text-3xl font-semibold">{categoryLabel(category, locale)}</h1><section id="collection"><ProductCatalog products={items.map(storeProductToSoftwareProduct)} showCategoryFilter={false} locale={locale} /></section></div></div>;
 }

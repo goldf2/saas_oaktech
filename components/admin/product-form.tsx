@@ -1,3 +1,4 @@
+import { PlatformPicker } from "./platform-picker";
 import { saveProductAction } from "@/app/admin/actions";
 import { AdminActionForm } from "@/components/admin/action-form";
 import { Button } from "@/components/ui/button";
@@ -25,7 +26,7 @@ export function ProductForm({ product }: { product?: AdminStoreProductRow }) {
         <label className="text-sm font-medium">Description (English)<Textarea name="description_en" defaultValue={product?.description_en} required /></label>
         <label className="text-sm font-medium">详情（中文）<Textarea name="description_zh" defaultValue={product?.description_zh} required /></label>
       </div>
-      <label className="text-sm font-medium">支持平台（以逗号分隔）<Input name="supported_platforms" defaultValue={product?.supported_platforms.join(", ")} /></label>
+      <PlatformPicker defaultValue={product?.supported_platforms ?? []} />
       <label className="flex items-center gap-2 text-sm"><input name="featured" type="checkbox" defaultChecked={product?.featured} /> 首页推荐</label>
       <Button type="submit" className="w-fit">保存商品</Button>
     </AdminActionForm>
