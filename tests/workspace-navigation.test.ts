@@ -12,7 +12,7 @@ test('one product view serves both roles and legacy library links without treati
 });
 test('both roles get one product tab plus account and no separate software-library tab', () => {
   assert.deepEqual(workspaceSections(false).map(x => x.view), ['products', 'account']);
-  assert.deepEqual(workspaceSections(true).map(x => x.view), ['products', 'account']);
+  assert.deepEqual(workspaceSections(true).map(x => x.view), ['products', 'mcp', 'account']);
 });
 test('old product filters map only to the canonical local workspace', () => {
   assert.equal(workspaceProductsHref(), '/dashboard?view=products');

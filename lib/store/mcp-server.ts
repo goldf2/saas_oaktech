@@ -21,7 +21,7 @@ export function createStoreMcpServer(principal: McpPrincipal, refresh: (slug: st
       const data = await fn();
       let warning: string | undefined;
       if(scope !== 'read') {
-        try { await appendStoreAudit({actorUserId:'store-mcp',actorEmail:'store-mcp@oaktechz.internal',action:`store.mcp.${operation}`,targetType:'store_product',targetId:slug}); }
+        try { await appendStoreAudit({actorUserId:principal.tokenId ? `store-mcp:${principal.tokenId}` : 'store-mcp',actorEmail:'store-mcp@oaktechz.internal',action:`store.mcp.${operation}`,targetType:'store_product',targetId:slug}); }
         catch { warning = 'SAVED_AUDIT_FAILED_READ_BEFORE_RETRY'; }
         try { if(slug) refresh(slug); } catch { warning = warning ?? 'SAVED_CACHE_REFRESH_FAILED'; }
       }

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { McpManagement } from "@/components/admin/mcp-management";
 import { redirect } from "next/navigation";
 import { HeadphonesIcon, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -31,7 +32,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
       <Button asChild variant="outline" size="sm"><Link href={localePath(language.locale)}>{text.back}</Link></Button>
     </header>
     <nav data-testid="workspace-navigation" aria-label={text.nav} className="my-5 flex flex-wrap gap-2 border-b pb-3">{workspaceSections(Boolean(admin), language.locale).map(item => <Button key={item.view} asChild size="sm" variant={view === item.view ? "default" : "outline"}><Link href={item.href} aria-current={view === item.view ? "page" : undefined}>{item.label}</Link></Button>)}</nav>
-    {view === "products" ? <ProductManagement searchParams={Promise.resolve(query)} locale={language.locale} /> : <section data-testid="workspace-account" className="grid gap-4 md:grid-cols-2">
+    {view === "mcp" && admin ? <McpManagement locale={language.locale} /> : view === "products" ? <ProductManagement searchParams={Promise.resolve(query)} locale={language.locale} /> : <section data-testid="workspace-account" className="grid gap-4 md:grid-cols-2">
       <article className="min-w-0 rounded-xl border p-5"><h2 className="flex items-center gap-2 text-xl font-semibold"><UserRound className="h-5 w-5" />{text.account}</h2><dl className="mt-4 space-y-3 text-sm"><div><dt className="text-muted-foreground">{text.current}</dt><dd className="mt-1 break-words">{user.email || user.name || text.signedIn}</dd></div><div><dt className="text-muted-foreground">{text.permission}</dt><dd className="mt-1">{admin ? text.administrator : text.user}</dd></div><div><dt className="text-muted-foreground">{text.loginMethod}</dt><dd className="mt-1">{user.provider === "casdoor" ? text.casdoor : text.email}</dd></div></dl>
         {user.provider === "casdoor" ? <p className="mt-4 text-sm text-muted-foreground">{text.passwordNote}</p> : <Button asChild variant="outline" className="mt-4"><Link href="/dashboard/reset-password">{text.changePassword}</Link></Button>}
         <p className="mt-4 text-xs text-muted-foreground">{text.statsNote}</p>

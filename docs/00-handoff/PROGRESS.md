@@ -2,11 +2,11 @@
 
 > 不要直接编辑本文件。修改TASKS.json后运行 `npm run handoff:render`。
 
-账本revision：53；更新时间：2026-09-20T08:48:57+08:00；计划版本：1.0.0。
+账本revision：56；更新时间：2026-09-20T09:34:58+08:00；计划版本：1.0.0。
 
 **权限主线任务完成：1/14。这是任务计数，不是代码完成百分比；PLAN-01文档不计入。**
 
-生产超管状态：`not_implemented`；唯一下一任务：**MCP-01**。
+生产超管状态：`not_implemented`；唯一下一任务：**MCP-02**。
 
 | 任务 | 阶段/类型 | 优先级 | 状态 | 负责人 | 依赖 |
 | --- | --- | --- | --- | --- | --- |
@@ -50,6 +50,7 @@
 | IMPORT-01 · GitHub优先的软件版本导入与链接补齐 | M4 / feature | P1 | 完成 | Codex / release-import-20260920 | 无 |
 | IMPORT-02 · 修复open play官网签名清单匹配与发布错误反馈 | M4 / feature | P0 | 进行中 | Codex | IMPORT-01 |
 | MCP-01 · 商品与程序版本管理 MCP | M4 / feature | P1 | 待验收 | Codex | 无 |
+| MCP-02 · MCP 接入页面与独立令牌管理 | M4 / feature | P1 | 待验收 | Codex | 无 |
 
 ## 任务详情与接续动作
 
@@ -725,7 +726,7 @@
 
 状态：待验收；负责人：Codex；实施：implemented；部署：not_deployed。
 
-下一动作：提交推送并核验部署；生产服务凭据及客户端接入尚未配置
+下一动作：恢复既有 Coolify 部署通道，并等待用户确认生产 MCP 权限范围
 
 验收条件：
 - MCP 客户端可发现工具并创建修改商品和版本草稿
@@ -734,6 +735,28 @@
 
 计划文件（可能尚未创建）：`lib/store/mcp-server.ts`、`app/api/mcp/route.ts`、`docs/store-mcp.md`
 
+阻塞：
+- GitHub COOLIFY_WEBHOOK/TOKEN 未配置，部署失败
+- 生产 MCP 权限范围确认待答复
+
 证据：
 - verification / passed：`docs/00-handoff/evidence/2026-09-20-store-mcp.json`
+- documentation / passed：`docs/store-mcp.md`
+
+### MCP-02 · MCP 接入页面与独立令牌管理
+
+状态：待验收；负责人：Codex；实施：implemented；部署：not_deployed。
+
+下一动作：提交推送0.1.46并验证公网；保留本地预览供用户检查
+
+验收条件：
+- 后台管理员可创建与撤销限商品限权限令牌
+- 只保存摘要，明文一次显示，撤销与过期拒绝后续 MCP 请求
+- 配置下载不含秘密，文档与实际连接测试可用
+- 普通账号无访问或发放权限，隔离桌面手机页面验收
+
+计划文件（可能尚未创建）：`components/admin/mcp-management.tsx`、`lib/store/mcp-tokens.ts`、`app/api/admin/mcp/route.ts`
+
+证据：
+- verification / passed：`docs/00-handoff/evidence/2026-09-20-mcp-management.json`
 - documentation / passed：`docs/store-mcp.md`

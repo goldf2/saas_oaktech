@@ -1,12 +1,14 @@
 import { WebStandardStreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js';
 import { revalidatePath } from 'next/cache';
-import { authenticateStoreMcp } from '@/lib/store/mcp-auth';
+import { authenticateManagedMcp } from '@/lib/store/mcp-tokens';
 import { createStoreMcpServer } from '@/lib/store/mcp-server';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
-  const principal = authenticateStoreMcp(request.headers.get('authorization'));
+  let principal;
+  try {principal = await authenticateManagedMcp(request.headers.get('authorization'));}
+  catch {return Response.json({error:'MCP_AUTH_UNAVAILABLE'},{status:503,headers:{'Cache-Control':'no-store'}});}
   if (!principal) return Response.json({error:'MCP_UNAUTHORIZED'}, {status:401,headers:{'Cache-Control':'no-store'}});
   const origin=request.headers.get('origin');
   const configured=process.env.NEXTAUTH_URL || process.env.BASE_URL;

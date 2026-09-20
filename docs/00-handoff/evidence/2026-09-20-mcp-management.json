@@ -1,0 +1,25 @@
+{
+  "task": "MCP-02",
+  "version": "0.1.46",
+  "at": "2026-09-20T09:34:58+08:00",
+  "checks": {
+    "tests": "216 passed",
+    "typecheck": "passed",
+    "production_build": "passed",
+    "browser": [
+      "isolated administrator sees MCP tab and controls",
+      "create scoped token then initialize/tools-list returns 8 tools",
+      "revoke confirmation and revoked list state",
+      "Chinese and English UI",
+      "390px viewport has scrollWidth = clientWidth = 390",
+      "ordinary account has no MCP tab and forged view renders public catalog",
+      "server attachment download received for Codex config",
+      "no browser console errors in final preview"
+    ]
+  },
+  "secret_handling": "only digests persisted; one-time response; no actual token in config download",
+  "production_data_changed": false,
+  "production_tokens_issued": false,
+  "preview": "http://127.0.0.1:61975/dashboard?view=mcp",
+  "deployment": "pending"
+}

@@ -3,7 +3,7 @@ import { isStoreSlug } from './policy';
 
 export const MCP_SCOPES = ['read', 'product:write', 'release:write', 'product:publish', 'release:publish'] as const;
 export type McpScope = typeof MCP_SCOPES[number];
-export type McpPrincipal = { scopes: McpScope[]; products: string[] };
+export type McpPrincipal = { scopes: McpScope[]; products: string[]; tokenId?: string };
 // An independent, explicitly configured service identity. Existing release tokens
 // and browser cookies never grant these new capabilities.
 export function authenticateStoreMcp(authorization: string | null, env = process.env): McpPrincipal | null {

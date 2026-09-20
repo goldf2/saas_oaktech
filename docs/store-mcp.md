@@ -1,6 +1,6 @@
 # OakTech 商品与程序版本 MCP
 
-入口：`https://oaktechz.com/api/mcp`，Streamable HTTP（POST，无状态 JSON 响应），SDK 固定 `@modelcontextprotocol/sdk@1.30.0`。本实现不提供 OAuth 自动授权；使用支持 Bearer Header 的 MCP 客户端。接入凭据未配置时返回 401，部署代码不等于客户端已连接。
+入口：`https://oaktechz.com/api/mcp`，Streamable HTTP（POST，无状态 JSON 响应），SDK 固定 `@modelcontextprotocol/sdk@1.30.0`。本实现不提供 OAuth 自动授权；使用支持 Bearer Header 的 MCP 客户端。没有有效令牌时返回 401，部署代码不等于客户端已连接。
 
 ## 操作
 
@@ -28,17 +28,27 @@
 
 本期 MCP 支持服务器拉取公开 HTTPS / GitHub 附件。私有 GitHub 和本机文件仍用现有后台上传；不读取本机路径或浏览器 Cookie，不实现远程主机任意文件读取。大包导入同步执行，客户端调用超时应覆盖下载时长；超时后 get_release 检查文件，避免盲重试。
 
-## 机器授权配置
+## 后台接入页面（0.1.46）
 
-独立服务身份 `store-mcp`，不复用 `OAKTECH_RELEASE_WRITE_TOKEN` 或管理员 Cookie。运行时秘密配置：
+管理员登录后打开工作台 → **MCP / AI 接入**，路径 `/dashboard?view=mcp`。普通账号不显示入口，所有令牌接口再次进行管理员验证。
 
-- `OAKTECH_MCP_TOKEN`：密码学随机生成的至少 32 字节凭据。值不进入 Git、聊天或日志。
-- `OAKTECH_MCP_SCOPES`：逗号分隔，例如 `read,product:write,release:write`。发布权限分别显式添加。
-- `OAKTECH_MCP_PRODUCTS`：逗号分隔的具体商品 slug（含将创建的新商品），不支持通配符。
+1. 输入令牌名称，勾选商品及操作，选择有效期（7/30/90/365天）。默认只有查询。未创建的商品可在“新增商品标识”中预先授权，仍不允许通配符。
+2. 点击创建后，复制一次性令牌到客户端秘密配置。明文不保存到服务器；刷新或关闭后无法恢复，遗失则撤销并重建。
+3. 下载 Codex TOML 配置、通用 JSON 模板或 Markdown 使用文档。模板只含环境变量引用或占位符，不含实际令牌；不要把下载模板直接覆盖已有完整配置。
+4. 点击“验证连接”，执行真实 MCP initialize 和 tools/list；显示当前令牌的可用工具数。该测试只证明浏览器到接口可用，不代表外部客户端已连接。
+5. 需要停用时，在列表中撤销并确认。撤销/到期后的新请求返回401，已开始执行的请求不作回滚。
 
-默认全部拒绝。tools/list 只暴露已授权操作，每次请求重新认证并校验商品范围；移除/轮换 token 即撤销访问。只向指定可信客户端授权，不自动开放现有所有商品。该服务身份不管理账号或管理员，不是 CT-ADMIN-001 的人类权限迁移。
+Codex 模板使用 `bearer_token_env_var = "OAKTECH_MCP_TOKEN"`，令牌应注入实际运行 Codex 的进程环境，之后重新连接。官方参考：https://developers.openai.com/codex/mcp 。通用JSON的格式需按客户端要求调整；不能填写 Bearer/Header 的客户端不因填入地址便自动得到授权。本版本未提供OAuth，也不保证ChatGPT的任一连接界面均能使用独立令牌。
 
-客户端使用 URL 上述入口、Authorization Bearer，从客户端秘密环境读取 token。不要在可提交配置中写明文。实际创建凭据/扩大范围需运维明确授权；本次代码开发不自行配置生产权限。
+### 服务端保存与旧配置兼容
+
+页面发放的随机令牌以 `oak_mcp_` 开头，使用32随机字节；独立存放在 `RELEASE_STORAGE_ROOT/.mcp/tokens.json`（目录0700，文件0600），仅保存SHA-256摘要、操作/商品范围、创建/撤销人员ID与时间、到期时间。每次MCP请求回读，令牌操作通过单进程队列和原子文件替换持久化。不要将持久目录当作静态站点目录暴露，备份按私密运行数据处理。
+
+独立机器身份不管理管理员或人类账号，不使用浏览器 Cookie 作为 MCP 凭据。页面发放和撤销归当前商城管理员管理；撤销人类账号与撤销机器令牌是不同操作。身份系统迁移未在本任务内完成。
+
+旧 `OAKTECH_MCP_TOKEN` / `OAKTECH_MCP_SCOPES` / `OAKTECH_MCP_PRODUCTS` 环境方式仍兼容，适用于既有部署。该凭据不在页面令牌列表中，页面显示提示；需在部署平台停用或轮换。撤销的页面令牌不会经环境回退重新有效。不把 `OAKTECH_RELEASE_WRITE_TOKEN` 扩展成管理令牌。
+
+界面配置API `/api/admin/mcp`：GET只返回安全摘要；POST创建/撤销需管理员会话、匹配配置站点Origin及自定义头。配置下载 `/api/admin/mcp/config` 同样需要管理员权限。全部响应禁止缓存，返回错误不含秘密值。
 
 ## 一致性与边界
 
@@ -46,8 +56,10 @@
 
 不提供永久删除工具。调用失败返回错误码，避免堆栈/路径/凭据泄漏。写入后审计失败返回 `SAVED_AUDIT_FAILED_READ_BEFORE_RETRY`，应先回读，不能当作未写入。权限和正文校验是实际控制，MCP annotations 只是客户端提示。
 
-继承现有文件目录存储的单进程写队列边界；不宣称跨多实例事务一致性。OAuth、多服务身份管理、细粒度后台授权属于后续能力，不假称已实现。
+继承现有文件目录存储的单进程写队列边界；不宣称跨多实例事务一致性。OAuth 和人类角色体系迁移属于后续能力，不假称已实现。
 
 验证：`node --experimental-strip-types --test tests/store-mcp.test.ts` 使用官方 MCP HTTP 客户端与隔离存储；测试凭据随机生成，仅进程内存在。完整项目另跑 test/typecheck/build/handoff:check。
 
 协议参考：[官方 SDK](https://ts.sdk.modelcontextprotocol.io/server)、[工具注解说明](https://blog.modelcontextprotocol.io/posts/2026-03-16-tool-annotations/)。
+
+UI 验收可执行 `node scripts/preview-mcp-admin.mjs`，它只监听127.0.0.1，使用临时存储与合成测试身份，提供 admin/user 的本地预览入口。禁止在公网主机运行此测试脚本；Ctrl+C结束并清理测试数据。
