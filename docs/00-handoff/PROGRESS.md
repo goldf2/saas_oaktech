@@ -2,7 +2,7 @@
 
 > 不要直接编辑本文件。修改TASKS.json后运行 `npm run handoff:render`。
 
-账本revision：56；更新时间：2026-09-20T09:34:58+08:00；计划版本：1.0.0。
+账本revision：58；更新时间：2026-09-20T10:27:37+08:00；计划版本：1.0.0。
 
 **权限主线任务完成：1/14。这是任务计数，不是代码完成百分比；PLAN-01文档不计入。**
 
@@ -726,7 +726,7 @@
 
 状态：待验收；负责人：Codex；实施：implemented；部署：not_deployed。
 
-下一动作：恢复既有 Coolify 部署通道，并等待用户确认生产 MCP 权限范围
+下一动作：推送0.1.47并核验Coolify镜像构建、公网health与MCP路由
 
 验收条件：
 - MCP 客户端可发现工具并创建修改商品和版本草稿
@@ -736,8 +736,7 @@
 计划文件（可能尚未创建）：`lib/store/mcp-server.ts`、`app/api/mcp/route.ts`、`docs/store-mcp.md`
 
 阻塞：
-- GitHub COOLIFY_WEBHOOK/TOKEN 未配置，部署失败
-- 生产 MCP 权限范围确认待答复
+- 0.1.47已通过本地安装/测试/构建，等待生产部署验证
 
 证据：
 - verification / passed：`docs/00-handoff/evidence/2026-09-20-store-mcp.json`
@@ -747,7 +746,7 @@
 
 状态：待验收；负责人：Codex；实施：implemented；部署：not_deployed。
 
-下一动作：提交推送0.1.46并验证公网；保留本地预览供用户检查
+下一动作：推送0.1.47并核验Coolify镜像构建、公网health与MCP路由
 
 验收条件：
 - 后台管理员可创建与撤销限商品限权限令牌
@@ -756,6 +755,9 @@
 - 普通账号无访问或发放权限，隔离桌面手机页面验收
 
 计划文件（可能尚未创建）：`components/admin/mcp-management.tsx`、`lib/store/mcp-tokens.ts`、`app/api/admin/mcp/route.ts`
+
+阻塞：
+- 0.1.47已通过本地安装/测试/构建，等待生产部署验证
 
 证据：
 - verification / passed：`docs/00-handoff/evidence/2026-09-20-mcp-management.json`

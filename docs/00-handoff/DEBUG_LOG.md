@@ -98,3 +98,8 @@ LANG-01：旧自动Cookie与手动偏好混用造成中文请求跳英文；无�
 ## 2026-09-20T04:45:37.621371+08:00 · IMPORT-02 / BUG-IMPORT-FEED
 
 用户反馈0.6.6.13四文件齐备却发布失败，来源goldf2/open-play-releases。确认0.1.43导入按canonical名称错误选择GitHub专用清单，官网应使用appcast-website.xml/windows-website.json原始字节；发布动作还吞掉OPEN_PLAY错误码。基于891df51，分支fix/open-play-website-import-20260920。下一步修复映射、明确错误与草稿单文件恢复入口，保留签名校验和生产数据。
+
+## 2026-09-20T10:27:15+08:00 DEPLOY-LOCK-20260920-01
+
+用户提供的 Coolify 日志确认已拉取95c9aa9，构建在npm ci失败（缺失Creem的可选peer SDK1.9.0和express-rate-limit7.5.1）。npm10.9.8隔离dry-run复现；重新生成锁文件仅补全这两个嵌套依赖，商城直接SDK仍1.30.0。CI主验证改Node22/npm10.9.8匹配部署；候选0.1.47。没有修改生产变量、权限或商品。
+验证结果与部署收据待补；当前不声称上线成功。

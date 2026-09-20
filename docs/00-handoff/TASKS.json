@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "plan_version": "1.0.0",
-  "revision": 56,
-  "updated_at": "2026-09-20T09:34:58+08:00",
+  "revision": 58,
+  "updated_at": "2026-09-20T10:27:37+08:00",
   "project": "saas_oaktech",
   "source_commit": "54a42b33bc5fc3e9c42541fdd3bdd6fae4700bce",
   "current_next_task": "MCP-02",
@@ -1492,10 +1492,9 @@
         "字段校验、编辑冲突、发布隔离、机器权限检查通过隔离测试",
         "无生产测试商品或自动扩大已有凭据权限"
       ],
-      "next_action": "恢复既有 Coolify 部署通道，并等待用户确认生产 MCP 权限范围",
+      "next_action": "推送0.1.47并核验Coolify镜像构建、公网health与MCP路由",
       "blockers": [
-        "GitHub COOLIFY_WEBHOOK/TOKEN 未配置，部署失败",
-        "生产 MCP 权限范围确认待答复"
+        "0.1.47已通过本地安装/测试/构建，等待生产部署验证"
       ],
       "evidence": [
         {
@@ -1511,7 +1510,7 @@
       ],
       "implementation": "implemented",
       "deployment": "not_deployed",
-      "updated_at": "2026-09-20T08:52:36+08:00"
+      "updated_at": "2026-09-20T10:27:15+08:00"
     },
     {
       "id": "MCP-02",
@@ -1533,8 +1532,10 @@
         "配置下载不含秘密，文档与实际连接测试可用",
         "普通账号无访问或发放权限，隔离桌面手机页面验收"
       ],
-      "next_action": "提交推送0.1.46并验证公网；保留本地预览供用户检查",
-      "blockers": [],
+      "next_action": "推送0.1.47并核验Coolify镜像构建、公网health与MCP路由",
+      "blockers": [
+        "0.1.47已通过本地安装/测试/构建，等待生产部署验证"
+      ],
       "evidence": [
         {
           "path": "docs/00-handoff/evidence/2026-09-20-mcp-management.json",
@@ -1549,7 +1550,7 @@
       ],
       "implementation": "implemented",
       "deployment": "not_deployed",
-      "updated_at": "2026-09-20T09:34:58+08:00"
+      "updated_at": "2026-09-20T10:27:15+08:00"
     }
   ]
 }
