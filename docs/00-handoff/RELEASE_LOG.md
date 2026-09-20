@@ -191,3 +191,11 @@ PUB-01与ec93734紧凑UI完成合并，并按用户新增要求加入DASH-01统�
 ## 2026-09-20T04:31:15.413558+08:00 · IMPORT-01 / 0.1.43
 
 GitHub默认导入、HTTPS链接与本地补齐完成；192单元、类型、默认构建、6组导入和9组发布浏览器验证通过。范围、限制与验收见 `docs/00-handoff/evidence/2026-09-20-release-import.json` 和 `docs/release-import.md`。本轮独立分支 feat/release-import-20260920，未改生产商品或软件。当前尚待推送和公网核验，下一步提交并检查远端、CI与health；部署收据写.local-verification/0.1.43。
+
+## 2026-09-20T06:33:25+08:00 · 0.1.44 发布收据
+
+源码 af318d1 已推送 main。CI 35473332916 测试构建、真实 PostgreSQL 测试成功；部署 job 因未配置 COOLIFY_WEBHOOK/COOLIFY_TOKEN 失败。公网 /api/health 实际返回 200、版本 0.1.44，说明已有另一部署触发生效；具体部署任务来源未核验，不声称 CI 部署成功。实际软件草稿发布尚未进行。
+
+
+## 2026-09-20T08:48:57+08:00 0.1.45 MCP-01
+新增商品/程序版本 MCP；208 tests、typecheck、build、隔离官方客户端通过。推送和生产部署待验证；独立机器凭据未配置，接口默认拒绝访问。

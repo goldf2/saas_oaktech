@@ -2,11 +2,11 @@
 
 > 不要直接编辑本文件。修改TASKS.json后运行 `npm run handoff:render`。
 
-账本revision：51；更新时间：2026-09-20T06:12:22+08:00；计划版本：1.0.0。
+账本revision：53；更新时间：2026-09-20T08:48:57+08:00；计划版本：1.0.0。
 
 **权限主线任务完成：1/14。这是任务计数，不是代码完成百分比；PLAN-01文档不计入。**
 
-生产超管状态：`not_implemented`；唯一下一任务：**IMPORT-02**。
+生产超管状态：`not_implemented`；唯一下一任务：**MCP-01**。
 
 | 任务 | 阶段/类型 | 优先级 | 状态 | 负责人 | 依赖 |
 | --- | --- | --- | --- | --- | --- |
@@ -49,6 +49,7 @@
 | LAYOUT-04 · 视频介绍与详细说明宽屏双栏 | STORE / feature | P1 | 完成 | ChatGPT / tsk_d960de4fd8c35c5d | LAYOUT-03, LANG-02 |
 | IMPORT-01 · GitHub优先的软件版本导入与链接补齐 | M4 / feature | P1 | 完成 | Codex / release-import-20260920 | 无 |
 | IMPORT-02 · 修复open play官网签名清单匹配与发布错误反馈 | M4 / feature | P0 | 进行中 | Codex | IMPORT-01 |
+| MCP-01 · 商品与程序版本管理 MCP | M4 / feature | P1 | 待验收 | Codex | 无 |
 
 ## 任务详情与接续动作
 
@@ -719,3 +720,20 @@
 计划文件（可能尚未创建）：`lib/store/github-assets.ts`、`lib/store/release-errors.ts`、`components/admin/remote-release-import.tsx`、`components/admin/release-file-list.tsx`、`app/admin/products/editor-actions.ts`
 
 证据：尚无该任务完成证据。
+
+### MCP-01 · 商品与程序版本管理 MCP
+
+状态：待验收；负责人：Codex；实施：implemented；部署：not_deployed。
+
+下一动作：提交推送并核验部署；生产服务凭据及客户端接入尚未配置
+
+验收条件：
+- MCP 客户端可发现工具并创建修改商品和版本草稿
+- 字段校验、编辑冲突、发布隔离、机器权限检查通过隔离测试
+- 无生产测试商品或自动扩大已有凭据权限
+
+计划文件（可能尚未创建）：`lib/store/mcp-server.ts`、`app/api/mcp/route.ts`、`docs/store-mcp.md`
+
+证据：
+- verification / passed：`docs/00-handoff/evidence/2026-09-20-store-mcp.json`
+- documentation / passed：`docs/store-mcp.md`

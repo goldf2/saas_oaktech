@@ -1,0 +1,20 @@
+{
+  "task": "MCP-01",
+  "version": "0.1.45",
+  "at": "2026-09-20T08:48:57+08:00",
+  "checks": {
+    "unit_tests": "208 passed",
+    "typecheck": "passed",
+    "production_build": "passed",
+    "official_http_client": "passed against isolated production server; initialize, 11 scoped tools, create/get/patch product, create release, unauthenticated 401"
+  },
+  "tools_total": 13,
+  "production_data_changed": false,
+  "production_credentials_configured": false,
+  "limits": [
+    "public HTTPS import only; local files remain existing UI upload",
+    "no OAuth; explicit Bearer client required",
+    "single-process catalog serialization inherited"
+  ],
+  "deployment": "pending"
+}
