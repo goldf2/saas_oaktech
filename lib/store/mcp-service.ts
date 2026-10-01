@@ -13,6 +13,7 @@ export const productFields = z.object({
   category_slug: slugSchema, status: z.enum(['beta','released','coming-soon']),
   name_zh: short, name_en: short, tagline_zh: short, tagline_en: short,
   description_zh: long, description_en: long, icon_url: short, hero_image_url: short,
+  github_url: short.optional(),
   gallery_urls: z.array(short).max(8), videos: z.array(video).max(6),
   supported_platforms: z.array(z.string().max(80)).max(20), featured: z.boolean(),
 }).strict();

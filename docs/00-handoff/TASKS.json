@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
   "plan_version": "1.0.0",
-  "revision": 58,
-  "updated_at": "2026-09-20T10:27:37+08:00",
+  "revision": 61,
+  "updated_at": "2026-10-01T10:23:12+08:00",
   "project": "saas_oaktech",
   "source_commit": "54a42b33bc5fc3e9c42541fdd3bdd6fae4700bce",
-  "current_next_task": "MCP-02",
+  "current_next_task": "STORE-05",
   "production_admin_bootstrap": "not_implemented",
   "standard": {
     "path": "docs/standards/CT-ADMIN-001-v1.0.0.md",
@@ -1551,6 +1551,50 @@
       "implementation": "implemented",
       "deployment": "not_deployed",
       "updated_at": "2026-09-20T10:27:15+08:00"
+    },
+    {
+      "id": "STORE-05",
+      "title": "商品本站下载入口与GitHub来源链接",
+      "kind": "feature",
+      "milestone": "STORE",
+      "priority": "P0",
+      "status": "in_review",
+      "owner": "ChatGPT / tsk_ab55bd4ce73735d1",
+      "depends_on": [],
+      "planned_files": [
+        "lib/store/product-links.ts",
+        "components/database-product-page.tsx",
+        "components/admin/product-details-editor.tsx",
+        "tests/product-links.test.ts"
+      ],
+      "acceptance": [
+        "本站已发布安装包与GitHub来源入口清晰分开",
+        "商品链接字段可保存预览发布且拒绝危险URL",
+        "现有商品只使用已核实公开仓库，不公开历史软件草稿",
+        "单元类型构建与桌面手机中英文验证并核验部署"
+      ],
+      "next_action": "提交推送0.1.48，核对远端SHA、CI和公网health及四个商品的GitHub入口；真实安装包发布仍由REL-01/REL-02单独跟进",
+      "blockers": [],
+      "evidence": [
+        {
+          "path": "docs/product-download-links.md",
+          "kind": "documentation",
+          "result": "passed"
+        },
+        {
+          "path": "lib/store/product-links.ts",
+          "kind": "implementation",
+          "result": "passed"
+        },
+        {
+          "path": "docs/00-handoff/evidence/2026-10-01-download-links.json",
+          "kind": "verification",
+          "result": "passed"
+        }
+      ],
+      "implementation": "complete_browser_verified",
+      "deployment": "pending_post_commit_verification",
+      "updated_at": "2026-10-01T10:23:12+08:00"
     }
   ]
 }

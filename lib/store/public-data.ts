@@ -1,4 +1,5 @@
 import "server-only";
+import { productGithubUrl } from "./product-links";
 
 import { getProductBySlug, PRODUCTS, type SoftwareProduct } from "@/config/products";
 import { getLegacyGitFinderRelease } from "@/config/gitfinder-release";
@@ -28,6 +29,7 @@ type ProductRow = {
   description_zh: string;
   icon_url: string;
   hero_image_url: string;
+  github_url?: string;
   supported_platforms: string[];
   featured: boolean;
   gallery_urls?: string[];
@@ -77,6 +79,7 @@ function mapProduct(row: ProductRow, locale: Locale): StoreProduct {
     description: localText(row, "description", locale),
     iconUrl: resolveProductIcon(row.slug, row.icon_url),
     heroImageUrl: row.hero_image_url,
+    githubUrl: productGithubUrl(row.slug, row.github_url),
     galleryUrls: row.gallery_urls ?? [],
     videos: row.videos ?? [],
     supportedPlatforms: row.supported_platforms ?? [],
@@ -95,6 +98,7 @@ function fallbackProduct(product: SoftwareProduct): StoreProduct {
     description: product.description,
     iconUrl: product.icon,
     heroImageUrl: product.heroImage,
+    githubUrl: productGithubUrl(product.slug),
     supportedPlatforms: product.platforms,
     featured: product.featured,
   };

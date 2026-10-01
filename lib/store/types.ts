@@ -19,6 +19,7 @@ export type StoreProduct = {
   description: string;
   iconUrl: string;
   heroImageUrl: string;
+  githubUrl?: string;
   galleryUrls?: string[];
   videos?: ProductVideo[];
   supportedPlatforms: string[];
@@ -68,6 +69,7 @@ export type AdminStoreProductRow = {
   description_zh: string;
   icon_url: string;
   hero_image_url: string;
+  github_url?: string;
   gallery_urls?: string[];
   videos?: ProductVideo[];
   supported_platforms: string[];

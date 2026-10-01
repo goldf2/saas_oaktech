@@ -6,6 +6,7 @@ const fields = [
   ['description_zh', '中文详细说明', 'Chinese description'], ['description_en', '英文详细说明', 'English description'],
   ['icon_url', '图标', 'Icon'], ['hero_image_url', '封面', 'Cover'], ['gallery_urls', '产品截图', 'Screenshots'],
   ['videos', '视频介绍', 'Videos'], ['category_slug', '商品类别', 'Category'], ['status', '展示标签', 'Display label'],
+  ['github_url', 'GitHub 地址', 'GitHub URL'],
   ['supported_platforms', '支持平台', 'Platforms'], ['featured', '首页推荐', 'Featured'],
 ] as const;
 

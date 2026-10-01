@@ -22,12 +22,11 @@ type ReleaseMetadata = Pick<AdminProductReleaseRow, "status" | "is_current" | "p
   release_artifacts: { package_kind: string; file_name: string }[];
 };
 
-// Use the same current selection as the existing product page. This does not
-// invent cross-platform current versions or expose draft artifact metadata.
+// Like the detail page, a metadata-only current release does not hide an older
+// published installer. No draft artifacts or external repository links count.
 export function releaseOverview(releases: ReleaseMetadata[]) {
   const published = selectPublishedRows(releases);
-  const current = published.find(release => release.is_current) ?? published[0];
-  return { publishedVersions: published.length, downloadable: Boolean(current?.release_artifacts.some(artifact =>
+  return { publishedVersions: published.length, downloadable: published.some(release => release.release_artifacts.some(artifact =>
     isSoftwareDownload({ packageKind: artifact.package_kind, fileName: artifact.file_name }))) };
 }
 

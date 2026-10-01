@@ -1,0 +1,47 @@
+{
+  "observed_at": "2026-10-01T10:23:12+08:00",
+  "candidate_version": "0.1.48",
+  "base_commit": "5705bef",
+  "environment": "macOS arm64 / Node 24.17.0 / isolated loopback storage",
+  "unit_tests": {
+    "passed": 222,
+    "failed": 0
+  },
+  "typecheck": "passed",
+  "build": "passed (default Next.js Turbopack)",
+  "browser": {
+    "version": "0.1.48",
+    "checks": [
+      "zh 1440px: local installer, exact URL, GitHub source, no draft/metadata leak or overflow",
+      "zh 390px: local installer, exact URL, GitHub source, no draft/metadata leak or overflow",
+      "zh 320px: local installer, exact URL, GitHub source, no draft/metadata leak or overflow",
+      "en 1440px: local installer, exact URL, GitHub source, no draft/metadata leak or overflow",
+      "en 390px: local installer, exact URL, GitHub source, no draft/metadata leak or overflow",
+      "en 320px: local installer, exact URL, GitHub source, no draft/metadata leak or overflow",
+      "browser denies clipboard: the complete URL is selected and manual-copy feedback is truthful",
+      "real bytes download, HEAD and byte ranges pass; even an existing private draft file returns 404",
+      "missing local package keeps verified GitHub source but never invents a first-party installer",
+      "GitHub URL saves/reloads as private draft, explicit product publishing updates it without publishing software",
+      "explicitly clearing the URL removes the GitHub entry"
+    ],
+    "productionWrites": false,
+    "scope": "Disposable loopback catalog; synthetic local session only. Does not install or publish software.",
+    "clipboardResult": "Address selected; copy it manually",
+    "status": "passed",
+    "pageErrors": []
+  },
+  "github_defaults": {
+    "open-play": "goldf2/open-play-releases",
+    "gitfinder-2": "goldf2/GitFinder",
+    "video-prompt-workbench": "goldf2/video-prompt-workbench-releases",
+    "x-tweet-extractor": "goldf2/x-tweet-extractor"
+  },
+  "github_source_verification": "All four repositories read through authorized GitHub metadata and confirmed public; repository links do not assert downloadable releases.",
+  "production_at_commit": "not yet deployed; post-push receipt belongs under .local-verification/download-links",
+  "production_package_writes": false,
+  "limitations": [
+    "Open Play production has no published local installer; this feature does not publish historical software drafts.",
+    "No verified public GitHub source was configured for chanxu-tradingview; its URL is not guessed.",
+    "Clipboard write was denied by the headless test browser; the real manual-selection fallback passed. Successful clipboard writes were not exercised."
+  ]
+}

@@ -78,8 +78,8 @@ test('download summary excludes draft and timestamp-less releases and metadata-o
   const r = release(); r.release_artifacts[0].file_name = 'windows.json'; r.release_artifacts[0].package_kind = 'manifest';
   assert.deepEqual(releaseOverview([r]), { publishedVersions: 1, downloadable: false });
 });
-test('summary follows the current release used by existing detail page rather than advertising another release files', () => {
-  assert.deepEqual(releaseOverview([release({ is_current: false }), release({ id: 'current-no-files', release_artifacts: [] })]), { publishedVersions: 2, downloadable: false });
+test('summary agrees with detail-page fallback to an older published installer', () => {
+  assert.deepEqual(releaseOverview([release({ is_current: false }), release({ id: 'current-no-files', release_artifacts: [] })]), { publishedVersions: 2, downloadable: true });
 });
 test('public summary does not spread unrecognized fields from a public row', () => {
   const p = { slug: 'public-tool', name: '公开', tagline: '描述', iconUrl: '', heroImageUrl: '', description: '', visibility: 'published' as const,

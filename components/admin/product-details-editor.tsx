@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { PlatformPicker } from "./platform-picker";
 import { PRODUCT_CATEGORY_PRESETS, categoryLabel } from "@/lib/store/presentation";
 import { ProductVideoEditor } from "./product-video-editor";
+import { productGithubUrl } from "@/lib/store/product-links";
 import type { AdminStoreProductRow } from "@/lib/store/types";
 import { useLocale } from "@/i18n/locale-provider";
 
@@ -46,6 +47,7 @@ export function ProductDetailsEditor({ value, disabled, existing, update, onUplo
           <label className="text-sm font-medium sm:col-span-2">{zh ? "一句话简介" : "Tagline (Chinese)"}<Input name="tagline_zh" className="mt-1 h-9" value={value.tagline_zh} onChange={e => update("tagline_zh", e.target.value)} /></label>
           <div className="sm:col-span-2"><PlatformPicker value={value.supported_platforms} disabled={disabled} onChange={next => update("supported_platforms", next)} /></div>
           <label className="flex min-h-8 items-center gap-2 self-end text-sm"><input name="featured" className="h-4 w-4 accent-primary" type="checkbox" checked={value.featured} onChange={e => update("featured", e.target.checked)} />{zh ? "首页推荐" : "Featured on home"}</label>
+          <label className="text-sm font-medium sm:col-span-2">{zh ? "GitHub 项目 / 发布地址" : "GitHub repository / releases URL"}<Input name="github_url" type="url" className="mt-1 h-9" maxLength={2048} value={value.github_url ?? productGithubUrl(value.slug)} onChange={e => update("github_url", e.target.value)} placeholder="https://github.com/owner/repo/releases" /><span className="mt-1 block text-xs font-normal leading-5 text-muted-foreground">{zh ? "与商品资料一起保存和发布；清空可移除链接。本站下载地址由“软件版本”中已发布的安装包自动生成，无需手填。" : "Save and publish with product information; clear to remove. Store download URLs are generated automatically from packages published under Software versions."}</span></label>
           <details className="border-t pt-2 sm:col-span-2" data-testid="product-english-fields">
             <summary className="cursor-pointer text-sm font-medium">{zh ? "英文资料" : "English content"} <span className="font-normal text-muted-foreground">· {zh ? "可选" : "optional"}</span></summary>
             <div className="mt-2 grid gap-2"><label className="text-sm">English name<Input name="name_en" className="mt-1 h-9" value={value.name_en} onChange={e => update("name_en", e.target.value)} /></label><label className="text-sm">English tagline<Input name="tagline_en" className="mt-1 h-9" value={value.tagline_en} onChange={e => update("tagline_en", e.target.value)} /></label><p className="text-[11px] leading-4 text-muted-foreground">{zh ? "英文详细说明在页面底部。" : "The English detailed description is at the bottom."}</p></div>

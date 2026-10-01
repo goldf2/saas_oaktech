@@ -140,3 +140,23 @@ test('a product cannot attach unpublished media owned by another product', async
   const expected = await token(p.slug);
   await assert.rejects(() => workspace.saveProductDraft({...p,hero_image_url:image.url},expected),/PRODUCT_IMAGE_SCOPE/);
 });
+
+test('GitHub URL draft stays private, survives old-client saves and can be explicitly removed', async () => {
+  const original=await product(), url='https://github.com/example/software/releases';
+  await workspace.saveProductDraft({...original,github_url:url},await token(original.slug));
+  let data=(await catalogModule.readStoreCatalog()).catalog;
+  assert.equal(data.products[0].github_url,undefined);
+  assert.equal(data.productDrafts?.[original.slug].product.github_url,url);
+  await workspace.saveProductDraft({...original,name_zh:'旧客户端修改'},await token(original.slug));
+  data=(await catalogModule.readStoreCatalog()).catalog;
+  assert.equal(data.productDrafts?.[original.slug].product.github_url,url);
+  await workspace.saveProductDraft({...original,github_url:''},await token(original.slug));
+  assert.equal((await catalogModule.readStoreCatalog()).catalog.productDrafts?.[original.slug].product.github_url,'');
+});
+
+test('dangerous product URLs reject before draft mutation', async () => {
+  const original=await product();
+  const snapshot=JSON.stringify((await catalogModule.readStoreCatalog()).catalog);
+  await assert.rejects(()=>workspace.saveProductDraft({...original,github_url:'javascript:alert(1)'},''),/PRODUCT_GITHUB_URL_INVALID/);
+  assert.equal(JSON.stringify((await catalogModule.readStoreCatalog()).catalog),snapshot);
+});

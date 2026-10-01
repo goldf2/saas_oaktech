@@ -1,4 +1,5 @@
 import { Download, Laptop, ShieldCheck } from "lucide-react";
+import { DownloadAddress } from "@/components/download-address";
 import { platformLabel } from "@/lib/store/presentation";
 import { cn } from "@/lib/utils";
 import type { Locale, ReleaseArtifact } from "@/lib/store/types";
@@ -66,6 +67,7 @@ export function StoreDownloadCard({
         {labels.download} {platform}
         <Download className="h-4 w-4" aria-hidden="true" />
       </a>
+      <DownloadAddress path={artifact.publicPath} locale={locale} />
     </article>
   );
 }

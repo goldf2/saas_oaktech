@@ -1,5 +1,6 @@
 "use client";
 import { releaseErrors } from "@/lib/store/release-errors";
+import { productGithubUrl } from "@/lib/store/product-links";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -29,7 +30,7 @@ function blankProduct(): AdminStoreProductRow {
 }
 function previewProduct(p: AdminStoreProductRow, locale: Locale): StoreProduct {
   const local = (en: string, zh: string) => locale === "en" ? en || zh : zh;
-  return { id: p.id, slug: p.slug, name: local(p.name_en, p.name_zh) || (locale === "zh" ? "未命名商品" : "Untitled product"), tagline: local(p.tagline_en, p.tagline_zh), description: local(p.description_en, p.description_zh), status: p.status, visibility: "draft", categorySlug: p.category_slug, iconUrl: p.icon_url, heroImageUrl: p.hero_image_url, galleryUrls: p.gallery_urls ?? [], videos: p.videos ?? [], supportedPlatforms: p.supported_platforms, featured: p.featured };
+  return { id: p.id, slug: p.slug, name: local(p.name_en, p.name_zh) || (locale === "zh" ? "未命名商品" : "Untitled product"), tagline: local(p.tagline_en, p.tagline_zh), description: local(p.description_en, p.description_zh), status: p.status, visibility: "draft", categorySlug: p.category_slug, iconUrl: p.icon_url, heroImageUrl: p.hero_image_url, githubUrl: productGithubUrl(p.slug, p.github_url), galleryUrls: p.gallery_urls ?? [], videos: p.videos ?? [], supportedPlatforms: p.supported_platforms, featured: p.featured };
 }
 function previewReleases(rows: AdminProductReleaseRow[], locale: Locale): ProductRelease[] {
   return rows.map(row => ({ id: row.id, productSlug: row.product_slug, version: row.version, channel: row.channel, status: row.status, isCurrent: row.is_current, publishedAt: row.published_at ?? undefined, title: locale === "en" ? row.title_en || row.title_zh : row.title_zh, notes: locale === "en" ? row.notes_en || row.notes_zh : row.notes_zh, artifacts: [] }));
@@ -130,12 +131,13 @@ export function ProductWorkspace({ product = blankProduct(), editToken = "", pub
     try {
       const form = new FormData();
       for (const key of ["id", "slug", "category_slug", "status", "name_en", "name_zh", "tagline_en", "tagline_zh", "description_en", "description_zh", "icon_url", "hero_image_url"] as const) form.set(key, value[key]);
+      if (value.github_url !== undefined) form.set("github_url", value.github_url);
       form.set("gallery_urls", JSON.stringify(value.gallery_urls ?? []));
       form.set("videos", JSON.stringify(value.videos ?? []));
       form.set("supported_platforms", value.supported_platforms.join(","));
       form.set("featured", value.featured ? "on" : ""); form.set("edit_token", tokens.edit);
       const result = await saveWorkspaceAction(form);
-      if (!result.ok) { setError(zh ? (result.error ?? "草稿保存失败") : "The product draft could not be saved."); return; }
+      if (!result.ok) { setError(zh ? (result.error ?? "草稿保存失败") : result.code === "PRODUCT_GITHUB_URL_INVALID" ? "Use an HTTPS GitHub repository or release URL without credentials, query parameters or fragments." : "The product draft could not be saved."); return; }
       dirtyRef.current = false;
       setSaved(JSON.stringify(value));
       setPendingProductDraft(true);
