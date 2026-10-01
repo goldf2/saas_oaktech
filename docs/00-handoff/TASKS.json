@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "plan_version": "1.0.0",
-  "revision": 61,
-  "updated_at": "2026-10-01T10:23:12+08:00",
+  "revision": 63,
+  "updated_at": "2026-10-01T02:32:18+00:00",
   "project": "saas_oaktech",
   "source_commit": "54a42b33bc5fc3e9c42541fdd3bdd6fae4700bce",
   "current_next_task": "STORE-05",
@@ -1559,13 +1559,16 @@
       "milestone": "STORE",
       "priority": "P0",
       "status": "in_review",
-      "owner": "ChatGPT / tsk_ab55bd4ce73735d1",
+      "owner": "ChatGPT / tsk_9240d62fe0d3e54f (review after 5807556)",
       "depends_on": [],
       "planned_files": [
         "lib/store/product-links.ts",
         "components/database-product-page.tsx",
         "components/admin/product-details-editor.tsx",
-        "tests/product-links.test.ts"
+        "tests/product-links.test.ts",
+        "app/admin/actions.ts",
+        "tests/product-link-regression.test.ts",
+        "scripts/verify-product-links.mjs"
       ],
       "acceptance": [
         "本站已发布安装包与GitHub来源入口清晰分开",
@@ -1573,7 +1576,7 @@
         "现有商品只使用已核实公开仓库，不公开历史软件草稿",
         "单元类型构建与桌面手机中英文验证并核验部署"
       ],
-      "next_action": "提交推送0.1.48，核对远端SHA、CI和公网health及四个商品的GitHub入口；真实安装包发布仍由REL-01/REL-02单独跟进",
+      "next_action": "推送0.1.49后核验GitHub运行结果和公网实际版本/链接；保留真实无安装包与未配置来源的提示",
       "blockers": [],
       "evidence": [
         {
@@ -1590,11 +1593,21 @@
           "path": "docs/00-handoff/evidence/2026-10-01-download-links.json",
           "kind": "verification",
           "result": "passed"
+        },
+        {
+          "kind": "implementation",
+          "path": "app/admin/actions.ts",
+          "result": "passed"
+        },
+        {
+          "kind": "verification",
+          "path": "docs/00-handoff/evidence/2026-10-01-download-links-review.json",
+          "result": "passed"
         }
       ],
-      "implementation": "complete_browser_verified",
-      "deployment": "pending_post_commit_verification",
-      "updated_at": "2026-10-01T10:23:12+08:00"
+      "implementation": "0.1.49_locally_verified",
+      "deployment": "0.1.49_pending_push_and_live_verification",
+      "updated_at": "2026-10-01T02:32:18+00:00"
     }
   ]
 }

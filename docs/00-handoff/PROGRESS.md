@@ -2,7 +2,7 @@
 
 > 不要直接编辑本文件。修改TASKS.json后运行 `npm run handoff:render`。
 
-账本revision：61；更新时间：2026-10-01T10:23:12+08:00；计划版本：1.0.0。
+账本revision：63；更新时间：2026-10-01T02:32:18+00:00；计划版本：1.0.0。
 
 **权限主线任务完成：1/14。这是任务计数，不是代码完成百分比；PLAN-01文档不计入。**
 
@@ -51,7 +51,7 @@
 | IMPORT-02 · 修复open play官网签名清单匹配与发布错误反馈 | M4 / feature | P0 | 进行中 | Codex | IMPORT-01 |
 | MCP-01 · 商品与程序版本管理 MCP | M4 / feature | P1 | 待验收 | Codex | 无 |
 | MCP-02 · MCP 接入页面与独立令牌管理 | M4 / feature | P1 | 待验收 | Codex | 无 |
-| STORE-05 · 商品本站下载入口与GitHub来源链接 | STORE / feature | P0 | 待验收 | ChatGPT / tsk_ab55bd4ce73735d1 | 无 |
+| STORE-05 · 商品本站下载入口与GitHub来源链接 | STORE / feature | P0 | 待验收 | ChatGPT / tsk_9240d62fe0d3e54f (review after 5807556) | 无 |
 
 ## 任务详情与接续动作
 
@@ -766,9 +766,9 @@
 
 ### STORE-05 · 商品本站下载入口与GitHub来源链接
 
-状态：待验收；负责人：ChatGPT / tsk_ab55bd4ce73735d1；实施：complete_browser_verified；部署：pending_post_commit_verification。
+状态：待验收；负责人：ChatGPT / tsk_9240d62fe0d3e54f (review after 5807556)；实施：0.1.49_locally_verified；部署：0.1.49_pending_push_and_live_verification。
 
-下一动作：提交推送0.1.48，核对远端SHA、CI和公网health及四个商品的GitHub入口；真实安装包发布仍由REL-01/REL-02单独跟进
+下一动作：推送0.1.49后核验GitHub运行结果和公网实际版本/链接；保留真实无安装包与未配置来源的提示
 
 验收条件：
 - 本站已发布安装包与GitHub来源入口清晰分开
@@ -776,9 +776,11 @@
 - 现有商品只使用已核实公开仓库，不公开历史软件草稿
 - 单元类型构建与桌面手机中英文验证并核验部署
 
-计划文件（可能尚未创建）：`lib/store/product-links.ts`、`components/database-product-page.tsx`、`components/admin/product-details-editor.tsx`、`tests/product-links.test.ts`
+计划文件（可能尚未创建）：`lib/store/product-links.ts`、`components/database-product-page.tsx`、`components/admin/product-details-editor.tsx`、`tests/product-links.test.ts`、`app/admin/actions.ts`、`tests/product-link-regression.test.ts`、`scripts/verify-product-links.mjs`
 
 证据：
 - documentation / passed：`docs/product-download-links.md`
 - implementation / passed：`lib/store/product-links.ts`
 - verification / passed：`docs/00-handoff/evidence/2026-10-01-download-links.json`
+- implementation / passed：`app/admin/actions.ts`
+- verification / passed：`docs/00-handoff/evidence/2026-10-01-download-links-review.json`

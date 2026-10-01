@@ -31,9 +31,9 @@ export function DatabaseProductPage({ product, releases, locale, preview = false
           <div className="min-w-0"><p className="app-category-label">{categoryLabel(product.categorySlug, locale)}</p><h1 className="app-product-title">{product.name}</h1><p className="app-product-subtitle">{product.tagline}</p><span className="app-stage-badge">{status}</span></div>
         </div>
         <div className="app-get-area">
-          {downloads.length ? <a href="#downloads" className="app-get-button"><Download className="h-4 w-4" />{zh ? '本站下载' : 'Download from store'}</a> : <span className="app-get-unavailable"><PackageOpen className="h-4 w-4" />{preview ? zh ? '预览中不可下载' : 'Downloads disabled in preview' : zh ? '暂无下载' : 'Not available yet'}</span>}
+          {downloads.length ? <a href="#downloads" className="app-get-button"><Download className="h-4 w-4" />{zh ? '本站下载' : 'Download from store'}</a> : <span className="app-get-unavailable"><PackageOpen className="h-4 w-4" />{preview ? zh ? '预览中不可下载' : 'Downloads disabled in preview' : zh ? '本站暂无安装包' : 'No store installer yet'}</span>}
           {!preview && githubUrl && <a data-testid="product-github-link" href={githubUrl} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex items-center justify-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium"><Github className="h-4 w-4" />{githubLabel}<ArrowUpRight className="h-4 w-4" /></a>}
-          <p>{downloads.length ? zh ? `${downloads.length} 个可下载安装包` : `${downloads.length} downloadable packages` : zh ? '可以先了解商品介绍' : 'Explore the app below'}</p>
+          <p>{downloads.length ? zh ? `${downloads.length} 个可下载安装包` : `${downloads.length} downloadable packages` : githubUrl && !preview ? (zh ? '可前往 GitHub 查看公开版本' : 'Check GitHub for public releases') : (zh ? '可以先了解商品介绍' : 'Explore the app below')}</p>
         </div>
       </section>
       <dl className="app-facts-strip">

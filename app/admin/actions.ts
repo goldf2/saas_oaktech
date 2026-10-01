@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { appendStoreAudit, mutateStoreCatalog, newCatalogId } from "@/lib/store/file-catalog";
 import { isManagedAssetUrl, isReleaseVersion, isStoreSlug } from "@/lib/store/policy";
+import { normalizeProductGithubUrl } from "@/lib/store/product-links";
 import { requireStoreAdmin } from "@/lib/store/admin";
 import { prepareUpdaterManifests, removeStoredFile } from "@/lib/store/storage";
 import type { AdminActionResult, AdminProductReleaseRow, AdminStoreProductRow, ProductStatus } from "@/lib/store/types";
@@ -17,6 +18,7 @@ const actionMessages: Record<string, string> = {
   INVALID_PRODUCT_STATUS: "请选择有效的商品状态。",
   INVALID_PRODUCT_VISIBILITY: "请选择草稿或公开状态。",
   INVALID_PRODUCT_ASSET_URL: "图片地址必须是本站路径或 HTTPS 地址。",
+  PRODUCT_GITHUB_URL_INVALID: "请填写有效的 HTTPS GitHub 仓库或发布页地址，不能包含账号密码、查询参数或片段。",
   BILINGUAL_PRODUCT_CONTENT_REQUIRED: "请填写完整的中英文商品内容。",
   STORE_PRODUCT_NOT_FOUND: "商品不存在，请刷新后重试。",
   STORE_PRODUCT_SLUG_EXISTS: "该商品标识已存在，请编辑已有商品或使用新的标识。",
@@ -103,6 +105,7 @@ export async function saveProductAction(formData: FormData): Promise<AdminAction
       description_zh: text(formData, "description_zh"),
       icon_url: iconUrl,
       hero_image_url: heroImageUrl,
+      github_url: formData.has("github_url") ? normalizeProductGithubUrl(text(formData, "github_url")) : undefined,
       supported_platforms: text(formData, "supported_platforms").split(",").map((item) => item.trim()).filter(Boolean),
       featured: formData.get("featured") === "on",
     };
@@ -111,7 +114,11 @@ export async function saveProductAction(formData: FormData): Promise<AdminAction
       if (existingId && index < 0) throw new Error("STORE_PRODUCT_NOT_FOUND");
       if (index >= 0 && catalog.products[index].slug !== slug) throw new Error("PRODUCT_SLUG_IMMUTABLE");
       if (catalog.products.some((item) => item.slug === slug && item.id !== existingId)) throw new Error("STORE_PRODUCT_SLUG_EXISTS");
-      if (index >= 0) catalog.products[index] = product;
+      if (index >= 0) {
+        // Cached forms omit new fields; an explicit empty value still removes the link.
+        if (!formData.has("github_url")) product.github_url = catalog.products[index].github_url;
+        catalog.products[index] = product;
+      }
       else catalog.products.push(product);
     });
     await appendStoreAudit({ actorUserId: admin.id, actorEmail: admin.email, action: "store.product.saved", targetType: "store_product", targetId: product.id, metadata: { slug, visibility, status } });

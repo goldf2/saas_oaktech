@@ -1,0 +1,67 @@
+{
+  "observed_at": "2026-10-01T02:32:18+00:00",
+  "candidate_version": "0.1.49",
+  "base_commit": "58075566236fc9c8d613e484fb1c4ee70aaa6aea",
+  "environment": {
+    "node": "v26.9.0",
+    "platform": "macOS arm64",
+    "storage": "disposable loopback fixtures only"
+  },
+  "unit_tests": {
+    "passed": 226,
+    "failed": 0
+  },
+  "typecheck": "passed",
+  "build": "passed (default Next.js Turbopack)",
+  "browser_suites": {
+    "link_review": {
+      "passed": 15,
+      "checks": [
+        "zh/1440: two real local hrefs, GitHub, older public installer fallback, no private/metadata download or overflow",
+        "zh/390: two real local hrefs, GitHub, older public installer fallback, no private/metadata download or overflow",
+        "zh/320: two real local hrefs, GitHub, older public installer fallback, no private/metadata download or overflow",
+        "en/1440: two real local hrefs, GitHub, older public installer fallback, no private/metadata download or overflow",
+        "en/390: two real local hrefs, GitHub, older public installer fallback, no private/metadata download or overflow",
+        "en/320: two real local hrefs, GitHub, older public installer fallback, no private/metadata download or overflow",
+        "complete copyable store URLs, copy handler and clipboard-denied manual selection verified without changing the OS clipboard",
+        "download GET bytes, attachment, HEAD and Range verified; draft artifact and draft product remain 404",
+        "zh: GitHub-only and unconfigured products have truthful empty states, not fabricated links",
+        "en: GitHub-only and unconfigured products have truthful empty states, not fabricated links",
+        "editor saves a private GitHub draft; preview shows that URL without downloads or publication",
+        "explicit product publication updates the public link without changing software releases",
+        "invalid GitHub host is rejected by the real editor and does not mutate the catalog",
+        "clearing and publishing removes even a known-product default GitHub link",
+        "no browser runtime or hydration errors"
+      ]
+    },
+    "storefront": {
+      "passed": 11,
+      "checks": [
+        "zh desktop and mobile show only Products and Support, retaining the account entry",
+        "en desktop and mobile show only Products and Support, retaining the account entry",
+        "live catalog filters search, use categories and platform independently, with no private-product leak",
+        "compact app overview, screenshots and auto-loaded video display without inventing downloads or ratings",
+        "screenshot gallery opens, supports arrow-key navigation, closes with Escape and remains separate from downloads",
+        "public detail retains readable typography and no horizontal page overflow at 320, 390, 768 and 1440 pixels",
+        "dark appearance and localized English product information use the same renderer",
+        "predefined multiselect saves and reloads while preserving unknown legacy platforms and isolating the public record",
+        "shared mobile preview and explicit product publish expose chosen platforms and title-free video without software packages",
+        "platform edits survive tab switches without saving or changing published compatibility; mobile picker wraps without overflow",
+        "new category routes and mobile catalog work with real public records and no client runtime errors"
+      ]
+    },
+    "upstream_download_links": {
+      "passed": 11
+    }
+  },
+  "regressions_reproduced_before_fix": [
+    "legacy cached form erased a published github_url",
+    "legacy explicit invalid github_url was ignored instead of rejected",
+    "current metadata-only release incorrectly marked old public installers unavailable (independently fixed and retained from upstream 5807556)"
+  ],
+  "publication_boundary": "No production product or software package was saved, imported or published; all browser writes used temporary fixture catalogs.",
+  "clipboard_scope": "The successful copy handler was verified with an in-page mock; real clipboard-denied manual selection was verified. No OS clipboard success or real installer execution is claimed.",
+  "integration": "Preserves all upstream 0.1.48 changes; adds only legacy-link preservation/validation, clearer no-local-package copy, four regression tests and the extended browser suite.",
+  "production_at_commit": "Pending 0.1.49 push and separate live verification; public 0.1.48 GitHub entry was observed.",
+  "post_push_receipt": ".local-verification/download-links/production-0.1.49/receipt.json"
+}
